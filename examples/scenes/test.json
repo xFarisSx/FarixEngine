@@ -1,0 +1,324 @@
+{
+  "activeCamera": 2,
+  "entities": [
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "MaterialComponent": {
+          "ambient": 0.10000000149011612,
+          "baseColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "shininess": 32.0,
+          "specular": 0.5,
+          "texture": "",
+          "useTexture": false
+        },
+        "MeshComponent": {
+          "mesh": "",
+          "size": {
+            "x": 1.0,
+            "y": 2.0,
+            "z": 1.0
+          },
+          "sphereData": {
+            "x": 1.0,
+            "y": 16.0,
+            "z": 32.0
+          },
+          "type": "Box"
+        },
+        "Metadata": {
+          "name": "Box",
+          "prefab": "",
+          "tags": [
+            "Obstacle"
+          ],
+          "uuid": "15066682-a89c-4944-88ee-11ba07b246ad"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 4.0,
+            "y": 2.0,
+            "z": 1.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 1
+    },
+    {
+      "components": {
+        "CameraComponent": {
+          "aspectRatio": 1.7777777910232544,
+          "farPlane": 30.0,
+          "fov": 1.5707963705062866,
+          "nearPlane": 1.0
+        },
+        "CameraControllerComponent": {
+          "active": true,
+          "sens": 0.5,
+          "speed": 5.0
+        },
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "Metadata": {
+          "name": "GameObject",
+          "prefab": "",
+          "tags": [],
+          "uuid": "5eb455c0-f95a-4cea-b476-00b8d8400bc6"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": -5.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 2
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "MaterialComponent": {
+          "ambient": 0.10000000149011612,
+          "baseColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "shininess": 32.0,
+          "specular": 0.5,
+          "texture": "assets/textures/textcat1.bmp",
+          "useTexture": true
+        },
+        "MeshComponent": {
+          "mesh": "assets/models/cat.obj",
+          "size": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "sphereData": {
+            "x": 1.0,
+            "y": 16.0,
+            "z": 32.0
+          },
+          "type": "Obj"
+        },
+        "Metadata": {
+          "name": "GameObject",
+          "prefab": "",
+          "tags": [],
+          "uuid": "da301b0e-4690-4c6d-84d4-0c01188d4e0c"
+        },
+        "ScriptComponent": {
+          "script": "Rotator"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 0.009999999776482582,
+            "y": 0.009999999776482582,
+            "z": 0.009999999776482582
+          }
+        }
+      },
+      "id": 3
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "MaterialComponent": {
+          "ambient": 0.10000000149011612,
+          "baseColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "shininess": 32.0,
+          "specular": 0.5,
+          "texture": "",
+          "useTexture": false
+        },
+        "MeshComponent": {
+          "mesh": "",
+          "size": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "sphereData": {
+            "x": 1.0,
+            "y": 16.0,
+            "z": 32.0
+          },
+          "type": "Sphere"
+        },
+        "Metadata": {
+          "name": "GameObject",
+          "prefab": "",
+          "tags": [],
+          "uuid": "06129084-1709-461a-b157-85f36ce0b3fc"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 4
+    }
+  ],
+  "name": "main"
+}
