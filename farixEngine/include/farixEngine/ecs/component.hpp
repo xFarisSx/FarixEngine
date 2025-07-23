@@ -1,36 +1,16 @@
 #pragma once
 
-#include <SDL2/SDL.h>
 
-#include "farixEngine/thirdparty/nlohmann/json.hpp"
 #include <cstdint>
 #include <functional>
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
+#include <iostream>
 
 namespace farixEngine {
 class World;
-using json = nlohmann::json;
 using Entity = uint32_t;
-
-struct ComponentSerializer {
-  std::function<json(World &, Entity)> to_json;
-  std::function<void(World &, Entity, const json &)> from_json;
-  std::function<bool(World &, Entity)> has;
-};
-
-class ComponentSerializerRegistry {
-  std::unordered_map<std::string, ComponentSerializer> serializers;
-
-public:
-  void registerSerializer(const std::string &name,
-                          const ComponentSerializer &serializer);
-  bool hasSerializer(const std::string &name) const;
-  const ComponentSerializer &getSerializer(const std::string &name) const;
-  const std::unordered_map<std::string, ComponentSerializer> &getAll() const;
-};
-
 struct IComponentStorage {
   virtual ~IComponentStorage() = default;
   virtual void clear() = 0;
@@ -55,37 +35,28 @@ class ComponentManager {
 private:
   std::unordered_map<std::type_index, std::shared_ptr<IComponentStorage>>
       storages;
-  ComponentSerializerRegistry serializerRegistry;
+
 
 public:
+
   template <typename T>
-  void registerComponent(
-      const std::string &name, std::function<json(World &, Entity)> to_json,
-      std::function<void(World &, Entity, const json &)> from_json);
+  void registerComponent();
+
 
   template <typename T> ComponentStorage<T> &getStorage();
 
   template <typename T> const ComponentStorage<T> &getStorage() const;
+  template <typename T> bool hasStorage();
 
-  ComponentSerializerRegistry &getSerializerRegistry();
-  const ComponentSerializerRegistry &getSerializerRegistry() const;
+
 
   void clearStorages();
 };
 // MANAGER
 template <typename T>
-void ComponentManager::registerComponent(
-    const std::string &name, std::function<json(World &, Entity)> to_json,
-    std::function<void(World &, Entity, const json &)> from_json) {
+void ComponentManager::registerComponent() {
   std::type_index type = std::type_index(typeid(T));
   storages[type] = std::make_shared<ComponentStorage<T>>();
-
-  auto has_component = [this](World &world, Entity e) {
-    return this->getStorage<T>().has(e);
-  };
-
-  ComponentSerializer c{to_json, from_json, has_component};
-  serializerRegistry.registerSerializer(name, c);
 }
 
 template <typename T> ComponentStorage<T> &ComponentManager::getStorage() {
@@ -102,6 +73,15 @@ const ComponentStorage<T> &ComponentManager::getStorage() const {
   }
 
   return *std::static_pointer_cast<ComponentStorage<T>>(it->second);
+}
+
+template <typename T> bool ComponentManager::hasStorage(){
+  std::type_index type = std::type_index(typeid(T));
+  auto it = storages.find(type);
+
+  
+  return !(it == storages.end());
+
 }
 
 // STORAGE

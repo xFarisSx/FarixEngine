@@ -6,17 +6,20 @@
 
 #include "farixEngine/API/gameObject.hpp"
 
+#include "farixEngine/API/gameWorld.hpp"
 #include "farixEngine/core/world.hpp"
 
 namespace farixEngine {
 
 class Script {
-protected:
+private:
   uint32_t entityId = 0;
   World *world = nullptr;
 
+
 public:
   std::string name = "Script";
+
   Script(const std::string &scriptName) : name(scriptName) {}
 
   virtual ~Script() = default;
@@ -26,13 +29,14 @@ public:
   virtual void update(float dt) {}
 
   void setContext(uint32_t id, World *w);
-  GameObject getGameObject() { return GameObject(*world, entityId); }
 
   template <typename T> T &getComponent();
+  GameObject getGameObject();
+  GameWorld getGameWorld();
 };
 
 template <typename T> T &Script::getComponent() {
   return world->template getComponent<T>(entityId);
 }
 
-} // namespace farixEngine 
+} // namespace farixEngine

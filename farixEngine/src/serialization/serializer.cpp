@@ -1,4 +1,5 @@
 #include "farixEngine/serialization/serializer.hpp"
+#include "farixEngine/core/engineRegistry.hpp"
 #include "farixEngine/core/world.hpp"
 #include "farixEngine/thirdparty/nlohmann/json.hpp"
 #include <fstream>
@@ -25,7 +26,8 @@ void Serializer::saveScene(Scene *scene, const std::string &filepath) {
     entityJson["id"] = static_cast<uint32_t>(e);
 
     json componentsJson;
-    for (const auto &[componentName, serializer] : world.getSerializers()) {
+    for (const auto &[componentName, serializer] :
+         EngineRegistry::get().getSerializerRegistry().getAll()) {
       if (serializer.has(world, e)) {
         componentsJson[componentName] = serializer.to_json(world, e);
       }
@@ -60,7 +62,7 @@ void Serializer::loadScene(Scene *scene, const std::string &filepath) {
   }
 
   World &world = scene->world();
-  auto &serializers = world.getSerializers();
+  auto &serializers = EngineRegistry::get().getSerializerRegistry().getAll();
 
   world.clearStorages();
 

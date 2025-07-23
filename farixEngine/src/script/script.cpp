@@ -3,8 +3,16 @@
 
 namespace farixEngine {
 void Script::setContext(uint32_t id, World *w) {
-  entityId = id;
+  entityId = id; 
   world = w;
+
 }
 
-} // namespace farixEngine  
+  GameObject Script::getGameObject(){
+  return GameObject(*world, entityId);
+}
+  GameWorld Script::getGameWorld(){
+  return GameWorld(*world);
+}
+
+} // namespace farixEngine 

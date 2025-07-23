@@ -1,7 +1,9 @@
 
 
 #include "farixEngine/API/gameObject.hpp"
+#include "farixEngine/API/gameWorld.hpp"
 #include "farixEngine/components/components.hpp"
+#include "farixEngine/script/script.hpp"
 
 namespace farixEngine {
 
@@ -19,7 +21,7 @@ Entity GameObject::getEntity() const { return entity; }
 void GameObject::setMesh(const std::shared_ptr<Mesh> &mesh) {
   if (!isValid())
     return;
- 
+
   MeshComponent m;
   m.mesh = mesh;
   if (world->hasComponent<MeshComponent>(entity)) {
@@ -39,10 +41,11 @@ void GameObject::setMaterial(const MaterialComponent &material) {
     world->addComponent<MaterialComponent>(entity, material);
   }
 }
- 
+
 void GameObject::addScript(const std::shared_ptr<Script> &script) {
   if (!isValid())
     return;
+
   world->addScript(entity, script);
 }
 

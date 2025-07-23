@@ -18,3 +18,4 @@
 #include "farixEngine/systems/systems.hpp"
 #include "farixEngine/utils/uuid.hpp"
 #include "farixEngine/application/application.hpp" 
+#include "farixEngine/core/engineRegistry.hpp"

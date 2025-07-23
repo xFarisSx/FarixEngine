@@ -5,8 +5,8 @@
 using namespace farixEngine;
 
 class Rotator : public Script {
-  TransformComponent* transform = nullptr;
-  EngineContext* ctx = nullptr;
+  TransformComponent *transform = nullptr;
+  EngineContext *ctx = nullptr;
 
 public:
   Rotator() : Script("Rotator") {}
@@ -14,7 +14,7 @@ public:
   void start() override {
     auto obj = getGameObject();
     transform = &obj.getComponent<TransformComponent>();
-    ctx = world->getContext();
+    ctx = getGameWorld().getContext();
   }
 
   void update(float dt) override {
@@ -29,4 +29,3 @@ public:
   void onStart() override;
   void onUpdate(float dt) override;
 };
-

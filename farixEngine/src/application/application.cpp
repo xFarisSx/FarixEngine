@@ -1,4 +1,5 @@
 #include "farixEngine/application/application.hpp"
+#include "farixEngine/core/engineRegistry.hpp"
 #include <chrono>
 
 namespace farixEngine {
@@ -6,7 +7,7 @@ namespace farixEngine {
 void Application::run(int width, int height, const char *title) {
   engine.init(width, height, title);
   sceneManager.setContext(engine.getContext());
-
+  EngineRegistry::get().registerDefaults();
 
   onStart();
   sceneManager.currentScene()->world().startSystems();

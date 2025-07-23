@@ -52,14 +52,7 @@ public:
   void setContext(EngineContext *context);
   EngineContext *getContext() const;
 
-  template <typename T>
-  void registerComponent(
-      const std::string &name,
-      std::function<nlohmann::json(World &, Entity)> to_json,
-      std::function<void(World &, Entity, const nlohmann::json &)> from_json);
-
-  const std::unordered_map<std::string, ComponentSerializer> &
-  getSerializers() const;
+  template <typename T> void registerComponent();
 
   void loadScene(const std::string &filepath);
   void saveScene(const std::string &filepath);
@@ -84,8 +77,6 @@ public:
 
   void addScript(uint32_t entity, ScriptPtr script);
 
-  template <typename T> void registerScript(const std::string &name);
-
   const std::vector<Entity> &getEntities() const;
 
   template <typename... Tags>
@@ -104,13 +95,14 @@ public:
   template <typename... Tags> void removeTags(Entity entity, Tags &&...tags);
   template <typename... Tags> bool hasTags(Entity entity, Tags &&...tags) const;
 
+  ComponentManager &getComponentManager();
+
 private:
   std::vector<Entity> entities;
   Entity _nextEntity = 1;
   Entity _cameraE = 0;
   ComponentManager componentManager;
   SystemManager systemManager;
-  ScriptRegistry scriptRegistry;
   EngineContext *context = nullptr;
 };
 
@@ -138,16 +130,9 @@ bool World::hasTags(Entity entity, Tags &&...tags) const {
   return (hasTag(entity, std::forward<Tags>(tags)) && ...);
 }
 
-template <typename T> void World::registerScript(const std::string &name) {
-  scriptRegistry.registerScript<T>(name);
-}
-
-template <typename T>
-void World::registerComponent(
-    const std::string &name,
-    std::function<nlohmann::json(World &, Entity)> to_json,
-    std::function<void(World &, Entity, const nlohmann::json &)> from_json) {
-  componentManager.registerComponent<T>(name, to_json, from_json);
+template <typename T> void World::registerComponent() {
+  if(!componentManager.hasStorage<T>())
+  componentManager.registerComponent<T>();
 }
 
 template <typename T>

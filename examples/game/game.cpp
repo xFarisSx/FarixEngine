@@ -1,7 +1,6 @@
 
 #include "game.hpp"
 
-
 void setupScene(GameWorld &gameWorld) {
   // Create a box object
   auto box = gameWorld.createGameObject();
@@ -41,16 +40,17 @@ void setupScene(GameWorld &gameWorld) {
 }
 
 void Game::onStart() {
+  // Register scripts here so GameWorld can instantiate by name
+  EngineRegistry::get().getScriptRegistry().registerScript<Rotator>("Rotator");
 
   Scene &mainScene = sceneManager.createScene("main");
-  mainScene.gameWorld().registerScript<Rotator>("Rotator");
-
+  // Setup the scene programmatically
   setupScene(*sceneManager.currentGameWorld());
 
-  sceneManager.saveCurrentScene("scenes/test.json");
+  // sceneManager.saveCurrentScene("scenes/test.json");
 
-  //sceneManager.loadSceneFromFile("scenes/test.json");
+  // sceneManager.loadSceneFromFile("scenes/test.json");
+  // sceneManager.saveCurrentScene("scenes/test.json");
 }
 
-void Game::onUpdate(float dt) {
-}
+void Game::onUpdate(float dt) {}

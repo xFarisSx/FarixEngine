@@ -1,6 +1,7 @@
 
 
 #include "farixEngine/API/gameWorld.hpp"
+#include "farixEngine/core/engineContext.hpp"
 
 namespace farixEngine {
 
@@ -39,7 +40,9 @@ GameWorld::getGameObjectsByName(const std::string &name) {
 void GameWorld::setCamera(const GameObject &camera) {
   _world.setCameraEntity(camera.getEntity());
 }
-
+EngineContext* GameWorld::getContext(){
+  return _world.getContext();
+}
 GameObject GameWorld::getCamera() {
   Entity camEntity = _world.getCamera();
   if (camEntity == 0) {

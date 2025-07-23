@@ -2,6 +2,7 @@
 #pragma once
 
 #include "farixEngine/API/gameObject.hpp"
+#include "farixEngine/core/engineContext.hpp"
 #include "farixEngine/core/world.hpp"
 #include <memory>
 #include <string>
@@ -9,7 +10,7 @@
 
 namespace farixEngine {
 
-class GameWorld { 
+class GameWorld {
   World &_world;
 
 public:
@@ -34,7 +35,7 @@ public:
   World &getInternalWorld();
   const World &getInternalWorld() const;
 
-  template <typename ScriptType> void registerScript(const std::string &name);
+  EngineContext* getContext();
 
 private:
   GameWorld(const GameWorld &) = delete;
@@ -51,9 +52,5 @@ std::vector<GameObject> GameWorld::getGameObjectsByTags(Tags &&...tags) {
   }
   return result;
 }
-template <typename ScriptType>
-void GameWorld::registerScript(const std::string &name) {
-  _world.registerScript<ScriptType>(name);
-}
 
-} // namespace farixEngine 
+} // namespace farixEngine
