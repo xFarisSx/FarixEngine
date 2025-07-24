@@ -2,55 +2,49 @@
 #include "game.hpp"
 
 void setupScene(GameWorld &gameWorld) {
-  // Create a box object
-  auto box = gameWorld.createGameObject();
-  box.getComponent<TransformComponent>().position = Vec3(4, 2, 1);
-  box.setMesh(Mesh::createBox(1.0, 2.0, 1.0));
-  box.setName("Box");
-  box.addTags("Obstacle");
+  // Ball
+  auto ball = gameWorld.createGameObject();
+  ball.setName("Ball");
+  ball.setMesh(Mesh::createSphere(0.2f, 8, 16));
+  ball.setMaterial(MaterialComponent{});
+  ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
+  ball.addScript(std::make_shared<BallScript>());
 
-  MaterialComponent boxMat;
-  boxMat.useTexture = false;
-  box.setMaterial(boxMat);
+  // Player Paddle
+  auto paddle1 = gameWorld.createGameObject();
+  paddle1.setName("Player");
+  paddle1.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
+  paddle1.setMaterial(MaterialComponent{});
+  paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
+  paddle1.addTag("Paddle");
+  paddle1.addScript(std::make_shared<PlayerPaddleScript>());
 
-  // Create a camera object
+  // Opponent Paddle
+  auto paddle2 = gameWorld.createGameObject();
+  paddle2.setName("Opponent");
+  paddle2.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
+  paddle2.setMaterial(MaterialComponent{});
+  paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
+  paddle2.addTag("Paddle");
+  paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+
+  // Camera
   auto camera = gameWorld.createGameObject();
-  camera.getComponent<TransformComponent>().position = Vec3(0, 0, -5);
-  camera.addComponents<CameraComponent, CameraControllerComponent>(
-      CameraComponent{float(M_PI) / 2, 16.f / 9.f, 1.0f, 30.f},
-      CameraControllerComponent{});
+  camera.getComponent<TransformComponent>().position = Vec3(0, 0, -7);
+  camera.addComponent<CameraComponent>();
   gameWorld.setCamera(camera);
-
-  // Create a model object
-  auto model = gameWorld.createGameObject();
-  model.getComponent<TransformComponent>().scale = Vec3(0.01f);
-  model.setMesh(Mesh::loadFromObj("assets/models/cat.obj"));
-
-  MaterialComponent modelMat;
-  modelMat.texture = Texture::loadFromBmp("assets/textures/textcat1.bmp");
-  modelMat.useTexture = true;
-  model.setMaterial(modelMat);
-
-  model.addScript(std::make_shared<Rotator>());
-
-  // Create a sphere object
-  auto sphere = gameWorld.createGameObject();
-  sphere.setMesh(Mesh::createSphere(1, 16, 32));
-  sphere.setMaterial(MaterialComponent{});
 }
 
 void Game::onStart() {
-  // Register scripts here so GameWorld can instantiate by name
-  EngineRegistry::get().getScriptRegistry().registerScript<Rotator>("Rotator");
+  auto &engine = EngineRegistry::get();
+  engine.getScriptRegistry().registerScript<BallScript>("BallScript");
+  engine.getScriptRegistry().registerScript<PlayerPaddleScript>(
+      "PlayerPaddleScript");
+  engine.getScriptRegistry().registerScript<OpponentPaddleScript>(
+      "OpponentPaddleScript");
 
-  Scene &mainScene = sceneManager.createScene("main");
-  // Setup the scene programmatically
+  auto &scene = sceneManager.createScene("pong");
   setupScene(*sceneManager.currentGameWorld());
-
-  // sceneManager.saveCurrentScene("scenes/test.json");
-
-  // sceneManager.loadSceneFromFile("scenes/test.json");
-  // sceneManager.saveCurrentScene("scenes/test.json");
 }
 
 void Game::onUpdate(float dt) {}
