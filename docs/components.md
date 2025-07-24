@@ -1,9 +1,15 @@
 # 🔩 Adding a Component
 
-To make a new component serializable and usable with scenes, register it like this:
+## Local registration (No serializing)
 
 ```cpp
-registerComponent<YourComponent>(
+world/gameWorld.registerComponent<Type>();
+```
+
+## Serialization registration (for scenes and prefabs)
+
+```cpp
+EngineRegistry::get().getSerializerRegistry().registerSerializer<YourComponent>(
   "ComponentName",
   [](World& world, Entity e) -> json {
     const auto& c = world.getComponent<YourComponent>(e);
@@ -11,21 +17,26 @@ registerComponent<YourComponent>(
   },
   [](World& world, Entity e, const json& data) {
     YourComponent c{/* deserialize fields */};
+    check if not registered
     world.addComponent(e, c);
   }
 );
 ```
 
-## Example
+### Example
 ```cpp
-registerComponent<Transform>(
-  "Transform",
-  [](World& w, Entity e) {
-    const auto& t = w.getComponent<Transform>(e);
-    return { {"x", t.x}, {"y", t.y} };
+EngineRegistry::get().getSerializerRegistry().registerSerializer<BlinkComponent>(
+  "BlinkComponent",
+  [](World &world, Entity e) -> json {
+    const auto &blink = world.getComponent<BlinkComponent>(e);
+    return json{{"timer", blink.timer}, {"interval", blink.interval}, {"visible", blink.visible}};
   },
-  [](World& w, Entity e, const json& j) {
-    w.addComponent(e, Transform{ j["x"], j["y"] });
+  [](World &world, Entity e, const json &j) {
+    BlinkComponent blink;
+    blink.timer = j.value("timer", 0.0f);
+    blink.interval = j.value("interval", 0.5f);
+    blink.visible = j.value("visible", true);
+    world.addComponent(e, blink);
   }
 );
 ```

@@ -6,27 +6,35 @@ To create a script:
 - Inherit from the `Script` base class.
 - Override `start()` and `update(float dt)` methods.
 - Use `getComponent<T>()` to access components on the same entity.
+- Use `getGameWorld()` and `getGameObject()` to access context.
 
 ## Script API
 
 ```cpp
 class Script {
-protected:
+  friend class ScriptSystem;
+private:
   uint32_t entityId = 0;
-  World* world = nullptr;
+  World *world = nullptr;
+  bool started = false;
+
 
 public:
   std::string name = "Script";
-  Script(const std::string& scriptName);
+
+  Script(const std::string &scriptName) : name(scriptName) {}
+
   virtual ~Script() = default;
 
-  virtual void start();          // Called once when the script starts
-  virtual void update(float dt); // Called every frame
+  virtual void start() {}
 
-  void setContext(uint32_t id, World* w); // Sets context internally
+  virtual void update(float dt) {}
 
-  template <typename T>
-  T& getComponent(); // Access a component on the same entity
+  void setContext(uint32_t id, World *w);
+
+  template <typename T> T &getComponent();
+  GameObject getGameObject();
+  GameWorld getGameWorld();
 };
 ```
 
@@ -47,16 +55,10 @@ public:
 
 To use a script at runtime, you must:
 
-- Register the script class using `registerScript<T>()`
-- Add it to an entity using `addScript(entity, scriptInstance)`
+- Register the script class using `EngineRegistry::get().getScriptRegistry().registerScript<T>(name);`
+- Add it to a gameObject using `gameObject.addScript(std::make_shared<TScript>());`
+- Remove by name using `gameObject.removeScriptByName(name);`
 
-```cpp
-world.registerScript<Rotator>("Rotator"); // Registers the script under a name
-world.addScript(modelEntity, std::make_shared<Rotator>()); // Attaches the script to the entity
-```
-- Note: You can register multiple scripts with different names. At runtime, only registered scripts can be instantiated by name (e.g., from scene files).
-
-- Tip: Script objects are stored via std::shared_ptr<Script>, and automatically managed by the ECS engine.
 
 
 

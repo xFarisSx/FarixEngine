@@ -51,8 +51,8 @@ sudo make uninstall   # removes installed files
 - GameObject and GameWorld wrappers for convenient entity & component access
 - Hierarchy system with `ParentComponent`, `ChildrenComponent`, and `GlobalTransform` to handle parent-child relationships and global matrices
 - Easy extension with user-defined components, systems, and scripts
-- SceneManager, save/load using JSON serialization
-- Component registration and storage management
+- Scene management and hot reload support
+- Prefabs, save/load using JSON serialization
 
 ---
 
@@ -86,15 +86,19 @@ The engine allows custom components and systems.
 You can register your own types and logic to extend behavior.
 The engine's ECS model ensures that user-defined systems can integrate smoothly into the update loop.
 - [Components](docs/components.md)
-> ℹ️ **Note:** When registering a component, you must provide a serializer and deserializer using `registerComponent`. See the components guide for examples.
 - [Systems](docs/systems.md) (that iterate over ECS components)
 - [Scripts](docs/scripts.md) (by inheriting from `Script`)
 
 ---
 
+## Scenes and Prefabs
+
+See [Scenes](docs/scenes.md), [Prefabs](docs/prefabs.md) to learn how to define levels and reusable object templates.
+
+---
 ## Example
 
-Check examples
+- Check the `examples/` directory for sample projects.
 
 ---
 
@@ -128,7 +132,6 @@ g++ -std=c++17 -Wall -I/usr/local/include/farixEngine main.cpp -L/usr/local/lib 
 
 ## To Do / Planned
 
-- Prefab system (via UUID + JSON)
 - Event system
 - OpenGL backend
 - Basic editor
