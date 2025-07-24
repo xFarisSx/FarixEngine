@@ -39,9 +39,26 @@ void GameObject::setMaterial(const MaterialComponent &material) {
     world->getComponent<MaterialComponent>(entity) = material;
   } else {
     world->addComponent<MaterialComponent>(entity, material);
-  }
+  } 
 }
+void GameObject::removeScriptByName(const std::string &scriptName) {
+    ScriptComponent& scriptComp = getComponent<ScriptComponent>();
+    auto it = std::remove_if(scriptComp.scripts.begin(), scriptComp.scripts.end(),
+        [&](const std::shared_ptr<Script> &scriptPtr) {
+            return scriptPtr->name == scriptName;         });
+    scriptComp.scripts.erase(it, scriptComp.scripts.end());
+}
+GameWorld GameObject::getGameWorld(){
+    return GameWorld(*world);
+  }
 
+std::string& GameObject::getName(){
+  return getComponent<Metadata>().name;
+}
+  std::vector<std::string> GameObject::getTags(){
+    return getComponent<Metadata>().tags;
+
+}
 void GameObject::addScript(const std::shared_ptr<Script> &script) {
   if (!isValid())
     return;

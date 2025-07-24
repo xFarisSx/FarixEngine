@@ -1,0 +1,89 @@
+{
+  "components": {
+    "GlobalTransform": {
+      "worldMatrix": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "MaterialComponent": {
+      "ambient": 0.10000000149011612,
+      "baseColor": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "shininess": 32.0,
+      "specular": 0.5,
+      "texture": "",
+      "useTexture": false
+    },
+    "MeshComponent": {
+      "mesh": "",
+      "size": {
+        "x": 2.0,
+        "y": 0.20000000298023224,
+        "z": 0.5
+      },
+      "sphereData": {
+        "x": 1.0,
+        "y": 16.0,
+        "z": 32.0
+      },
+      "type": "Box"
+    },
+    "Metadata": {
+      "name": "Player",
+      "prefab": "",
+      "tags": [
+        "Paddle"
+      ],
+      "uuid": "d18d9a0f-2af9-4a59-ac71-123f1e9f1362"
+    },
+    "ScriptComponent": {
+      "scripts": [
+        "PlayerPaddleScript"
+      ]
+    },
+    "TransformComponent": {
+      "position": {
+        "x": 0.0,
+        "y": 5.0,
+        "z": 0.0
+      },
+      "rotation": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "scale": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      }
+    }
+  },
+  "id": 2
+}

@@ -6,10 +6,11 @@
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/components/components.hpp"
 #include "farixEngine/core/world.hpp"
+
 #include <utility>
 
 namespace farixEngine {
-
+class GameWorld;
 class GameObject {
   World *world = nullptr;
   Entity entity = 0;
@@ -47,10 +48,17 @@ public:
   void addTag(const std::string &tag);
   void removeTag(const std::string &tag);
   bool hasTag(const std::string &tag);
+  std::string& getName();
+  std::vector<std::string> getTags();
+
+  GameWorld getGameWorld();
 
   template <typename... Tags> void addTags(Tags &&...tags);
   template <typename... Tags> void removeTags(Tags &&...tags);
   template <typename... Tags> bool hasTags(Tags &&...tags);
+
+  void removeScriptByName(const std::string &scriptName) ;
+
 };
 
 template <typename T> GameObject &GameObject::addComponent(const T &component) {

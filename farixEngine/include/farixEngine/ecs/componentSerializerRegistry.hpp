@@ -43,6 +43,6 @@ void ComponentSerializerRegistry::registerSerializer(
 
   serializers[name] = serializer;
 }
-
+ 
 
 } // namespace farixEngine

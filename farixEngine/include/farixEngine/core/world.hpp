@@ -58,12 +58,16 @@ public:
   void loadScene(const std::string &filepath);
   void saveScene(const std::string &filepath);
 
-  template <typename T> void addComponent(Entity entity, const T &component);
-  template <typename T> void addComponent(Entity entity);
+  template <typename T> T &addComponent(Entity entity, const T &component);
+
+  template <typename T> T &addComponent(Entity entity);
+
   template <typename T, typename... Args,
             typename = std::enable_if_t<(sizeof...(Args) > 0)>>
-  void emplaceComponent(Entity entity, Args &&...args);
+  T &emplaceComponent(Entity entity, Args &&...args);
+
   template <typename... T> void addComponents(Entity entity);
+
   template <typename... T, typename... Components>
   void addComponents(Entity entity, Components &&...components);
 
@@ -133,43 +137,48 @@ bool World::hasTags(Entity entity, Tags &&...tags) const {
 }
 
 template <typename T> void World::registerComponent() {
-  if(!componentManager.hasStorage<T>())
-  componentManager.registerComponent<T>();
+  if (!componentManager.hasStorage<T>())
+    componentManager.registerComponent<T>();
 }
 
 template <typename T>
-void World::addComponent(Entity entity, const T &component) {
-  componentManager.getStorage<T>().add(entity, component);
+T &World::addComponent(Entity entity, const T &component) {
+  return componentManager.getStorage<T>().add(entity, component);
 }
 
 template <>
-inline void
+inline TransformComponent &
 World::addComponent<TransformComponent>(Entity e,
                                         const TransformComponent &transform) {
-  componentManager.getStorage<TransformComponent>().add(e, transform);
+  auto &t = componentManager.getStorage<TransformComponent>().add(e, transform);
   if (!hasComponent<GlobalTransform>(e)) {
     componentManager.getStorage<GlobalTransform>().add(
         e, GlobalTransform{Mat4::identity()});
   }
+  return t;
 }
 
-template <typename T> void World::addComponent(Entity entity) {
-  componentManager.getStorage<T>().add(entity, T{});
+template <typename T> T &World::addComponent(Entity entity) {
+  return componentManager.getStorage<T>().add(entity, T{});
 }
 
-template <> inline void World::addComponent<TransformComponent>(Entity e) {
-  componentManager.getStorage<TransformComponent>().add(e,
-                                                        TransformComponent{});
+template <>
+inline TransformComponent &World::addComponent<TransformComponent>(Entity e) {
+  auto &t = componentManager.getStorage<TransformComponent>().add(
+      e, TransformComponent{});
   if (!hasComponent<GlobalTransform>(e)) {
     componentManager.getStorage<GlobalTransform>().add(
         e, GlobalTransform{Mat4::identity()});
   }
+  return t;
 }
+
 template <typename T, typename... Args, typename>
-void World::emplaceComponent(Entity entity, Args &&...args) {
+T &World::emplaceComponent(Entity entity, Args &&...args) {
   T component(std::forward<Args>(args)...);
-  addComponent<T>(entity, component);
+  return addComponent<T>(entity, component);
 }
+
 template <typename... T> void World::addComponents(Entity entity) {
   (addComponent<T>(entity), ...);
 }

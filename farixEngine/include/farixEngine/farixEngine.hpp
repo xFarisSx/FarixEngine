@@ -19,3 +19,4 @@
 #include "farixEngine/utils/uuid.hpp"
 #include "farixEngine/application/application.hpp" 
 #include "farixEngine/core/engineRegistry.hpp"
+#include "farixEngine/assets/prefab.hpp"

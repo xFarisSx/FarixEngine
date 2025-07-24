@@ -20,7 +20,7 @@ template <typename T> class ComponentStorage : public IComponentStorage {
 public:
   std::unordered_map<Entity, T> components;
 
-  void add(Entity entity, const T &component);
+  T& add(Entity entity, const T &component);
   void remove(Entity entity);
 
   T &get(Entity entity);
@@ -102,10 +102,11 @@ template <typename T> bool ComponentStorage<T>::has(Entity entity) {
 template <typename T> bool ComponentStorage<T>::has(Entity entity) const {
   return components.find(entity) != components.end();
 }
-
+ 
 template <typename T>
-void ComponentStorage<T>::add(Entity entity, const T &component) {
+T& ComponentStorage<T>::add(Entity entity, const T &component) {
   components[entity] = component;
+  return components[entity];
 }
 
 template <typename T> void ComponentStorage<T>::remove(Entity entity) {

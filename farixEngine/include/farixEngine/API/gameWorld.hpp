@@ -35,10 +35,9 @@ public:
   World &getInternalWorld();
   const World &getInternalWorld() const;
 
-  EngineContext* getContext();
+  EngineContext *getContext();
   void addSystem(std::shared_ptr<System> sys);
-  template<typename T>
-  void registerComponent();
+  template <typename T> void registerComponent();
 
 private:
   GameWorld(const GameWorld &) = delete;
@@ -56,11 +55,8 @@ std::vector<GameObject> GameWorld::getGameObjectsByTags(Tags &&...tags) {
   return result;
 }
 
-template<typename T>
-void GameWorld::registerComponent(){
+template <typename T> void GameWorld::registerComponent() {
   _world.registerComponent<T>();
 }
-
-
 
 } // namespace farixEngine
