@@ -69,8 +69,6 @@ void Game::onStart() {
   scene.gameWorld().registerComponent<BlinkComponent>();
 
   setupScene(*sceneManager.currentGameWorld());
-  auto ball = scene.gameWorld().getGameObjectsByName("Ball")[0];
-  ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
 
   sceneManager.currentGameWorld()->addSystem(std::make_shared<BlinkSystem>());
 
