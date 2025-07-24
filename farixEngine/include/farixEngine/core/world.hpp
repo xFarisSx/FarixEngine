@@ -48,6 +48,7 @@ public:
 
   void registerDefaults();
   void clearStorages();
+  void clearSystems();
 
   void setContext(EngineContext *context);
   EngineContext *getContext() const;

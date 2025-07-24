@@ -60,6 +60,7 @@ World *SceneManager::currentWorld() { return &activeScene->world(); }
 void SceneManager::setContext(EngineContext *_ctx) { ctx = _ctx; }
 
 void SceneManager::reloadScene() {
+    activeScene->onLoad(ctx);
   Serializer::loadScene(activeScene, activeScene->path());
   //
   std::cout << "Reloaded scene name: '" << activeScene->name() << "'"

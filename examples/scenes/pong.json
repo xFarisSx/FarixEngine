@@ -3,6 +3,11 @@
   "entities": [
     {
       "components": {
+        "BlinkComponent": {
+          "interval": 0.5,
+          "timer": 0.0,
+          "visible": true
+        },
         "GlobalTransform": {
           "worldMatrix": [
             [
@@ -61,7 +66,7 @@
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "08f3dbea-1475-4bd5-a49f-f4f401a19073"
+          "uuid": "1b64691d-a80c-49db-a0fe-d87b126a1320"
         },
         "ScriptComponent": {
           "scripts": [
@@ -150,7 +155,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "02edd77c-272c-4028-b89d-e0de4a2b6013"
+          "uuid": "f3ef1214-b4a5-43de-a615-40950e091081"
         },
         "ScriptComponent": {
           "scripts": [
@@ -239,7 +244,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "2389a4f3-3aaa-439f-82c8-669b40d2b362"
+          "uuid": "789e9d13-82e3-43e3-bec7-d562da12271b"
         },
         "ScriptComponent": {
           "scripts": [
@@ -306,7 +311,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "1de7edff-ec63-4949-af13-f21ce1c3fb24"
+          "uuid": "a5eaaa6b-b48b-4bc6-a2b8-eb722d3bcea2"
         },
         "TransformComponent": {
           "position": {
@@ -330,5 +335,7 @@
     }
   ],
   "name": "pong",
-  "systems": []
+  "systems": [
+    "BlinkSystem"
+  ]
 }

@@ -10,6 +10,8 @@ Scene::Scene(const std::string &name, const std::string &path)
 World &Scene::world() { return _world; }
 GameWorld &Scene::gameWorld() { return _gameWorld; }
 void Scene::onLoad(EngineContext *context) {
+  _world.clearStorages();
+  _world.clearSystems();
   _world.registerDefaults();
   _world.addSystem(std::make_shared<RenderSystem>(context->renderer));
   _world.addSystem(std::make_shared<ScriptSystem>());

@@ -103,6 +103,40 @@ public:
   }
 };
 
+//// Example user defined component and system
+struct BlinkComponent {
+  float timer = 0.0f;
+  float interval = 0.5f; // seconds between blinks
+  bool visible = true;
+};
+class BlinkSystem : public System {
+public:
+  BlinkSystem() : System("BlinkSystem") {}
+
+  void start(World &world) override {}
+
+  void update(World &world, float dt) override {
+    for (auto entity : world.view<BlinkComponent>()) {
+      auto &blink = world.getComponent<BlinkComponent>(entity);
+      blink.timer += dt;
+      if (blink.timer >= blink.interval) {
+        blink.visible = !blink.visible;
+        blink.timer = 0.0f;
+
+        // Toggle visibility by changing material color alpha or brightness
+        if (world.hasComponent<MaterialComponent>(entity)) {
+          auto &mat = world.getComponent<MaterialComponent>(entity);
+          if (blink.visible) {
+            mat.baseColor = Vec3(1, 0, 0);
+          } else {
+            mat.baseColor = Vec3(1, 1, 1);
+          }
+        }
+      }
+    }
+  }
+};
+
 class Game : public Application {
 public:
   void onStart() override;

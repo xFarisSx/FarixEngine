@@ -24,9 +24,10 @@ public:
   void updateAll(World &world, float dt);
   void startAll(World &world);
   std::vector<std::shared_ptr<System>> getAll();
+  void clearSystems();
 
 private:
   std::vector<std::shared_ptr<System>> systems;
-};
+}; 
 
 } // namespace farixEngine

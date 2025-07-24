@@ -55,6 +55,9 @@ void World::startSystems() { systemManager.startAll(*this); }
 void World::addSystem(std::shared_ptr<System> system) {
   systemManager.addSystem(std::move(system));
 }
+void World::clearSystems(){
+  systemManager.clearSystems();
+}
 
 void World::addScript(uint32_t entity, ScriptPtr script) {
   script->setContext(entity, this);
