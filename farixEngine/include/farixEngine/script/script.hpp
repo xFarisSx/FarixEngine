@@ -12,9 +12,11 @@
 namespace farixEngine {
 
 class Script {
+  friend class ScriptSystem;
 private:
   uint32_t entityId = 0;
   World *world = nullptr;
+  bool started = false;
 
 
 public:

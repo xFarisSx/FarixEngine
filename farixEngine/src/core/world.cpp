@@ -59,6 +59,7 @@ void World::addScript(uint32_t entity, ScriptPtr script) {
   ScriptComponent sc;
   sc.script = script;
   sc.script->setContext(entity, this); 
+  //sc.script->start();
   addComponent(entity, sc);
 }
 

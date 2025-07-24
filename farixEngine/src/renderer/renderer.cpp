@@ -1,6 +1,5 @@
 
 #include "farixEngine/renderer/renderer.hpp"
-#include "SDL_render.h"
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/components/components.hpp"
 #include "farixEngine/core/world.hpp"
@@ -75,18 +74,17 @@ void Renderer::present() {
   SDL_RenderPresent(sdlRenderer);
 }
 
-
 Vec3 Renderer::project(const Vec4 &point, const Mat4 &globalMat,
                        const Mat4 &viewM, const Mat4 &perspM) const {
   Vec4 projected4 = perspM * viewM * globalMat * point;
- 
+
   if (projected4.w <= 0.0f)
     return Vec3(-1, -1, -1);
 
   Vec3 pr = projected4.toVec3();
-  return Vec3(screenWidth * (pr.x + 1) / 2, screenHeight * (1 - pr.y) / 2, pr.z);
+  return Vec3(screenWidth * (pr.x + 1) / 2, screenHeight * (1 - pr.y) / 2,
+              pr.z);
 }
-
 
 void Renderer::drawPixel(int x, int y, float z, uint32_t color) {
   if (x >= 0 && x < screenWidth && y >= 0 && y < screenHeight) {
@@ -124,7 +122,6 @@ void Renderer::drawTriangle(const Mesh *mesh, const Triangle &tri,
   Vec4 v14 = Vec4(v1.x, v1.y, v1.z, 1);
   Vec4 v24 = Vec4(v2.x, v2.y, v2.z, 1);
 
-
   Vec3 forward, right, up;
   math::updateCameraBasis(cameraTransform.rotation, forward, right, up);
 
@@ -133,18 +130,13 @@ void Renderer::drawTriangle(const Mesh *mesh, const Triangle &tri,
   Mat4 perspM = Mat4::perspective(camera.fov, camera.aspectRatio,
                                   camera.nearPlane, camera.farPlane);
 
-
-
   Vec3 normal = (v1 - v0).cross(v2 - v0);
 
-
   Vec3 normalWorld = (globalMat * Vec4(normal, 0.0f)).toVec3().normalized();
-
 
   if (normalWorld.dot(forward) > 0.2f) {
     return;
   }
-
 
   Vec3 p0 = project(v04, globalMat, viewM, perspM);
   Vec3 p1 = project(v14, globalMat, viewM, perspM);
@@ -225,30 +217,33 @@ void Renderer::drawTriangle(const Mesh *mesh, const Triangle &tri,
           finalColor = Vec3(r / 255.0f, g / 255.0f, b / 255.0f);
         }
 
-
-        Vec3 normalViewSpace = (viewM * Vec4(normalWorld, 0.0f)).toVec3().normalized();
+        Vec3 normalViewSpace =
+            (viewM * Vec4(normalWorld, 0.0f)).toVec3().normalized();
 
         // Ambient + diffuse lighting
-        float diffIntensity = std::max(material.ambient, normalViewSpace.dot(lightDirViewSpace*-1));
-
+        float diffIntensity = std::max(
+            material.ambient, normalViewSpace.dot(lightDirViewSpace * -1));
 
         Vec3 viewDir = (cameraTransform.position - worldPos).normalized();
 
         // Reflection direction for specular
-        Vec3 reflectDir = reflect(lightDirViewSpace*-1, normalViewSpace);
+        Vec3 reflectDir = reflect(lightDirViewSpace * -1, normalViewSpace);
 
         // Specular intensity
-        float spec = pow(std::max(0.0f, viewDir.dot(reflectDir)), material.shininess);
+        float spec =
+            pow(std::max(0.0f, viewDir.dot(reflectDir)), material.shininess);
 
         // Total light intensity combining ambient, diffuse, specular
         float totalLight = diffIntensity + material.specular * spec;
 
-
         Vec3 litColor = finalColor * totalLight;
 
-        Uint8 r = static_cast<Uint8>(std::clamp(litColor.x * 255.0f, 0.0f, 255.0f));
-        Uint8 g = static_cast<Uint8>(std::clamp(litColor.y * 255.0f, 0.0f, 255.0f));
-        Uint8 b = static_cast<Uint8>(std::clamp(litColor.z * 255.0f, 0.0f, 255.0f));
+        Uint8 r =
+            static_cast<Uint8>(std::clamp(litColor.x * 255.0f, 0.0f, 255.0f));
+        Uint8 g =
+            static_cast<Uint8>(std::clamp(litColor.y * 255.0f, 0.0f, 255.0f));
+        Uint8 b =
+            static_cast<Uint8>(std::clamp(litColor.z * 255.0f, 0.0f, 255.0f));
 
         Uint32 color = (r << 16) | (g << 8) | b;
 

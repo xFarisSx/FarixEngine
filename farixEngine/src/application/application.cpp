@@ -6,11 +6,10 @@ namespace farixEngine {
 
 void Application::run(int width, int height, const char *title) {
   engine.init(width, height, title);
-  sceneManager.setContext(engine.getContext());
+  engine.getSceneManager()->setContext(engine.getContext());
   EngineRegistry::get().registerDefaults();
 
   onStart();
-  sceneManager.currentScene()->world().startSystems();
   auto last = std::chrono::high_resolution_clock::now();
   while (running) {
     auto now = std::chrono::high_resolution_clock::now();
@@ -27,13 +26,13 @@ void Application::update(float dt) {
 
   engine.beginFrame(running);
 
-  sceneManager.currentScene()->world().updateSystems(dt);
   onUpdate(dt);
+  getSceneManager().currentScene()->world().updateSystems(dt);
 
   engine.endFrame();
 }
 
-SceneManager& Application::getSceneManager(){
-  return sceneManager;
+SceneManager &Application::getSceneManager() {
+  return *engine.getSceneManager();
 }
-} // namespace farixEngine 
+} // namespace farixEngine

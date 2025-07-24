@@ -51,8 +51,12 @@ void ScriptSystem::update(World &world, float dt) {
 
     if (world.hasComponent<ScriptComponent>(entity)) {
       auto &sc = world.getComponent<ScriptComponent>(entity);
-      sc.script->update(dt);
+    if (!sc.script->started) {
+      sc.script->start();
+      sc.script->started = true; 
     }
+      sc.script->update(dt);
+    } 
   }
 }
 
@@ -63,6 +67,7 @@ void ScriptSystem::start(World &world) {
     if (world.hasComponent<ScriptComponent>(entity)) {
       auto &sc = world.getComponent<ScriptComponent>(entity);
       sc.script->start();
+      sc.script->started = true;
     }
   }
 }

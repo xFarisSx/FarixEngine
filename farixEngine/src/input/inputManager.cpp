@@ -1,6 +1,7 @@
 #include "farixEngine/input/inputManager.hpp"
 #include "farixEngine/input/controller.hpp"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_scancode.h>
 #include <iostream>
 
 namespace farixEngine {
@@ -29,7 +30,7 @@ void InputManager::pollEvents(bool &running, Controller *controller) {
       controller->inMotion = (controller->dx != 0 || controller->dy != 0);
     }
   }
-
+ 
   const Uint8 *keys = SDL_GetKeyboardState(nullptr);
   controller->setKeyState(Key::W, keys[SDL_SCANCODE_W]);
   controller->setKeyState(Key::A, keys[SDL_SCANCODE_A]);
@@ -37,6 +38,12 @@ void InputManager::pollEvents(bool &running, Controller *controller) {
   controller->setKeyState(Key::D, keys[SDL_SCANCODE_D]);
   controller->setKeyState(Key::Q, keys[SDL_SCANCODE_Q]);
   controller->setKeyState(Key::E, keys[SDL_SCANCODE_E]);
+
+  controller->setKeyState(Key::Left, keys[SDL_SCANCODE_LEFT]);
+  controller->setKeyState(Key::Right, keys[SDL_SCANCODE_RIGHT]);
+  controller->setKeyState(Key::Up, keys[SDL_SCANCODE_UP]);
+  controller->setKeyState(Key::Down, keys[SDL_SCANCODE_DOWN]);
+
   controller->setKeyState(Key::Space, keys[SDL_SCANCODE_SPACE]);
   controller->setKeyState(Key::Shift, keys[SDL_SCANCODE_LSHIFT] ||
                                           keys[SDL_SCANCODE_RSHIFT]);

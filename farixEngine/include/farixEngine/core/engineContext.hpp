@@ -1,12 +1,13 @@
 #pragma once
 
-
 namespace farixEngine{
 struct Controller;
-struct Renderer;
+class Renderer;
+class SceneManager;
 
 struct EngineContext {
   Controller *controller = nullptr;
   Renderer *renderer = nullptr;
+  SceneManager *sceneManager = nullptr;
 };
 }

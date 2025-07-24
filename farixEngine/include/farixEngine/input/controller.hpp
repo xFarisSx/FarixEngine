@@ -11,6 +11,10 @@ enum class Key {
     D,
     Q,
     E,
+    Left,
+    Right,
+    Up,
+    Down,
     Space,
     Shift,
     Escape};

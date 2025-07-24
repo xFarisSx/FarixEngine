@@ -7,7 +7,7 @@ using namespace farixEngine;
 class BallScript : public Script {
   TransformComponent *transform = nullptr;
   EngineContext *ctx = nullptr;
-  Vec3 velocity = Vec3(3.0f, 3.0f, 0); 
+  Vec3 velocity = Vec3(3.0f, 3.0f, 0);
 
 public:
   BallScript() : Script("BallScript") {}
@@ -18,7 +18,8 @@ public:
   }
 
   void update(float dt) override {
-    if (!transform) return;
+    if (!transform)
+      return;
 
     transform->position = transform->position + velocity * dt;
 
@@ -45,12 +46,12 @@ public:
     if (transform->position.y > 6.0f) {
       std::cout << "Game Over, Down won\n";
       velocity = Vec3(0); // stop
-    }
-    else if (transform->position.y < -6.0f) {
+      ctx->sceneManager->reloadScene();
+    } else if (transform->position.y < -6.0f) {
       std::cout << "Game Over, Up won\n";
       velocity = Vec3(0); // stop
+      ctx->sceneManager->reloadScene();
     }
-
   }
 };
 
@@ -84,7 +85,7 @@ class OpponentPaddleScript : public Script {
 
 public:
   OpponentPaddleScript() : Script("OpponentPaddleScript") {}
- 
+
   void start() override {
     transform = &getGameObject().getComponent<TransformComponent>();
     ctx = getGameWorld().getContext();
@@ -101,7 +102,6 @@ public:
     transform->position.x = std::clamp(transform->position.x, -4.5f, 4.5f);
   }
 };
-
 
 class Game : public Application {
 public:

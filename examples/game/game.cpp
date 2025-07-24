@@ -43,8 +43,11 @@ void Game::onStart() {
   engine.getScriptRegistry().registerScript<OpponentPaddleScript>(
       "OpponentPaddleScript");
 
+  SceneManager &sceneManager = getSceneManager();
+
   auto &scene = sceneManager.createScene("pong");
   setupScene(*sceneManager.currentGameWorld());
+  sceneManager.saveCurrentScene("scenes/");
 }
 
 void Game::onUpdate(float dt) {}

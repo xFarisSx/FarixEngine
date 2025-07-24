@@ -1,0 +1,327 @@
+{
+  "activeCamera": 4,
+  "entities": [
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "MaterialComponent": {
+          "ambient": 0.10000000149011612,
+          "baseColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "shininess": 32.0,
+          "specular": 0.5,
+          "texture": "",
+          "useTexture": false
+        },
+        "MeshComponent": {
+          "mesh": "",
+          "size": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "sphereData": {
+            "x": 0.20000000298023224,
+            "y": 8.0,
+            "z": 16.0
+          },
+          "type": "Sphere"
+        },
+        "Metadata": {
+          "name": "Ball",
+          "prefab": "",
+          "tags": [],
+          "uuid": "715841c8-8ed8-4e35-8cf9-60b7d4dd4b4f"
+        },
+        "ScriptComponent": {
+          "script": "BallScript"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 1
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "MaterialComponent": {
+          "ambient": 0.10000000149011612,
+          "baseColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "shininess": 32.0,
+          "specular": 0.5,
+          "texture": "",
+          "useTexture": false
+        },
+        "MeshComponent": {
+          "mesh": "",
+          "size": {
+            "x": 2.0,
+            "y": 0.20000000298023224,
+            "z": 0.5
+          },
+          "sphereData": {
+            "x": 1.0,
+            "y": 16.0,
+            "z": 32.0
+          },
+          "type": "Box"
+        },
+        "Metadata": {
+          "name": "Player",
+          "prefab": "",
+          "tags": [
+            "Paddle"
+          ],
+          "uuid": "cc25fb57-93d3-4571-a597-fc09bb6821ee"
+        },
+        "ScriptComponent": {
+          "script": "PlayerPaddleScript"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 5.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 2
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "MaterialComponent": {
+          "ambient": 0.10000000149011612,
+          "baseColor": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "shininess": 32.0,
+          "specular": 0.5,
+          "texture": "",
+          "useTexture": false
+        },
+        "MeshComponent": {
+          "mesh": "",
+          "size": {
+            "x": 2.0,
+            "y": 0.20000000298023224,
+            "z": 0.5
+          },
+          "sphereData": {
+            "x": 1.0,
+            "y": 16.0,
+            "z": 32.0
+          },
+          "type": "Box"
+        },
+        "Metadata": {
+          "name": "Opponent",
+          "prefab": "",
+          "tags": [
+            "Paddle"
+          ],
+          "uuid": "b3428f27-da7c-4884-b1e3-77cfff63a7ab"
+        },
+        "ScriptComponent": {
+          "script": "OpponentPaddleScript"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": -5.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 3
+    },
+    {
+      "components": {
+        "CameraComponent": {
+          "aspectRatio": 1.7777777910232544,
+          "farPlane": 100.0,
+          "fov": 1.5707963705062866,
+          "nearPlane": 1.0
+        },
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "Metadata": {
+          "name": "GameObject",
+          "prefab": "",
+          "tags": [],
+          "uuid": "c4a228c5-b5ed-446f-867b-4f99869dead5"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": -7.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 4
+    }
+  ],
+  "name": "pong"
+}

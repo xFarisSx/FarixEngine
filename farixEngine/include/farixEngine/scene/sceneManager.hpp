@@ -11,6 +11,7 @@ public:
   Scene &loadSceneFromFile(const std::string &filePath, bool activate = true);
   void saveCurrentScene(const std::string &filePath);
   void saveScene(const std::string &name, const std::string &filePath);
+  void reloadScene();
 
   Scene &activateScene(const std::string &name);
   void unloadScene(const std::string &name);

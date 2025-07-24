@@ -10,16 +10,14 @@ public:
   virtual void onUpdate(float dt) = 0;
   virtual void onStart() = 0;
   void run(int width, int height, const char *title);
-  SceneManager& getSceneManager();
-
+  SceneManager &getSceneManager();
 
 protected:
   void update(float dt);
 
 protected:
-  SceneManager sceneManager;
   Engine engine;
   bool running = true;
 };
 
-} // namespace farixEngine 
+} // namespace farixEngine

@@ -24,4 +24,6 @@ void Scene::onLoad(EngineContext *context) {
 const std::string &Scene::name() const { return _name; }
 const std::string &Scene::path() const { return _path; }
 void Scene::setName(const std::string &name) { _name = name; }
+void Scene::setPath(const std::string &name) { _path = name; } 
+
 } // namespace farixEngine
