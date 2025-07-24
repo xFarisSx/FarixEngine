@@ -1,5 +1,6 @@
 
 #include "game.hpp"
+#include <memory>
 
 void setupScene(GameWorld &gameWorld) {
   // Ball
@@ -32,6 +33,7 @@ void setupScene(GameWorld &gameWorld) {
   auto camera = gameWorld.createGameObject();
   camera.getComponent<TransformComponent>().position = Vec3(0, 0, -7);
   camera.addComponent<CameraComponent>();
+
   gameWorld.setCamera(camera);
 }
 
