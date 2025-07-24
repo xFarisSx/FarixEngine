@@ -1,6 +1,7 @@
 #include "farixEngine/core/engineRegistry.hpp"
 #include "farixEngine/components/components.hpp"
 #include "farixEngine/script/script.hpp"
+#include "farixEngine/systems/systems.hpp"
 
 namespace farixEngine {
 
@@ -14,6 +15,8 @@ ScriptRegistry &EngineRegistry::getScriptRegistry() { return scriptRegistry; }
 ComponentSerializerRegistry &EngineRegistry::getSerializerRegistry() {
   return serializerRegistry;
 }
+
+SystemRegistry &EngineRegistry::getSystemRegistry() { return systemRegistry; }
 
 void EngineRegistry::clear() {}
 
@@ -37,7 +40,7 @@ void EngineRegistry::registerDefaults() {
           comp.uuid = j.at("uuid").get<std::string>();
         if (j.contains("prefab"))
           comp.prefab = j.at("prefab").get<std::string>();
-      world.registerComponent<Metadata>();
+        world.registerComponent<Metadata>();
         world.addComponent<Metadata>(e, comp);
       });
 
@@ -54,7 +57,7 @@ void EngineRegistry::registerDefaults() {
         comp.position = j.at("position").get<Vec3>();
         comp.rotation = j.at("rotation").get<Vec3>();
         comp.scale = j.at("scale").get<Vec3>();
-            world.registerComponent<TransformComponent>();
+        world.registerComponent<TransformComponent>();
 
         world.addComponent<TransformComponent>(e, comp);
       });
@@ -89,7 +92,7 @@ void EngineRegistry::registerDefaults() {
         comp.aspectRatio = j.at("aspectRatio").get<float>();
         comp.nearPlane = j.at("nearPlane").get<float>();
         comp.farPlane = j.at("farPlane").get<float>();
-      world.registerComponent<CameraComponent>();
+        world.registerComponent<CameraComponent>();
         world.addComponent<CameraComponent>(e, comp);
       });
 
@@ -106,7 +109,7 @@ void EngineRegistry::registerDefaults() {
         comp.sens = j.at("sens").get<float>();
         comp.speed = j.at("speed").get<float>();
         comp.active = j.at("active").get<bool>();
-            world.registerComponent<CameraControllerComponent>();
+        world.registerComponent<CameraControllerComponent>();
         world.addComponent<CameraControllerComponent>(e, comp);
       });
 
@@ -133,7 +136,7 @@ void EngineRegistry::registerDefaults() {
           comp.mesh = Mesh::createBox(size[0], size[1], size[2]);
         else if (typeStr == "Sphere")
           comp.mesh = Mesh::createSphere(sd[0], sd[1], sd[2]);
-         world.registerComponent<MeshComponent>();
+        world.registerComponent<MeshComponent>();
 
         world.addComponent<MeshComponent>(e, comp);
       });
@@ -160,7 +163,7 @@ void EngineRegistry::registerDefaults() {
         if (!path.empty()) {
           comp.texture = Texture::loadFromBmp(path);
         }
-      world.registerComponent<MaterialComponent>();
+        world.registerComponent<MaterialComponent>();
 
         world.addComponent<MaterialComponent>(e, comp);
       });
@@ -170,19 +173,33 @@ void EngineRegistry::registerDefaults() {
 
       [](World &world, Entity e) -> json {
         const auto &comp = world.getComponent<ScriptComponent>(e);
-        return {{"script", comp.script ? comp.script->name : ""}};
+        json scripts_json = json::array();
+
+        for (const auto &script : comp.scripts) {
+          scripts_json.push_back(script ? script->name : "");
+        }
+
+        return {{"scripts", scripts_json}};
       },
 
       [](World &world, Entity e, const json &j) {
-        ScriptComponent comp;
-        std::string name = j.at("script").get<std::string>();
+        if (!j.contains("scripts"))
+          return;
 
-        if (!name.empty()) {
+        const auto &scripts_array = j.at("scripts");
+        if (!scripts_array.is_array())
+          return;
+
+        world.registerComponent<ScriptComponent>();
+        for (const auto &script_name_json : scripts_array) {
+          std::string name = script_name_json.get<std::string>();
+          if (name.empty())
+            continue;
+
           if (!EngineRegistry::get().getScriptRegistry().exists(name)) {
             throw std::runtime_error("Script type '" + name +
                                      "' not registered.");
           }
-        world.registerComponent<ScriptComponent>();
 
           world.addScript(
               e, EngineRegistry::get().getScriptRegistry().create(name));
@@ -198,7 +215,7 @@ void EngineRegistry::registerDefaults() {
       [](World &world, Entity e, const json &j) {
         ParentComponent comp;
         comp.parent = j.at("parent").get<Entity>();
-      world.registerComponent<ParentComponent>();
+        world.registerComponent<ParentComponent>();
 
         world.addComponent<ParentComponent>(e, comp);
       });
@@ -212,7 +229,7 @@ void EngineRegistry::registerDefaults() {
       [](World &world, Entity e, const json &j) {
         ChildrenComponent comp;
         comp.children = j.at("children").get<std::vector<Entity>>();
-      world.registerComponent<ChildrenComponent>();
+        world.registerComponent<ChildrenComponent>();
 
         world.addComponent<ChildrenComponent>(e, comp);
       });

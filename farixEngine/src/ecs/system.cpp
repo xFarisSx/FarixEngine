@@ -19,5 +19,7 @@ namespace farixEngine {
         }
     }
 
+std::vector<std::shared_ptr<System>> SystemManager::getAll(){return systems;}
+
 
 }  

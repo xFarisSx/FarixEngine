@@ -16,7 +16,6 @@ using Entity = uint32_t;
 void RenderSystem::update(World &world, float dt) {
   const auto &entities = world.getEntities();
 
-
   Entity cameraEntity = world.getCamera();
 
   if (!cameraEntity || cameraEntity <= 0)
@@ -48,26 +47,28 @@ void RenderSystem::update(World &world, float dt) {
 void ScriptSystem::update(World &world, float dt) {
   const auto &entities = world.getEntities();
   for (Entity entity : entities) {
-
     if (world.hasComponent<ScriptComponent>(entity)) {
       auto &sc = world.getComponent<ScriptComponent>(entity);
-    if (!sc.script->started) {
-      sc.script->start();
-      sc.script->started = true; 
+      for (auto &script : sc.scripts) {
+        if (!script->started) {
+          script->start();
+          script->started = true;
+        }
+        script->update(dt);
+      }
     }
-      sc.script->update(dt);
-    } 
   }
 }
 
 void ScriptSystem::start(World &world) {
-
-  auto &entities = world.getEntities();
+  const auto &entities = world.getEntities();
   for (Entity entity : entities) {
     if (world.hasComponent<ScriptComponent>(entity)) {
       auto &sc = world.getComponent<ScriptComponent>(entity);
-      sc.script->start();
-      sc.script->started = true;
+      for (auto &script : sc.scripts) {
+        script->start();
+        script->started = true;
+      }
     }
   }
 }
@@ -119,7 +120,6 @@ void CameraControllerSystem::update(World &world, float dt) {
 
   for (Entity e : world.view<CameraControllerComponent, TransformComponent,
                              CameraComponent>()) {
-
 
     auto &transform = world.getComponent<TransformComponent>(e);
     auto &cameraC = world.getComponent<CameraControllerComponent>(e);

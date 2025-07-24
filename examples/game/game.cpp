@@ -49,6 +49,7 @@ void Game::onStart() {
 
   auto &scene = sceneManager.createScene("pong");
   setupScene(*sceneManager.currentGameWorld());
+
   sceneManager.saveCurrentScene("scenes/");
 }
 

@@ -7,7 +7,7 @@
 namespace farixEngine {
 class RenderSystem : public System {
 public:
-    RenderSystem(Renderer* renderer) : renderer(renderer) {}
+    RenderSystem(Renderer* renderer) : System("RenderSystem"), renderer(renderer)  {}
 
     void start(World& world) override{};
 
@@ -18,6 +18,8 @@ private:
 };
 
 class ScriptSystem : public System {
+public:
+  ScriptSystem():System("ScriptSystem"){}
 
     void start(World& world) override;
 
@@ -28,6 +30,8 @@ class ScriptSystem : public System {
 }; 
 
 class HierarchySystem : public System {
+public:
+  HierarchySystem():System("HierarchySystem"){}
 
     void start(World& world) override{};
 
@@ -39,7 +43,7 @@ class HierarchySystem : public System {
  
 class CameraControllerSystem : public System{
   public:
-  CameraControllerSystem(Controller* ctrl) : controller(ctrl) {}
+  CameraControllerSystem(Controller* ctrl) : System("CameraControlSystem"),controller(ctrl) {}
 
   void start(World& world) override{};
 

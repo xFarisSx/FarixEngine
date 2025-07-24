@@ -2,6 +2,7 @@
 #include "farixEngine/core/world.hpp"
 
 #include "farixEngine/components/components.hpp"
+#include "farixEngine/core/engineRegistry.hpp"
 #include "farixEngine/ecs/system.hpp"
 #include "farixEngine/script/script.hpp"
 #include "farixEngine/serialization/serializer.hpp"
@@ -56,11 +57,20 @@ void World::addSystem(std::shared_ptr<System> system) {
 }
 
 void World::addScript(uint32_t entity, ScriptPtr script) {
-  ScriptComponent sc;
-  sc.script = script;
-  sc.script->setContext(entity, this); 
-  //sc.script->start();
-  addComponent(entity, sc);
+  script->setContext(entity, this);
+
+  if (hasComponent<ScriptComponent>(entity)) {
+    ScriptComponent &sc = getComponent<ScriptComponent>(entity);
+    sc.scripts.push_back(script);
+  } else {
+    ScriptComponent sc;
+    sc.scripts.push_back(script);
+    addComponent(entity, sc);
+  }
+}
+
+std::vector<std::shared_ptr<System>> World::getSystems() {
+  return systemManager.getAll();
 }
 
 void World::setName(Entity entity, const std::string &name) {

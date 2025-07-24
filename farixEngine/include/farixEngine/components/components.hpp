@@ -60,7 +60,7 @@ struct MaterialComponent {
 };
 
 struct ScriptComponent {
-  ScriptPtr script;
+  std::vector<ScriptPtr> scripts;
 };
 
 struct ParentComponent {

@@ -2,6 +2,7 @@
 
 #include "farixEngine/script/scriptRegistry.hpp"
 #include "farixEngine/ecs/componentSerializerRegistry.hpp"
+#include "farixEngine/ecs/systemRegistry.hpp"
 #include "farixEngine/serialization/serializer.hpp"
 #include <memory>
 #include <unordered_map>
@@ -14,6 +15,7 @@ public:
 
     ScriptRegistry& getScriptRegistry();
     ComponentSerializerRegistry& getSerializerRegistry();
+    SystemRegistry& getSystemRegistry();  
 
     void registerDefaults();
 
@@ -22,6 +24,7 @@ public:
 private:
     ScriptRegistry scriptRegistry;
     ComponentSerializerRegistry serializerRegistry;
+     SystemRegistry systemRegistry;
 
     EngineRegistry() = default;
     EngineRegistry(const EngineRegistry&) = delete;

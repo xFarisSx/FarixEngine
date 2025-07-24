@@ -57,4 +57,8 @@ World &GameWorld::getInternalWorld() { return _world; }
 
 const World &GameWorld::getInternalWorld() const { return _world; }
 
+void GameWorld::addSystem(std::shared_ptr<System> sys){
+  _world.addSystem(sys);
+}
+
 } // namespace farixEngine

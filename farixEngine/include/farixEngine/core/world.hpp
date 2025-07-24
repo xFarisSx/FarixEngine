@@ -96,6 +96,7 @@ public:
   template <typename... Tags> bool hasTags(Entity entity, Tags &&...tags) const;
 
   ComponentManager &getComponentManager();
+  std::vector<std::shared_ptr<System>> getSystems();
 
 private:
   std::vector<Entity> entities;

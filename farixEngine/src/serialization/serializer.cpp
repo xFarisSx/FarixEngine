@@ -1,6 +1,7 @@
 #include "farixEngine/serialization/serializer.hpp"
 #include "farixEngine/core/engineRegistry.hpp"
 #include "farixEngine/core/world.hpp"
+#include "farixEngine/ecs/system.hpp"
 #include "farixEngine/thirdparty/nlohmann/json.hpp"
 #include <fstream>
 #include <iostream>
@@ -36,6 +37,15 @@ void Serializer::saveScene(Scene *scene, const std::string &filepath) {
     entityJson["components"] = componentsJson;
     sceneJson["entities"].push_back(entityJson);
   }
+
+  auto &sysReg = EngineRegistry::get().getSystemRegistry();
+  std::vector<std::string> activeSystems;
+  for (auto &sys : scene->world().getSystems()) {
+    if (sysReg.exists(sys->name)) {
+      activeSystems.push_back(sys->name);
+    }
+  }
+  sceneJson["systems"] = activeSystems;
 
   std::ofstream out(filepath);
   if (!out.is_open()) {
@@ -75,6 +85,20 @@ void Serializer::loadScene(Scene *scene, const std::string &filepath) {
       if (it != serializers.end()) {
         it->second.from_json(world, e, componentData);
       }
+    }
+  }
+
+  if (jsonData.contains("systems")) {
+    const auto &systemList = jsonData["systems"];
+    auto &registry = EngineRegistry::get().getSystemRegistry();
+
+    for (const auto &name : systemList) {
+      if (!registry.exists(name)) {
+        throw std::runtime_error("System '" + name.get<std::string>() +
+                                 "' not registered.");
+      }
+      auto system = registry.create(name);
+      scene->world().addSystem(system);
     }
   }
 

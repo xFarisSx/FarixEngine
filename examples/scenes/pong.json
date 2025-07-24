@@ -61,7 +61,7 @@
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "c2a54ffd-fab1-4355-bd94-858b5c025f59"
+          "uuid": "08f3dbea-1475-4bd5-a49f-f4f401a19073"
         },
         "ScriptComponent": {
           "scripts": [
@@ -150,7 +150,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "e8cf07de-2ce9-461b-8f2b-381a66448259"
+          "uuid": "02edd77c-272c-4028-b89d-e0de4a2b6013"
         },
         "ScriptComponent": {
           "scripts": [
@@ -239,7 +239,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "2b4ba2c4-2679-4237-9e7d-0e7ee8684ca7"
+          "uuid": "2389a4f3-3aaa-439f-82c8-669b40d2b362"
         },
         "ScriptComponent": {
           "scripts": [
@@ -306,7 +306,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "37f6eddd-e3e0-4f60-932a-7c02b690c762"
+          "uuid": "1de7edff-ec63-4949-af13-f21ce1c3fb24"
         },
         "TransformComponent": {
           "position": {
@@ -329,5 +329,6 @@
       "id": 4
     }
   ],
-  "name": "pong"
+  "name": "pong",
+  "systems": []
 }
