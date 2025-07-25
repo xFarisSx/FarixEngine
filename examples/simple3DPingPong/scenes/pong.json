@@ -66,7 +66,7 @@
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "3b83aa3e-b48f-4610-9d73-ea9cc7d5d9f9"
+          "uuid": "8779d742-c2bd-420d-ac53-b176be6a181e"
         },
         "ScriptComponent": {
           "scripts": [
@@ -155,7 +155,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "c29a7ae0-66bc-4382-b144-79c1d56a5847"
+          "uuid": "87ab7853-a1cd-4703-83e4-a5a1cb0bf1a7"
         },
         "ScriptComponent": {
           "scripts": [
@@ -244,7 +244,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "259dcbed-d668-402a-89b3-b8ef31e8ce87"
+          "uuid": "e56a047f-31d3-485c-929e-adfc9cb4f276"
         },
         "ScriptComponent": {
           "scripts": [
@@ -311,7 +311,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "89eaf74a-073d-4f22-afb4-1c7718787a29"
+          "uuid": "bb16cb15-2021-4cb0-8aa5-141b925848fd"
         },
         "TransformComponent": {
           "position": {

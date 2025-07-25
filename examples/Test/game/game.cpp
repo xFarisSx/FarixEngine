@@ -35,7 +35,7 @@ void setupScene(GameWorld &gameWorld) {
   gameWorld.setCamera(camera);
 }
 void Game::onStart() {
-  auto &engine = EngineRegistry::get();
+  auto &engine = EngineServices::get().getEngineRegistry();
 
   // Create scene
   SceneManager &sceneManager = getSceneManager();

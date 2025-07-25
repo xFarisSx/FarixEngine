@@ -14,7 +14,7 @@ public:
 
   void start() override {
     transform = &getGameObject().getComponent<TransformComponent>();
-    ctx = getGameWorld().getContext();
+    ctx = EngineServices::get().getContext();
   }
 
   void update(float dt) override {
@@ -64,7 +64,7 @@ public:
 
   void start() override {
     transform = &getGameObject().getComponent<TransformComponent>();
-    ctx = getGameWorld().getContext();
+    ctx = EngineServices::get().getContext();
   }
 
   void update(float dt) override {
@@ -88,7 +88,7 @@ public:
 
   void start() override {
     transform = &getGameObject().getComponent<TransformComponent>();
-    ctx = getGameWorld().getContext();
+    ctx = EngineServices::get().getContext();
   }
 
   void update(float dt) override {
@@ -107,7 +107,7 @@ public:
 struct BlinkComponent {
   float timer = 0.0f;
   float interval = 0.5f; // seconds between blinks
-  bool visible = true; 
+  bool visible = true;
 };
 class BlinkSystem : public System {
 public:

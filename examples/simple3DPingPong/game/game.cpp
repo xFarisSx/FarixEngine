@@ -50,7 +50,7 @@ void setupScene(GameWorld &gameWorld) {
 }
 
 void Game::onStart() {
-  auto &engine = EngineRegistry::get();
+  auto &engine = EngineServices::get().getEngineRegistry();
   engine.getScriptRegistry().registerScript<BallScript>("BallScript");
   engine.getScriptRegistry().registerScript<PlayerPaddleScript>(
       "PlayerPaddleScript");
