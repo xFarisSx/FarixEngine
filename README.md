@@ -68,6 +68,14 @@ sudo make uninstall   # removes installed files
 - `CameraControllerComponent` — WASD QE and mouse. Enables movement control 
 - `ScriptComponent` — attaches logic via script classes
 - `Metadata` — name, tags, UUID (used in search/prefab)
+- `RigidBodyComponent` — velocity, acceleration, mass, kinematic flag
+- `ColliderComponent` — shape (box, sphere, capsule), size, radius, trigger flag
+- `VariableComponent` — flexible key-value storage for floats, ints, strings
+- `StateComponent` — state machine with current state and transitions
+- `LifetimeComponent` — self-destruct timer for entities
+- `AudioSourceComponent` — sound path, looping, volume control
+- `LightComponent` — point, directional, spot lights with color, intensity, range, spot angle
+- `TimersComponent` — named timers supporting repeat and finish states
 
 ---
 
@@ -77,14 +85,19 @@ sudo make uninstall   # removes installed files
 - `ScriptSystem` — calls `start()` once, then `update(dt)` every frame 
 - `HierarchySystem` — updates global transforms based on parent-child hierarchy
 - `CameraControllerSystem` — basic WASD + mouse camera movement 
+- `PhysicsSystem` — integrates velocity and acceleration for rigid bodies
+- `CollisionSystem` — detects collisions between colliders (AABB, spheres, capsules planned)
+- `StateSystem` — updates entity state machines and manages transitions
+- `LifetimeSystem` — removes entities after their lifetime expires
+- `AudioSystem` — manages playback of audio sources (basic scaffolding)
+- `TimerSystem` — updates multiple named timers per entity, supports repeats and triggers
 
 ---
 
 ## Extensibility
 
-The engine allows custom components and systems.
-You can register your own types and logic to extend behavior.
-The engine's ECS model ensures that user-defined systems can integrate smoothly into the update loop.
+You can register custom components, systems, and scripts.
+The ECS architecture ensures clean integration into the update loop.
 - [Components](docs/components.md)
 - [Systems](docs/systems.md) (that iterate over ECS components)
 - [Scripts](docs/scripts.md) (by inheriting from `Script`)
@@ -93,12 +106,14 @@ The engine's ECS model ensures that user-defined systems can integrate smoothly 
 
 ## Scenes and Prefabs
 
-See [Scenes](docs/scenes.md), [Prefabs](docs/prefabs.md) to learn how to define levels and reusable object templates.
+Learn how to define levels and reusable templates with JSON-based scenes and prefabs:
+- [Scenes](docs/scenes.md)
+- [Prefabs](docs/prefabs.md)
 
 ---
 ## Example
 
-- Check the `examples/` directory for sample projects.
+- Sample projects available under `examples/` demonstrate engine usage.
 
 ---
 
@@ -132,10 +147,10 @@ g++ -std=c++17 -Wall -I/usr/local/include/farixEngine main.cpp -L/usr/local/lib 
 
 ## To Do / Planned
 
-- Event system
-- OpenGL backend
-- Basic editor
-- 2D & UI layers
-- Audio system
-- Physics
-- Scaling the project to include other file formats etc.
+- Event system and refactor systems to support events
+- 2D and UI rendering layers with components
+- Clipping, improved lighting and shadow support
+- Audio system enhancements
+- Complete physics system with broadphase, narrowphase, collision response
+- Centralized AssetManager for textures, meshes, sounds
+- Convert software renderer to OpenGL backend
