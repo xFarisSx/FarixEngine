@@ -1,13 +1,13 @@
 #include "farixEngine/application/application.hpp"
 #include "farixEngine/core/engineRegistry.hpp"
+#include "farixEngine/core/engineServices.hpp"
 #include <chrono>
 
 namespace farixEngine {
 
 void Application::run(int width, int height, const char *title) {
   engine.init(width, height, title);
-  engine.getSceneManager()->setContext(engine.getContext());
-  EngineRegistry::get().registerDefaults();
+  EngineServices::get().getEngineRegistry().registerDefaults();
 
   onStart();
   auto last = std::chrono::high_resolution_clock::now();

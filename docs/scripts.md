@@ -55,7 +55,7 @@ public:
 
 To use a script at runtime, you must:
 
-- Register the script class using `EngineRegistry::get().getScriptRegistry().registerScript<T>(name);`
+- Register the script class using `EngineServices::get().getEngineRegistry().getScriptRegistry().registerScript<T>(name);`
 - Add it to a gameObject using `gameObject.addScript(std::make_shared<TScript>());`
 - Remove by name using `gameObject.removeScriptByName(name);`
 

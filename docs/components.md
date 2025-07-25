@@ -9,7 +9,7 @@ world/gameWorld.registerComponent<Type>();
 ## Serialization registration (for scenes and prefabs)
 
 ```cpp
-EngineRegistry::get().getSerializerRegistry().registerSerializer<YourComponent>(
+EngineServices::get().getEngineRegistry().getSerializerRegistry().registerSerializer<YourComponent>(
   "ComponentName",
   [](World& world, Entity e) -> json {
     const auto& c = world.getComponent<YourComponent>(e);
@@ -25,7 +25,7 @@ EngineRegistry::get().getSerializerRegistry().registerSerializer<YourComponent>(
 
 ### Example
 ```cpp
-EngineRegistry::get().getSerializerRegistry().registerSerializer<BlinkComponent>(
+EngineServices::get().getEngineRegistry().getSerializerRegistry().registerSerializer<BlinkComponent>(
   "BlinkComponent",
   [](World &world, Entity e) -> json {
     const auto &blink = world.getComponent<BlinkComponent>(e);

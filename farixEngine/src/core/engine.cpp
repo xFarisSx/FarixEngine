@@ -1,5 +1,6 @@
 #include "farixEngine/core/engine.hpp"
 #include "farixEngine/core/engineContext.hpp"
+#include "farixEngine/core/engineServices.hpp"
 #include <farixEngine/scene/sceneManager.hpp>
 #include <iostream>
 namespace farixEngine {
@@ -23,6 +24,7 @@ void Engine::init(int width, int height, const char *title) {
   context->controller = controller;
   context->renderer = renderer;
   context->sceneManager=sceneManager;
+  EngineServices::get().setContext(context);
   std::cout << "Engine initialized\n";
 }
  

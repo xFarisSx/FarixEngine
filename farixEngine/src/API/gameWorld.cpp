@@ -40,9 +40,7 @@ GameWorld::getGameObjectsByName(const std::string &name) {
 void GameWorld::setCamera(const GameObject &camera) {
   _world.setCameraEntity(camera.getEntity());
 }
-EngineContext* GameWorld::getContext(){
-  return _world.getContext();
-}
+
 GameObject GameWorld::getCamera() {
   Entity camEntity = _world.getCamera();
   if (camEntity == 0) {
@@ -57,7 +55,7 @@ World &GameWorld::getInternalWorld() { return _world; }
 
 const World &GameWorld::getInternalWorld() const { return _world; }
 
-void GameWorld::addSystem(std::shared_ptr<System> sys){
+void GameWorld::addSystem(std::shared_ptr<System> sys) {
   _world.addSystem(sys);
 }
 

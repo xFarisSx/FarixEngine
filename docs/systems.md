@@ -34,7 +34,7 @@ public:
 
 ## Registering The System
 ```cpp
-EngineRegistry::get().getSystemRegistry().registerSystem<TSystem>(name);
+EngineServices::get().getEngineRegistry().getSystemRegistry().registerSystem<TSystem>(name);
 ```
 ## Adding it to the world
 ```cpp

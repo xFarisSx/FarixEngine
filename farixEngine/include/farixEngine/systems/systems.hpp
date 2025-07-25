@@ -7,15 +7,11 @@
 namespace farixEngine {
 class RenderSystem : public System {
 public:
-  RenderSystem(Renderer *renderer)
-      : System("RenderSystem"), renderer(renderer) {}
+  RenderSystem() : System("RenderSystem") {}
 
   void start(World &world) override {};
 
   void update(World &world, float dt) override;
-
-private:
-  Renderer *renderer;
 };
 
 class ScriptSystem : public System {
@@ -38,15 +34,11 @@ public:
 
 class CameraControllerSystem : public System {
 public:
-  CameraControllerSystem(Controller *ctrl)
-      : System("CameraControlSystem"), controller(ctrl) {}
+  CameraControllerSystem() : System("CameraControlSystem") {}
 
   void start(World &world) override {};
 
   void update(World &world, float dt) override;
-
-private:
-  Controller *controller;
 };
 
 class PhysicsSystem : public System {

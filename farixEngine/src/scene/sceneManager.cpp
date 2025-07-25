@@ -6,7 +6,7 @@ namespace farixEngine {
 
 Scene &SceneManager::createScene(const std::string &name, bool activate) {
   auto scene = std::make_unique<Scene>(name, "scenes/" + name + ".json");
-  scene->onLoad(ctx);
+  scene->onLoad();
   Scene &ref = *scene;
   scenes[name] = std::move(scene);
 
@@ -20,7 +20,7 @@ Scene &SceneManager::createScene(const std::string &name, bool activate) {
 Scene &SceneManager::loadSceneFromFile(const std::string &filePath,
                                        bool activate) {
   auto scene = std::make_unique<Scene>("", filePath);
-  scene->onLoad(ctx);
+  scene->onLoad();
 
   Serializer::loadScene(scene.get(), filePath);
 
@@ -57,10 +57,9 @@ GameWorld *SceneManager::currentGameWorld() {
   return &activeScene->gameWorld();
 }
 World *SceneManager::currentWorld() { return &activeScene->world(); }
-void SceneManager::setContext(EngineContext *_ctx) { ctx = _ctx; }
 
 void SceneManager::reloadScene() {
-    activeScene->onLoad(ctx);
+  activeScene->onLoad();
   Serializer::loadScene(activeScene, activeScene->path());
   //
   std::cout << "Reloaded scene name: '" << activeScene->name() << "'"

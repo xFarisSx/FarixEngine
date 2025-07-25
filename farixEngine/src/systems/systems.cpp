@@ -6,6 +6,7 @@
 #include "farixEngine/math/general.hpp"
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/renderer/renderer.hpp"
+#include "farixEngine/core/engineServices.hpp"
 #include "farixEngine/script/script.hpp"
 #include <SDL2/SDL.h>
 #include <algorithm>
@@ -14,6 +15,7 @@ namespace farixEngine {
 using Entity = uint32_t;
 
 void RenderSystem::update(World &world, float dt) {
+  Renderer* renderer = EngineServices::get().getContext()->renderer;
   const auto &entities = world.getEntities();
 
   Entity cameraEntity = world.getCamera();
@@ -95,7 +97,7 @@ void HierarchySystem::update(World &world, float dt) {
 }
 
 void CameraControllerSystem::update(World &world, float dt) {
-
+  Controller* controller = EngineServices::get().getContext()->controller;
   if (!controller)
     return;
   Vec3 moveDir{};

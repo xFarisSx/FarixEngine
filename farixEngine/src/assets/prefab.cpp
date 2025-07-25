@@ -2,6 +2,7 @@
 #include "farixEngine/API/gameObject.hpp"
 #include "farixEngine/API/gameWorld.hpp"
 #include "farixEngine/core/engineRegistry.hpp"
+#include "farixEngine/core/engineServices.hpp"
 #include "farixEngine/thirdparty/nlohmann/json.hpp"
 #include <fstream>
 #include <iostream>
@@ -14,7 +15,7 @@ void serializeEntityRecursive(World &world, Entity e, json &out) {
   json componentsJson;
 
   for (const auto &[componentName, serializer] :
-       EngineRegistry::get().getSerializerRegistry().getAll()) {
+      EngineServices::get().getEngineRegistry().getSerializerRegistry().getAll()) {
     if (serializer.has(world, e)) {
       componentsJson[componentName] = serializer.to_json(world, e);
     }
@@ -63,7 +64,7 @@ Entity deserializeEntityRecursive(World &world, const json &entityJson) {
     const auto &componentsJson = entityJson["components"];
     for (const auto &[componentName, componentData] : componentsJson.items()) {
       const auto &deserializer =
-          EngineRegistry::get().getSerializerRegistry().getSerializer(
+          EngineServices::get().getEngineRegistry().getSerializerRegistry().getSerializer(
               componentName);
       deserializer.from_json(world, e, componentData);
     }

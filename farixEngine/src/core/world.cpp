@@ -55,9 +55,7 @@ void World::startSystems() { systemManager.startAll(*this); }
 void World::addSystem(std::shared_ptr<System> system) {
   systemManager.addSystem(std::move(system));
 }
-void World::clearSystems(){
-  systemManager.clearSystems();
-}
+void World::clearSystems() { systemManager.clearSystems(); }
 
 void World::addScript(uint32_t entity, ScriptPtr script) {
   script->setContext(entity, this);
@@ -168,20 +166,16 @@ std::vector<World::Entity> World::getChildren(Entity parent) const {
   return {};
 }
 ComponentManager &World::getComponentManager() { return componentManager; }
-void World::setContext(EngineContext *_context) { context = _context; }
 
-EngineContext *World::getContext() const { return context; }
-
-void World::destroyEntity(Entity e){
+void World::destroyEntity(Entity e) {
   removeParent(e);
   removeAllChildren(e);
   for (auto &[type, storagePtr] : componentManager.getStorages()) {
-    storagePtr->remove(e);  
-  } 
+    storagePtr->remove(e);
+  }
 
-
-  entities.erase(std::remove(entities.begin(), entities.end(), e), entities.end());
-
+  entities.erase(std::remove(entities.begin(), entities.end(), e),
+                 entities.end());
 }
 
 void World::registerDefaults() {
@@ -196,15 +190,14 @@ void World::registerDefaults() {
   registerComponent<ParentComponent>();
   registerComponent<ChildrenComponent>();
 
-    registerComponent<RigidBodyComponent>();
+  registerComponent<RigidBodyComponent>();
   registerComponent<ColliderComponent>();
   registerComponent<VariableComponent>();
   registerComponent<StateComponent>();
   registerComponent<LifetimeComponent>();
   registerComponent<AudioSourceComponent>();
   registerComponent<LightComponent>();
-registerComponent<TimersComponent>();
-
+  registerComponent<TimersComponent>();
 }
 
 } // namespace farixEngine

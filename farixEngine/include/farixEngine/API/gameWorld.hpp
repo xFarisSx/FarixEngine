@@ -35,7 +35,6 @@ public:
   World &getInternalWorld();
   const World &getInternalWorld() const;
 
-  EngineContext *getContext();
   void addSystem(std::shared_ptr<System> sys);
   template <typename T> void registerComponent();
 

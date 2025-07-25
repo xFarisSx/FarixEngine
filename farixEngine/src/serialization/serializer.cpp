@@ -1,5 +1,6 @@
 #include "farixEngine/serialization/serializer.hpp"
 #include "farixEngine/core/engineRegistry.hpp"
+#include "farixEngine/core/engineServices.hpp"
 #include "farixEngine/core/world.hpp"
 #include "farixEngine/ecs/system.hpp"
 #include "farixEngine/thirdparty/nlohmann/json.hpp"
@@ -27,8 +28,10 @@ void Serializer::saveScene(Scene *scene, const std::string &filepath) {
     entityJson["id"] = static_cast<uint32_t>(e);
 
     json componentsJson;
-    for (const auto &[componentName, serializer] :
-         EngineRegistry::get().getSerializerRegistry().getAll()) {
+    for (const auto &[componentName, serializer] : EngineServices::get()
+                                                       .getEngineRegistry()
+                                                       .getSerializerRegistry()
+                                                       .getAll()) {
       if (serializer.has(world, e)) {
         componentsJson[componentName] = serializer.to_json(world, e);
       }
@@ -38,7 +41,7 @@ void Serializer::saveScene(Scene *scene, const std::string &filepath) {
     sceneJson["entities"].push_back(entityJson);
   }
 
-  auto &sysReg = EngineRegistry::get().getSystemRegistry();
+  auto &sysReg = EngineServices::get().getEngineRegistry().getSystemRegistry();
   std::vector<std::string> activeSystems;
   for (auto &sys : scene->world().getSystems()) {
     if (sysReg.exists(sys->name)) {
@@ -72,7 +75,10 @@ void Serializer::loadScene(Scene *scene, const std::string &filepath) {
   }
 
   World &world = scene->world();
-  auto &serializers = EngineRegistry::get().getSerializerRegistry().getAll();
+  auto &serializers = EngineServices::get()
+                          .getEngineRegistry()
+                          .getSerializerRegistry()
+                          .getAll();
 
   world.clearStorages();
 
@@ -90,7 +96,8 @@ void Serializer::loadScene(Scene *scene, const std::string &filepath) {
 
   if (jsonData.contains("systems")) {
     const auto &systemList = jsonData["systems"];
-    auto &registry = EngineRegistry::get().getSystemRegistry();
+    auto &registry =
+        EngineServices::get().getEngineRegistry().getSystemRegistry();
 
     for (const auto &name : systemList) {
       if (!registry.exists(name)) {

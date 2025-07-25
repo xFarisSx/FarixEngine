@@ -1,14 +1,10 @@
 #include "farixEngine/core/engineRegistry.hpp"
+#include "farixEngine/core/engineServices.hpp"
 #include "farixEngine/components/components.hpp"
 #include "farixEngine/script/script.hpp"
 #include "farixEngine/systems/systems.hpp"
 
 namespace farixEngine {
-
-EngineRegistry &EngineRegistry::get() {
-  static EngineRegistry instance;
-  return instance;
-}
 
 ScriptRegistry &EngineRegistry::getScriptRegistry() { return scriptRegistry; }
 
@@ -17,7 +13,7 @@ ComponentSerializerRegistry &EngineRegistry::getSerializerRegistry() {
 }
 
 SystemRegistry &EngineRegistry::getSystemRegistry() { return systemRegistry; }
-
+ 
 void EngineRegistry::clear() {}
 
 void EngineRegistry::registerDefaults() {
@@ -196,13 +192,13 @@ void EngineRegistry::registerDefaults() {
           if (name.empty())
             continue;
 
-          if (!EngineRegistry::get().getScriptRegistry().exists(name)) {
+          if (!EngineServices::get().getEngineRegistry().getScriptRegistry().exists(name)) {
             throw std::runtime_error("Script type '" + name +
                                      "' not registered.");
           }
 
           world.addScript(
-              e, EngineRegistry::get().getScriptRegistry().create(name));
+              e, EngineServices::get().getEngineRegistry().getScriptRegistry().create(name));
         }
       });
 
@@ -233,187 +229,165 @@ void EngineRegistry::registerDefaults() {
 
         world.addComponent<ChildrenComponent>(e, comp);
       });
-  
-    rg.registerSerializer<RigidBodyComponent>(
-  "RigidBodyComponent",
-  [](World &world, Entity e) -> json {
-    const auto &c = world.getComponent<RigidBodyComponent>(e);
-    return {
-      {"velocity", c.velocity},
-      {"acceleration", c.acceleration},
-      {"mass", c.mass},
-      {"isKinematic", c.isKinematic}
-    };
-  },
-  [](World &world, Entity e, const json &j) {
-    RigidBodyComponent c;
-    c.velocity = j.at("velocity").get<Vec3>();
-    c.acceleration = j.at("acceleration").get<Vec3>();
-    c.mass = j.at("mass").get<float>();
-    c.isKinematic = j.at("isKinematic").get<bool>();
-    world.registerComponent<RigidBodyComponent>();
-    world.addComponent<RigidBodyComponent>(e, c);
-  });
+
+  rg.registerSerializer<RigidBodyComponent>(
+      "RigidBodyComponent",
+      [](World &world, Entity e) -> json {
+        const auto &c = world.getComponent<RigidBodyComponent>(e);
+        return {{"velocity", c.velocity},
+                {"acceleration", c.acceleration},
+                {"mass", c.mass},
+                {"isKinematic", c.isKinematic}};
+      },
+      [](World &world, Entity e, const json &j) {
+        RigidBodyComponent c;
+        c.velocity = j.at("velocity").get<Vec3>();
+        c.acceleration = j.at("acceleration").get<Vec3>();
+        c.mass = j.at("mass").get<float>();
+        c.isKinematic = j.at("isKinematic").get<bool>();
+        world.registerComponent<RigidBodyComponent>();
+        world.addComponent<RigidBodyComponent>(e, c);
+      });
 
   rg.registerSerializer<ColliderComponent>(
-  "ColliderComponent",
-  [](World &world, Entity e) -> json {
-    const auto &c = world.getComponent<ColliderComponent>(e);
-    return {
-      {"shape", static_cast<int>(c.shape)},
-      {"size", c.size},
-      {"radius", c.radius},
-      {"isTrigger", c.isTrigger}
-    };
-  },
-  [](World &world, Entity e, const json &j) {
-    ColliderComponent c;
-    c.shape = static_cast<ColliderComponent::Shape>(j.at("shape").get<int>());
-    c.size = j.at("size").get<Vec3>();
-    c.radius = j.at("radius").get<float>();
-    c.isTrigger = j.at("isTrigger").get<bool>();
-    world.registerComponent<ColliderComponent>();
-    world.addComponent<ColliderComponent>(e, c);
-  });
+      "ColliderComponent",
+      [](World &world, Entity e) -> json {
+        const auto &c = world.getComponent<ColliderComponent>(e);
+        return {{"shape", static_cast<int>(c.shape)},
+                {"size", c.size},
+                {"radius", c.radius},
+                {"isTrigger", c.isTrigger}};
+      },
+      [](World &world, Entity e, const json &j) {
+        ColliderComponent c;
+        c.shape =
+            static_cast<ColliderComponent::Shape>(j.at("shape").get<int>());
+        c.size = j.at("size").get<Vec3>();
+        c.radius = j.at("radius").get<float>();
+        c.isTrigger = j.at("isTrigger").get<bool>();
+        world.registerComponent<ColliderComponent>();
+        world.addComponent<ColliderComponent>(e, c);
+      });
 
   rg.registerSerializer<VariableComponent>(
-  "VariableComponent",
-  [](World &world, Entity e) -> json {
-    const auto &c = world.getComponent<VariableComponent>(e);
-    return {
-      {"floats", c.floats},
-      {"ints", c.ints},
-      {"strings", c.strings}
-    }; 
-  },
-  [](World &world, Entity e, const json &j) {
-    VariableComponent c;
-    c.floats = j.at("floats").get<std::unordered_map<std::string, float>>();
-    c.ints = j.at("ints").get<std::unordered_map<std::string, int>>();
-    c.strings = j.at("strings").get<std::unordered_map<std::string, std::string>>();
-    world.registerComponent<VariableComponent>();
-    world.addComponent<VariableComponent>(e, c);
-  });
+      "VariableComponent",
+      [](World &world, Entity e) -> json {
+        const auto &c = world.getComponent<VariableComponent>(e);
+        return {{"floats", c.floats}, {"ints", c.ints}, {"strings", c.strings}};
+      },
+      [](World &world, Entity e, const json &j) {
+        VariableComponent c;
+        c.floats = j.at("floats").get<std::unordered_map<std::string, float>>();
+        c.ints = j.at("ints").get<std::unordered_map<std::string, int>>();
+        c.strings =
+            j.at("strings").get<std::unordered_map<std::string, std::string>>();
+        world.registerComponent<VariableComponent>();
+        world.addComponent<VariableComponent>(e, c);
+      });
 
   rg.registerSerializer<StateComponent>(
-  "StateComponent",
-  [](World &world, Entity e) -> json {
-    const auto &c = world.getComponent<StateComponent>(e);
-    return {
-      {"currentState", c.currentState},
-      {"transitions", c.transitions}
-    };
-  },
-  [](World &world, Entity e, const json &j) {
-    StateComponent c;
-    c.currentState = j.at("currentState").get<std::string>();
-    c.transitions = j.at("transitions").get<std::unordered_map<std::string, std::string>>();
-    world.registerComponent<StateComponent>();
-    world.addComponent<StateComponent>(e, c);
-  });
+      "StateComponent",
+      [](World &world, Entity e) -> json {
+        const auto &c = world.getComponent<StateComponent>(e);
+        return {{"currentState", c.currentState},
+                {"transitions", c.transitions}};
+      },
+      [](World &world, Entity e, const json &j) {
+        StateComponent c;
+        c.currentState = j.at("currentState").get<std::string>();
+        c.transitions =
+            j.at("transitions")
+                .get<std::unordered_map<std::string, std::string>>();
+        world.registerComponent<StateComponent>();
+        world.addComponent<StateComponent>(e, c);
+      });
 
   rg.registerSerializer<LifetimeComponent>(
-  "LifetimeComponent",
-  [](World &world, Entity e) -> json {
-    const auto &c = world.getComponent<LifetimeComponent>(e);
-    return {{"timeRemaining", c.timeRemaining}};
-  },
-  [](World &world, Entity e, const json &j) {
-    LifetimeComponent c;
-    c.timeRemaining = j.at("timeRemaining").get<float>();
-    world.registerComponent<LifetimeComponent>();
-    world.addComponent<LifetimeComponent>(e, c);
-  });
-  
+      "LifetimeComponent",
+      [](World &world, Entity e) -> json {
+        const auto &c = world.getComponent<LifetimeComponent>(e);
+        return {{"timeRemaining", c.timeRemaining}};
+      },
+      [](World &world, Entity e, const json &j) {
+        LifetimeComponent c;
+        c.timeRemaining = j.at("timeRemaining").get<float>();
+        world.registerComponent<LifetimeComponent>();
+        world.addComponent<LifetimeComponent>(e, c);
+      });
+
   rg.registerSerializer<AudioSourceComponent>(
-  "AudioSourceComponent",
-  [](World &world, Entity e) -> json {
-    const auto &c = world.getComponent<AudioSourceComponent>(e);
-    return {
-      {"soundPath", c.soundPath},
-      {"loop", c.loop},
-      {"volume", c.volume}
-    };
-  },
-  [](World &world, Entity e, const json &j) {
-    AudioSourceComponent c;
-    c.soundPath = j.at("soundPath").get<std::string>();
-    c.loop = j.at("loop").get<bool>();
-    c.volume = j.at("volume").get<float>();
-    world.registerComponent<AudioSourceComponent>();
-    world.addComponent<AudioSourceComponent>(e, c);
-  });
+      "AudioSourceComponent",
+      [](World &world, Entity e) -> json {
+        const auto &c = world.getComponent<AudioSourceComponent>(e);
+        return {
+            {"soundPath", c.soundPath}, {"loop", c.loop}, {"volume", c.volume}};
+      },
+      [](World &world, Entity e, const json &j) {
+        AudioSourceComponent c;
+        c.soundPath = j.at("soundPath").get<std::string>();
+        c.loop = j.at("loop").get<bool>();
+        c.volume = j.at("volume").get<float>();
+        world.registerComponent<AudioSourceComponent>();
+        world.addComponent<AudioSourceComponent>(e, c);
+      });
 
-rg.registerSerializer<LightComponent>(
-  "LightComponent",
-  [](World& world, Entity e) -> json {
-    const auto& c = world.getComponent<LightComponent>(e);
-    return {
-      {"type", static_cast<int>(c.type)},
-      {"color", {c.color.x, c.color.y, c.color.z}},
-      {"dir", {c.dir.x, c.dir.y, c.dir.z}},
-      {"intensity", c.intensity},
-      {"range", c.range},
-      {"spotAngle", c.spotAngle}
-    };
-  },
-  [](World& world, Entity e, const json& j) {
-    LightComponent c;
-    c.type = static_cast<LightComponent::Light>(j.at("type").get<int>());
-    auto col = j.at("color");
-    c.color = Vec3(col[0], col[1], col[2]);
-    auto dir = j.at("dir");
-    c.dir = Vec3(dir[0], dir[1], dir[2]);
-    c.intensity = j.at("intensity").get<float>();
-    c.range = j.at("range").get<float>();
-    c.spotAngle = j.at("spotAngle").get<float>();
-    world.registerComponent<LightComponent>();
-    world.addComponent<LightComponent>(e, c);
-  }
-);
-
+  rg.registerSerializer<LightComponent>(
+      "LightComponent",
+      [](World &world, Entity e) -> json {
+        const auto &c = world.getComponent<LightComponent>(e);
+        return {{"type", static_cast<int>(c.type)},
+                {"color", {c.color.x, c.color.y, c.color.z}},
+                {"dir", {c.dir.x, c.dir.y, c.dir.z}},
+                {"intensity", c.intensity},
+                {"range", c.range},
+                {"spotAngle", c.spotAngle}};
+      },
+      [](World &world, Entity e, const json &j) {
+        LightComponent c;
+        c.type = static_cast<LightComponent::Light>(j.at("type").get<int>());
+        auto col = j.at("color");
+        c.color = Vec3(col[0], col[1], col[2]);
+        auto dir = j.at("dir");
+        c.dir = Vec3(dir[0], dir[1], dir[2]);
+        c.intensity = j.at("intensity").get<float>();
+        c.range = j.at("range").get<float>();
+        c.spotAngle = j.at("spotAngle").get<float>();
+        world.registerComponent<LightComponent>();
+        world.addComponent<LightComponent>(e, c);
+      });
 
   rg.registerSerializer<TimersComponent>(
-  "TimersComponent",
-  [](World& world, Entity e) -> json {
-    const auto& comp = world.getComponent<TimersComponent>(e);
-    json timersJson = json::object();
+      "TimersComponent",
+      [](World &world, Entity e) -> json {
+        const auto &comp = world.getComponent<TimersComponent>(e);
+        json timersJson = json::object();
 
-    for (const auto& [name, timer] : comp.timers) {
-      timersJson[name] = {
-        {"current", timer->current},
-        {"max", timer->max},
-        {"repeat", timer->repeat},
-        {"finished", timer->finished},
-        {"name", timer->name}
-      };
-    }
+        for (const auto &[name, timer] : comp.timers) {
+          timersJson[name] = {{"current", timer->current},
+                              {"max", timer->max},
+                              {"repeat", timer->repeat},
+                              {"finished", timer->finished},
+                              {"name", timer->name}};
+        }
 
-    return timersJson;
-  },
-  [](World& world, Entity e, const json& j) {
-    TimersComponent comp;
-    for (auto it = j.begin(); it != j.end(); ++it) {
-      auto name = it.key();
-      auto jt = it.value();
-      auto timer = std::make_shared<Timer>();
-      timer->current = jt.at("current").get<float>();
-      timer->max = jt.at("max").get<float>();
-      timer->repeat = jt.at("repeat").get<bool>();
-      timer->finished = jt.at("finished").get<bool>();
-      timer->name = jt.at("name").get<std::string>();
-      comp.timers[name] = timer;
-    }
-    world.registerComponent<TimersComponent>();
-    world.addComponent<TimersComponent>(e, comp);
-  }
-);
-
-
-
- 
-
-
+        return timersJson;
+      },
+      [](World &world, Entity e, const json &j) {
+        TimersComponent comp;
+        for (auto it = j.begin(); it != j.end(); ++it) {
+          auto name = it.key();
+          auto jt = it.value();
+          auto timer = std::make_shared<Timer>();
+          timer->current = jt.at("current").get<float>();
+          timer->max = jt.at("max").get<float>();
+          timer->repeat = jt.at("repeat").get<bool>();
+          timer->finished = jt.at("finished").get<bool>();
+          timer->name = jt.at("name").get<std::string>();
+          comp.timers[name] = timer;
+        }
+        world.registerComponent<TimersComponent>();
+        world.addComponent<TimersComponent>(e, comp);
+      });
 }
 
 } // namespace farixEngine

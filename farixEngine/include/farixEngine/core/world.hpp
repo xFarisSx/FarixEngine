@@ -50,9 +50,6 @@ public:
   void clearStorages();
   void clearSystems();
 
-  void setContext(EngineContext *context);
-  EngineContext *getContext() const;
-
   template <typename T> void registerComponent();
 
   void loadScene(const std::string &filepath);

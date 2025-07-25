@@ -21,12 +21,9 @@ public:
   GameWorld *currentGameWorld();
   World *currentWorld();
 
-  void setContext(EngineContext *_ctx);
-
 private:
   std::unordered_map<std::string, std::unique_ptr<Scene>> scenes;
   Scene *activeScene = nullptr;
-  EngineContext *ctx;
 };
 
 } // namespace farixEngine

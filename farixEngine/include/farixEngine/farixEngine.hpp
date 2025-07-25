@@ -20,3 +20,4 @@
 #include "farixEngine/application/application.hpp" 
 #include "farixEngine/core/engineRegistry.hpp"
 #include "farixEngine/assets/prefab.hpp"
+#include "farixEngine/core/engineServices.hpp"

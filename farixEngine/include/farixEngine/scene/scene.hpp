@@ -11,12 +11,12 @@ public:
 
   World &world();
   GameWorld &gameWorld();
-  void onLoad(EngineContext *context);
+  void onLoad();
 
   const std::string &name() const;
   const std::string &path() const;
   void setName(const std::string &name);
-    void setPath(const std::string &name);
+  void setPath(const std::string &name);
 
 private:
   std::string _name;
