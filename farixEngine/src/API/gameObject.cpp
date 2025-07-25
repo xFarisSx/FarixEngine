@@ -52,6 +52,13 @@ GameWorld GameObject::getGameWorld(){
     return GameWorld(*world);
   }
 
+void GameObject::destroyObject(){
+  world->destroyEntity(entity);
+    world = nullptr;
+    entity = 0;
+
+}
+
 std::string& GameObject::getName(){
   return getComponent<Metadata>().name;
 }

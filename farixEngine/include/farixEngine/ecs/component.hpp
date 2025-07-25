@@ -14,6 +14,8 @@ using Entity = uint32_t;
 struct IComponentStorage {
   virtual ~IComponentStorage() = default;
   virtual void clear() = 0;
+  virtual void remove(Entity entity) = 0;
+
 };
 
 template <typename T> class ComponentStorage : public IComponentStorage {
@@ -48,6 +50,7 @@ public:
   template <typename T> const ComponentStorage<T> &getStorage() const;
   template <typename T> bool hasStorage();
 
+  std::unordered_map<std::type_index, std::shared_ptr<IComponentStorage>> getStorages();
 
 
   void clearStorages();

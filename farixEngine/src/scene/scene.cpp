@@ -1,6 +1,7 @@
 
 #include "farixEngine/scene/scene.hpp"
 #include "farixEngine/systems/systems.hpp"
+#include <memory>
 #include <string>
 
 namespace farixEngine {
@@ -19,6 +20,15 @@ void Scene::onLoad(EngineContext *context) {
   _world.addSystem(
       std::make_shared<CameraControllerSystem>(cameraControllerSystem));
   _world.addSystem(std::make_shared<HierarchySystem>());
+  _world.addSystem(std::make_shared<PhysicsSystem>());
+    _world.addSystem(std::make_shared<StateSystem>());
+      _world.addSystem(std::make_shared<LifetimeSystem>());
+      _world.addSystem(std::make_shared<TimerSystem>());
+      _world.addSystem(std::make_shared<AudioSystem>());
+      _world.addSystem(std::make_shared<CollisionSystem>());
+
+
+
 
   _world.setContext(context);
 }

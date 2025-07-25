@@ -1,5 +1,5 @@
 #include "farixEngine/systems/systems.hpp"
-
+#include "farixEngine/physics/collisionHelpers.hpp"
 #include "farixEngine/components/components.hpp"
 #include "farixEngine/core/world.hpp"
 #include "farixEngine/ecs/system.hpp"
@@ -142,6 +142,133 @@ void CameraControllerSystem::update(World &world, float dt) {
   }
   controller->dx = 0;
   controller->dy = 0;
+}
+
+// PhysicsSystem
+
+void PhysicsSystem::update(World &world, float dt) {
+  auto entities = world.view<RigidBodyComponent, TransformComponent>();
+  for (Entity e : entities) {
+    auto &rb = world.getComponent<RigidBodyComponent>(e);
+    auto &tf = world.getComponent<TransformComponent>(e);
+
+    if (!rb.isKinematic) {
+      rb.velocity = rb.velocity + rb.acceleration * dt;
+      tf.position = tf.position + rb.velocity * dt;
+    }
+  }
+}
+
+// CollisionSystem
+
+void CollisionSystem::update(World &world, float dt) {
+  auto entities = world.view<ColliderComponent, TransformComponent>();
+
+  for (size_t i = 0; i < entities.size(); ++i) {
+    for (size_t j = i + 1; j < entities.size(); ++j) {
+      Entity a = entities[i];
+      Entity b = entities[j];
+
+      auto &colA = world.getComponent<ColliderComponent>(a);
+      auto &tfA = world.getComponent<TransformComponent>(a);
+      auto &colB = world.getComponent<ColliderComponent>(b);
+      auto &tfB = world.getComponent<TransformComponent>(b);
+
+      bool collided = false;
+
+      if (colA.shape == ColliderComponent::Shape::Box &&
+          colB.shape == ColliderComponent::Shape::Box) {
+        collided = collision::AABBvsAABB(tfA.position, colA.size, tfB.position, colB.size);
+      } else if (colA.shape == ColliderComponent::Shape::Sphere &&
+                 colB.shape == ColliderComponent::Shape::Sphere) {
+        collided = collision::SpherevsSphere(tfA.position, colA.radius, tfB.position,
+                                  colB.radius);
+      } else { 
+        // TODO: implement box-sphere and capsule collisions
+        continue;
+      }
+
+      if (collided) {
+        std::cout << "Collision detected between entities " << a << " and " << b
+                  << std::endl;
+
+        // TODO: implement collision response (e.g. separate overlapping
+        // entities, reflect velocities, trigger events)
+      }
+    }
+  }
+}
+
+
+
+// StateSystem
+
+void StateSystem::update(World &world, float dt) {
+  auto entities = world.view<StateComponent>();
+  for (Entity e : entities) {
+    auto &state = world.getComponent<StateComponent>(e);
+  }
+}
+
+// LifetimeSystem
+
+void LifetimeSystem::update(World &world, float dt) {
+  auto entities = world.view<LifetimeComponent>();
+  for (Entity e : entities) {
+    auto &lifetime = world.getComponent<LifetimeComponent>(e);
+    lifetime.timeRemaining -= dt;
+    if (lifetime.timeRemaining <= 0.0f) {
+      world.destroyEntity(e);
+    }
+  }
+}
+
+// AudioSystem
+
+void AudioSystem::update(World &world, float dt) {
+  auto entities = world.view<AudioSourceComponent>();
+  for (Entity e : entities) {
+    auto &audio = world.getComponent<AudioSourceComponent>(e);
+  }
+}
+
+// TimerSystem
+
+void TimerSystem::update(World &world, float dt) {
+  auto entities = world.view<TimersComponent>();
+  for (Entity e : entities) {
+    auto &timersComp = world.getComponent<TimersComponent>(e);
+    for (auto &pair : timersComp.timers) {
+      auto &timer = *pair.second;
+      if (!timer.finished) {
+        timer.current += dt;
+        if (timer.current >= timer.max) {
+          timer.finished = true;
+          if (timer.repeat) {
+            timer.current = 0.0f;
+            timer.finished = false;
+          }
+        }
+      }
+    }
+  }
+}
+
+void TimerSystem::addTimer(World &world, Entity e, const std::string &name,
+                           float max, bool repeat) {
+  if (!world.hasComponent<TimersComponent>(e)) {
+    world.addComponent<TimersComponent>(e, TimersComponent{});
+  }
+  auto &timersComp = world.getComponent<TimersComponent>(e);
+  timersComp.timers[name] =
+      std::make_shared<Timer>(Timer{0.0f, max, repeat, false, name});
+}
+
+void TimerSystem::removeTimer(World &world, Entity e, const std::string &name) {
+  if (!world.hasComponent<TimersComponent>(e))
+    return;
+  auto &timersComp = world.getComponent<TimersComponent>(e);
+  timersComp.timers.erase(name);
 }
 
 } // namespace farixEngine

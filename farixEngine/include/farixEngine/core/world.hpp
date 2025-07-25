@@ -100,6 +100,8 @@ public:
   template <typename... Tags> void removeTags(Entity entity, Tags &&...tags);
   template <typename... Tags> bool hasTags(Entity entity, Tags &&...tags) const;
 
+  void destroyEntity(Entity e);
+
   ComponentManager &getComponentManager();
   std::vector<std::shared_ptr<System>> getSystems();
 

@@ -6,11 +6,19 @@
 #include "farixEngine/math/vec3.hpp"
 #include "farixEngine/utils/uuid.hpp"
 #include <memory>
-
+#include <unordered_map>
 namespace farixEngine {
 
+struct Timer{
+    float current = 0.0f;
+    float max = 1.0f;
+    bool repeat = false;
+    bool finished = false; 
+    std::string name = ""; 
+};
 class Script;
 using ScriptPtr = std::shared_ptr<Script>;
+using TimerPtr = std::shared_ptr<Timer>;
 using Entity = uint32_t;
 struct TransformComponent {
   Vec3 position = {0, 0, 0};
@@ -70,5 +78,59 @@ struct ParentComponent {
 struct ChildrenComponent {
   std::vector<Entity> children;
 };
+
+struct RigidBodyComponent {
+  Vec3 velocity = Vec3(0.0f);
+  Vec3 acceleration = Vec3(0.0f);
+  float mass = 1.0f;
+  bool isKinematic = false;
+};
+
+struct ColliderComponent {
+enum class Shape { Box, Sphere, Capsule };
+
+  Shape shape = Shape::Box;
+  Vec3 size = Vec3(1.0f);
+  float radius = 1.0f;
+  bool isTrigger = false;
+};
+
+struct VariableComponent {
+  std::unordered_map<std::string, float> floats;
+  std::unordered_map<std::string, int> ints;
+  std::unordered_map<std::string, std::string> strings;
+};
+
+struct StateComponent {
+  std::string currentState;
+  std::unordered_map<std::string, std::string> transitions;
+};
+
+struct LifetimeComponent {
+  float timeRemaining = 1.0f;
+};
+
+struct AudioSourceComponent {
+  std::string soundPath;
+  bool loop = false;
+  float volume = 1.0f;
+};
+
+struct LightComponent {
+  enum class Light { Point, Directional, Spot };
+  Light type = Light::Point;
+  Vec3 color = Vec3(1.0f);
+  Vec3 dir =  Vec3(0);
+  float intensity = 1.0f;
+  float range = 10.0f;
+  float spotAngle = 45.0f; 
+};
+
+
+struct TimersComponent {
+  std::unordered_map<std::string,TimerPtr> timers;
+};
+
+
 
 } // namespace farixEngine

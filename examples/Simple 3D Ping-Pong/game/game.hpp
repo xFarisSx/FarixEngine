@@ -1,6 +1,6 @@
 
 #pragma once
-#include "farixEngine/farixEngine.hpp"
+#include <farixEngine/farixEngine.hpp>
 
 using namespace farixEngine;
 
@@ -107,7 +107,7 @@ public:
 struct BlinkComponent {
   float timer = 0.0f;
   float interval = 0.5f; // seconds between blinks
-  bool visible = true;
+  bool visible = true; 
 };
 class BlinkSystem : public System {
 public:

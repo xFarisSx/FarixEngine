@@ -59,6 +59,8 @@ public:
 
   void removeScriptByName(const std::string &scriptName) ;
 
+  void destroyObject();
+
 };
 
 template <typename T> GameObject &GameObject::addComponent(const T &component) {

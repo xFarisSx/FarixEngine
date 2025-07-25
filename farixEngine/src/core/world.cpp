@@ -172,6 +172,18 @@ void World::setContext(EngineContext *_context) { context = _context; }
 
 EngineContext *World::getContext() const { return context; }
 
+void World::destroyEntity(Entity e){
+  removeParent(e);
+  removeAllChildren(e);
+  for (auto &[type, storagePtr] : componentManager.getStorages()) {
+    storagePtr->remove(e);  
+  } 
+
+
+  entities.erase(std::remove(entities.begin(), entities.end(), e), entities.end());
+
+}
+
 void World::registerDefaults() {
   registerComponent<Metadata>();
   registerComponent<TransformComponent>();
@@ -183,6 +195,16 @@ void World::registerDefaults() {
   registerComponent<ScriptComponent>();
   registerComponent<ParentComponent>();
   registerComponent<ChildrenComponent>();
+
+    registerComponent<RigidBodyComponent>();
+  registerComponent<ColliderComponent>();
+  registerComponent<VariableComponent>();
+  registerComponent<StateComponent>();
+  registerComponent<LifetimeComponent>();
+  registerComponent<AudioSourceComponent>();
+  registerComponent<LightComponent>();
+registerComponent<TimersComponent>();
+
 }
 
 } // namespace farixEngine
