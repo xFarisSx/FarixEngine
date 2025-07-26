@@ -7,7 +7,9 @@
 
 namespace farixEngine {
 Scene::Scene(const std::string &name, const std::string &path)
-    : _name(name), _path(path), _gameWorld(_world) {}
+    : _name(name), _path(path), _gameWorld(&_world) {
+  _gameWorld.setOwningScene(this);
+}
 
 World &Scene::world() { return _world; }
 GameWorld &Scene::gameWorld() { return _gameWorld; }

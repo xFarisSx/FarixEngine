@@ -3,6 +3,7 @@
 #include "farixEngine/API/gameWorld.hpp"
 #include "farixEngine/core/engineRegistry.hpp"
 #include "farixEngine/core/engineServices.hpp"
+#include "farixEngine/script/script.hpp"
 #include "farixEngine/thirdparty/nlohmann/json.hpp"
 #include <fstream>
 #include <iostream>
@@ -14,8 +15,10 @@ void serializeEntityRecursive(World &world, Entity e, json &out) {
   out["id"] = static_cast<uint32_t>(e);
   json componentsJson;
 
-  for (const auto &[componentName, serializer] :
-      EngineServices::get().getEngineRegistry().getSerializerRegistry().getAll()) {
+  for (const auto &[componentName, serializer] : EngineServices::get()
+                                                     .getEngineRegistry()
+                                                     .getSerializerRegistry()
+                                                     .getAll()) {
     if (serializer.has(world, e)) {
       componentsJson[componentName] = serializer.to_json(world, e);
     }
@@ -42,7 +45,7 @@ void serializeEntityRecursive(World &world, Entity e, json &out) {
 }
 
 void Prefab::save(GameObject &obj, const std::string &path) {
-  World &world = obj.getGameWorld().getInternalWorld();
+  World &world = *obj.getGameWorld()->getInternalWorld();
   Entity root = obj.getEntity();
   json rootJson;
   serializeEntityRecursive(world, root, rootJson);
@@ -57,15 +60,17 @@ void Prefab::save(GameObject &obj, const std::string &path) {
   out.close();
 }
 
-Entity deserializeEntityRecursive(World &world, const json &entityJson) {
+Entity deserializeEntityRecursive(GameWorld &gworld, World &world,
+                                  const json &entityJson) {
   Entity e = world.createEntity();
-
+  gworld.registerExistingEntity(e);
   if (entityJson.contains("components")) {
     const auto &componentsJson = entityJson["components"];
     for (const auto &[componentName, componentData] : componentsJson.items()) {
-      const auto &deserializer =
-          EngineServices::get().getEngineRegistry().getSerializerRegistry().getSerializer(
-              componentName);
+      const auto &deserializer = EngineServices::get()
+                                     .getEngineRegistry()
+                                     .getSerializerRegistry()
+                                     .getSerializer(componentName);
       deserializer.from_json(world, e, componentData);
     }
   }
@@ -97,7 +102,7 @@ Entity deserializeEntityRecursive(World &world, const json &entityJson) {
   if (entityJson.contains("children")) {
     auto &children = world.addComponent<ChildrenComponent>(e);
     for (const auto &childJson : entityJson["children"]) {
-      Entity child = deserializeEntityRecursive(world, childJson);
+      Entity child = deserializeEntityRecursive(gworld, world, childJson);
       children.children.push_back(child);
 
       if (!world.hasComponent<ParentComponent>(child)) {
@@ -106,15 +111,28 @@ Entity deserializeEntityRecursive(World &world, const json &entityJson) {
       }
     }
   }
-
+ 
   return e;
 }
 
-GameObject Prefab::instantiate(GameWorld &gworld, const std::string &path) {
+GameObject& Prefab::instantiate(GameWorld &gworld, const std::string &path) {
   std::ifstream in(path);
   json prefabJson;
   in >> prefabJson;
-  World &world = gworld.getInternalWorld();
-  return GameObject(world, deserializeEntityRecursive(world, prefabJson));
+  World &world = *gworld.getInternalWorld();
+  GameObject& root = gworld.registerExistingEntity(   deserializeEntityRecursive(gworld, world, prefabJson));
+
+  for (auto &obj : gworld.getAllGameObjects()) {
+    if (!obj->hasComponent<ScriptComponent>())
+      continue;
+    auto &scriptComp = obj->getComponent<ScriptComponent>();
+
+    for (auto &script : scriptComp.scripts) {
+      if (script) {
+        script->onCreate(obj, gworld.getOwningScene());
+      }
+    }
+  }
+  return root;
 }
 } // namespace farixEngine

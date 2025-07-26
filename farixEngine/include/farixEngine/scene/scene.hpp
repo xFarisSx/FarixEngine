@@ -23,5 +23,6 @@ private:
   std::string _path;
   World _world;
   GameWorld _gameWorld;
+  
 };
 } // namespace farixEngine

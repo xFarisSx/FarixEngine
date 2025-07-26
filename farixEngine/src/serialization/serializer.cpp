@@ -3,6 +3,7 @@
 #include "farixEngine/core/engineServices.hpp"
 #include "farixEngine/core/world.hpp"
 #include "farixEngine/ecs/system.hpp"
+#include "farixEngine/script/script.hpp"
 #include "farixEngine/thirdparty/nlohmann/json.hpp"
 #include <fstream>
 #include <iostream>
@@ -16,6 +17,8 @@ void Serializer::saveScene(Scene *scene, const std::string &filepath) {
   }
 
   World &world = scene->world();
+
+
   json sceneJson;
 
   sceneJson["name"] = scene->name();
@@ -75,6 +78,7 @@ void Serializer::loadScene(Scene *scene, const std::string &filepath) {
   }
 
   World &world = scene->world();
+      GameWorld &gworld = scene->gameWorld();
   auto &serializers = EngineServices::get()
                           .getEngineRegistry()
                           .getSerializerRegistry()
@@ -84,12 +88,25 @@ void Serializer::loadScene(Scene *scene, const std::string &filepath) {
 
   for (const auto &entityJson : jsonData["entities"]) {
     Entity e = world.createEntity();
+    gworld.registerExistingEntity(e);
 
     const auto &componentsJson = entityJson["components"];
     for (const auto &[componentName, componentData] : componentsJson.items()) {
       auto it = serializers.find(componentName);
       if (it != serializers.end()) {
         it->second.from_json(world, e, componentData);
+      }
+    }
+  }
+
+  for (auto &obj : gworld.getAllGameObjects()) {
+    if (!obj->hasComponent<ScriptComponent>())
+      continue;
+    auto &scriptComp = obj->getComponent<ScriptComponent>();
+
+    for (auto &script : scriptComp.scripts) {
+      if (script) {
+        script->onCreate(obj,gworld.getOwningScene());
       }
     }
   }

@@ -10,14 +10,18 @@
 #include "farixEngine/core/world.hpp"
 
 namespace farixEngine {
-
+class Scene;
 class Script {
   friend class ScriptSystem;
+
 private:
-  uint32_t entityId = 0;
-  World *world = nullptr;
   bool started = false;
 
+protected:
+  Scene *scene = nullptr;
+  Entity e = 0;
+  World *world = nullptr;
+    GameObject* gameObject = nullptr;
 
 public:
   std::string name = "Script";
@@ -26,19 +30,28 @@ public:
 
   virtual ~Script() = default;
 
-  virtual void start() {}
+  virtual void onStart() {}
 
-  virtual void update(float dt) {}
+  virtual void onUpdate(float dt) {}
+  virtual void onCreate(GameObject* obj,Scene *scene) {
+        this->gameObject = obj;
+    this->scene = scene;
+    std::cout << "hi from" << name << "\n";
+  }
 
-  void setContext(uint32_t id, World *w);
+  void setContext(Entity entity, World *w) {
+    world = w;
+    e = entity;
+  }
 
   template <typename T> T &getComponent();
-  GameObject getGameObject();
-  GameWorld getGameWorld();
+  GameObject* getGameObject();
+  GameWorld *getGameWorld();
+  Scene *getScene() const;
 };
 
 template <typename T> T &Script::getComponent() {
-  return world->template getComponent<T>(entityId);
+  return getGameObject()->getComponent<T>();
 }
 
 } // namespace farixEngine

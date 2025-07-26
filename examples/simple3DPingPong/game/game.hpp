@@ -12,12 +12,13 @@ class BallScript : public Script {
 public:
   BallScript() : Script("BallScript") {}
 
-  void start() override {
-    transform = &getGameObject().getComponent<TransformComponent>();
-    ctx = EngineServices::get().getContext();
-  }
+  void onStart() override {
 
-  void update(float dt) override {
+    transform = &getGameObject()->getComponent<TransformComponent>();
+    ctx = EngineServices::get().getContext();
+  } 
+
+  void onUpdate(float dt) override {
     if (!transform)
       return;
 
@@ -29,8 +30,8 @@ public:
 
     // Fake paddle bounce
     auto world = getGameWorld();
-    for (auto &paddle : world.getGameObjectsByTags("Paddle")) {
-      auto &paddleTransform = paddle.getComponent<TransformComponent>();
+    for (auto &paddle : world->getGameObjectsByTags("Paddle")) {
+      auto &paddleTransform = paddle->getComponent<TransformComponent>();
 
       float px = paddleTransform.position.x;
       float py = paddleTransform.position.y;
@@ -62,12 +63,12 @@ class PlayerPaddleScript : public Script {
 public:
   PlayerPaddleScript() : Script("PlayerPaddleScript") {}
 
-  void start() override {
-    transform = &getGameObject().getComponent<TransformComponent>();
+  void onStart() override {
+    transform = &getGameObject()->getComponent<TransformComponent>();
     ctx = EngineServices::get().getContext();
   }
 
-  void update(float dt) override {
+  void onUpdate(float dt) override {
     float speed = 5.0f;
     if (ctx->controller->isKeyPressed(Key::A))
       transform->position.x -= speed * dt;
@@ -86,12 +87,12 @@ class OpponentPaddleScript : public Script {
 public:
   OpponentPaddleScript() : Script("OpponentPaddleScript") {}
 
-  void start() override {
-    transform = &getGameObject().getComponent<TransformComponent>();
+  void onStart() override {
+    transform = &getGameObject()->getComponent<TransformComponent>();
     ctx = EngineServices::get().getContext();
   }
 
-  void update(float dt) override {
+  void onUpdate(float dt) override {
     float speed = 5.0f;
     if (ctx->controller->isKeyPressed(Key::Left))
       transform->position.x -= speed * dt;

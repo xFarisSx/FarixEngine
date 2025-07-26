@@ -1,18 +1,14 @@
 #include "farixEngine/script/script.hpp"
+#include "farixEngine/API/gameWorld.hpp"
 #include "farixEngine/core/world.hpp"
+#include "farixEngine/scene/scene.hpp"
 
 namespace farixEngine {
-void Script::setContext(uint32_t id, World *w) {
-  entityId = id; 
-  world = w;
 
+GameObject* Script::getGameObject() {
+  return gameObject;
 }
-
-  GameObject Script::getGameObject(){
-  return GameObject(*world, entityId);
-}
-  GameWorld Script::getGameWorld(){
-  return GameWorld(*world);
-}
+GameWorld *Script::getGameWorld() { return &getScene()->gameWorld(); }
+Scene *Script::getScene() const { return scene; }
 
 } // namespace farixEngine 

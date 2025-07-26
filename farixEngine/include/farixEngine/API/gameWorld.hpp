@@ -9,31 +9,39 @@
 #include <vector>
 
 namespace farixEngine {
-
+class Scene;
 class GameWorld {
-  World &_world;
+  friend class Scene;
+
+  World *_world = nullptr;
+  Scene *owningScene = nullptr;
+  std::unordered_map<Entity, GameObject> gameObjects;
+  void setOwningScene(Scene *scene) { owningScene = scene; }
 
 public:
-  GameWorld(World &world);
+  Scene *getOwningScene() const { return owningScene; }
+  GameWorld(World *world);
 
   ~GameWorld();
 
-  GameObject createGameObject();
-  GameObject getGameObject(Entity entity);
+  GameObject& createGameObject();
+  GameObject& registerExistingEntity(Entity e);
+  GameObject& getGameObject(Entity entity);
 
-  std::vector<GameObject> getAllGameObjects();
-  std::vector<GameObject> getGameObjectsByName(const std::string &name);
+  std::vector<GameObject*> getAllGameObjects();
+  std::vector<GameObject*> getGameObjectsByName(const std::string &name);
 
   template <typename... Tags>
-  std::vector<GameObject> getGameObjectsByTags(Tags &&...tags);
+  std::vector<GameObject*>getGameObjectsByTags(Tags &&...tags);
 
   void setCamera(const GameObject &camera);
-  GameObject getCamera();
+  GameObject& getCamera();
 
   void clear();
+  void destroyObject(GameObject& go);
 
-  World &getInternalWorld();
-  const World &getInternalWorld() const;
+  World *getInternalWorld();
+  const World *getInternalWorld() const;
 
   void addSystem(std::shared_ptr<System> sys);
   template <typename T> void registerComponent();
@@ -44,18 +52,16 @@ private:
 };
 
 template <typename... Tags>
-std::vector<GameObject> GameWorld::getGameObjectsByTags(Tags &&...tags) {
-  std::vector<GameObject> result;
-  auto entities = _world.getEntitiesByTags(std::forward<Tags>(tags)...);
+std::vector<GameObject*> GameWorld::getGameObjectsByTags(Tags&&... tags) {
+  std::vector<GameObject*> result;
+  auto entities = _world->getEntitiesByTags(std::forward<Tags>(tags)...);
   result.reserve(entities.size());
   for (Entity e : entities) {
-    result.emplace_back(_world, e);
+    result.push_back(&getGameObject(e));
   }
   return result;
-}
-
-template <typename T> void GameWorld::registerComponent() {
-  _world.registerComponent<T>();
+}template <typename T> void GameWorld::registerComponent() {
+  _world->registerComponent<T>();
 }
 
 } // namespace farixEngine

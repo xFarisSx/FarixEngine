@@ -5,58 +5,66 @@
 
 namespace farixEngine {
 
-GameWorld::GameWorld(World &world) : _world(world) {}
+GameWorld::GameWorld(World *world) : _world(world) {}
 
 GameWorld::~GameWorld() {}
 
-GameObject GameWorld::createGameObject() { return GameObject(_world); }
-
-GameObject GameWorld::getGameObject(Entity entity) {
-  return GameObject(_world, entity);
+GameObject &GameWorld::createGameObject() {
+  Entity e = _world->createEntity();
+  auto &obj = gameObjects[e] = GameObject(this, e);
+  return obj;
 }
 
-std::vector<GameObject> GameWorld::getAllGameObjects() {
-  std::vector<GameObject> result;
-  const auto &entities = _world.getEntities();
-  result.reserve(entities.size());
-  for (Entity e : entities) {
-    result.emplace_back(_world, e);
-  }
-  return result;
+GameObject& GameWorld::registerExistingEntity(Entity e) {
+  if (gameObjects.count(e))
+    return gameObjects.at(e);
+  auto& obj = gameObjects[e] = GameObject(this, e);
+  return obj;
 }
 
-std::vector<GameObject>
+
+GameObject &GameWorld::getGameObject(Entity entity) {
+  return gameObjects.at(entity);
+}
+
+std::vector<GameObject *> GameWorld::getAllGameObjects() {
+  std::vector<GameObject *> list;
+  for (auto &[e, obj] : gameObjects)
+    list.push_back(&obj);
+  return list;
+}
+
+std::vector<GameObject *>
 GameWorld::getGameObjectsByName(const std::string &name) {
-  std::vector<GameObject> result;
-
-  auto entities = _world.getEntitiesByName(const_cast<std::string &>(name));
-  result.reserve(entities.size());
-  for (Entity e : entities) {
-    result.emplace_back(_world, e);
-  }
-  return result;
+  std::vector<GameObject *> list;
+  for (auto &[e, obj] : gameObjects)
+    if (obj.getName() == name)
+      list.push_back(&obj);
+  return list;
 }
-
+void GameWorld::destroyObject(GameObject& go){
+  gameObjects.erase(go.getEntity());
+  _world->destroyEntity(go.getEntity());
+  
+} 
 void GameWorld::setCamera(const GameObject &camera) {
-  _world.setCameraEntity(camera.getEntity());
+  _world->setCameraEntity(camera.getEntity());
 }
 
-GameObject GameWorld::getCamera() {
-  Entity camEntity = _world.getCamera();
-  if (camEntity == 0) {
-    return GameObject();
-  }
-  return GameObject(_world, camEntity);
+GameObject &GameWorld::getCamera() {
+  Entity camEntity = _world->getCamera();
+
+  return getGameObject(camEntity);
 }
 
-void GameWorld::clear() { _world.clearStorages(); }
+void GameWorld::clear() { _world->clearStorages(); }
 
-World &GameWorld::getInternalWorld() { return _world; }
+World *GameWorld::getInternalWorld() { return _world; }
 
-const World &GameWorld::getInternalWorld() const { return _world; }
+const World *GameWorld::getInternalWorld() const { return _world; }
 
 void GameWorld::addSystem(std::shared_ptr<System> sys) {
-  _world.addSystem(sys);
+  _world->addSystem(sys);
 }
 
 } // namespace farixEngine

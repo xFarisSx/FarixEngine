@@ -12,16 +12,17 @@
 namespace farixEngine {
 class GameWorld;
 class GameObject {
-  World *world = nullptr;
+  GameWorld *gameWorld = nullptr;
   Entity entity = 0;
 
 public:
   GameObject() = default;
-  GameObject(World &w);
-  GameObject(World &w, Entity existing);
+  // GameObject(GameWorld *gw);
+  GameObject(GameWorld *gw, Entity existing);
 
   Entity getEntity() const;
-  bool isValid() const { return world && entity != 0; }
+  bool isValid() const;
+  World *world() const;
 
   template <typename T> GameObject &addComponent(const T &component);
   template <typename T> GameObject &addComponent();
@@ -42,61 +43,60 @@ public:
 
   void setParent(const GameObject &parent);
   void removeParent();
-  std::vector<GameObject> getChildren() const;
- 
+  std::vector<GameObject *> getChildren();
+
   void setName(const std::string &name);
   void addTag(const std::string &tag);
   void removeTag(const std::string &tag);
   bool hasTag(const std::string &tag);
-  std::string& getName();
+  std::string &getName();
   std::vector<std::string> getTags();
 
-  GameWorld getGameWorld();
+  GameWorld *getGameWorld();
 
   template <typename... Tags> void addTags(Tags &&...tags);
   template <typename... Tags> void removeTags(Tags &&...tags);
   template <typename... Tags> bool hasTags(Tags &&...tags);
 
-  void removeScriptByName(const std::string &scriptName) ;
+  void removeScriptByName(const std::string &scriptName);
 
   void destroyObject();
-
 };
 
 template <typename T> GameObject &GameObject::addComponent(const T &component) {
-  world->addComponent<T>(entity, component);
+  world()->addComponent<T>(entity, component);
   return *this;
 }
 template <typename... T> GameObject &GameObject::addComponents() {
-  (world->addComponent<T>(entity), ...);
+  (world()->addComponent<T>(entity), ...);
   return *this;
 }
 template <typename... T, typename... Components>
 GameObject &GameObject::addComponents(Components &&...components) {
-  (world->addComponent<T>(entity, std::forward<Components>(components)), ...);
+  (world()->addComponent<T>(entity, std::forward<Components>(components)), ...);
   return *this;
 }
 template <typename T> GameObject &GameObject::addComponent() {
-  world->addComponent<T>(entity);
+  world()->addComponent<T>(entity);
   return *this;
 }
 template <typename T, typename... Args, typename>
 GameObject &GameObject::emplaceComponent(Args &&...args) {
   T component(std::forward<Args>(args)...);
-  world->addComponent<T>(entity, component);
+  world()->addComponent<T>(entity, component);
   return *this;
 }
 
 template <typename T> T &GameObject::getComponent() {
-  return world->getComponent<T>(entity);
+  return world()->getComponent<T>(entity);
 }
 
 template <typename T> bool GameObject::hasComponent() {
-  return world->hasComponent<T>(entity);
+  return world()->hasComponent<T>(entity);
 }
 
 template <typename T> void GameObject::removeComponent() {
-  world->removeComponent<T>(entity);
+  world()->removeComponent<T>(entity);
 }
 
 template <typename... Tags> void GameObject::addTags(Tags &&...tags) {
