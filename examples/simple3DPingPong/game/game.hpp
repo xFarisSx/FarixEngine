@@ -124,7 +124,6 @@ public:
         blink.visible = !blink.visible;
         blink.timer = 0.0f;
 
-        // Toggle visibility by changing material color alpha or brightness
         if (world.hasComponent<MaterialComponent>(entity)) {
           auto &mat = world.getComponent<MaterialComponent>(entity);
           if (blink.visible) {

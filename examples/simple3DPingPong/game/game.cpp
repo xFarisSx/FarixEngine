@@ -60,6 +60,7 @@ void Game::onStart() {
 
   engine.getSerializerRegistry().registerSerializer<BlinkComponent>(
       "BlinkComponent",
+
       [](World &world, Entity e) -> json {
         const auto &blink = world.getComponent<BlinkComponent>(e);
         return json{{"timer", blink.timer},
