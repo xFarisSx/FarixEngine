@@ -47,7 +47,8 @@ sudo make uninstall   # removes installed files
 - Entity-Component-System (ECS)
 - Software 3D rendering (OBJ, BMP)
 - Lighting & texture support
-- Scripting system (`start()` / `update()`)
+- Event system (keyboard, collision, custom events...)
+- Scripting system (`start()` / `update()` / `onKeyPressed()` / `onCollision()`, etc.)
 - GameObject and GameWorld wrappers for convenient entity & component access
 - Hierarchy system with `ParentComponent`, `ChildrenComponent`, and `GlobalTransform` to handle parent-child relationships and global matrices
 - Easy extension with user-defined components, systems, and scripts
@@ -111,6 +112,12 @@ Learn how to define levels and reusable templates with JSON-based scenes and pre
 - [Prefabs](docs/prefabs.md)
 
 ---
+
+## Events
+
+Learn how to create, emit, subscribe to events:
+- [Events](docs/events.md)
+
 ## Example
 
 - Sample projects available under `examples/` demonstrate engine usage.

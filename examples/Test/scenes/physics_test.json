@@ -71,7 +71,7 @@
           "name": "Ground",
           "prefab": "",
           "tags": [],
-          "uuid": "afcdcc22-0793-446b-97b1-58907143a557"
+          "uuid": "3ad6968c-45f5-4b94-8eac-c316deb94852"
         },
         "TransformComponent": {
           "position": {
@@ -171,7 +171,7 @@
           "name": "Box",
           "prefab": "",
           "tags": [],
-          "uuid": "99cb23d6-7068-4465-a756-a911fcb17a77"
+          "uuid": "c2c8ebf0-c77d-4e79-8d5a-dd27ac64cedc"
         },
         "RigidBodyComponent": {
           "acceleration": {
@@ -186,6 +186,11 @@
             "y": 0.0,
             "z": 0.0
           }
+        },
+        "ScriptComponent": {
+          "scripts": [
+            "TestCollisionScript"
+          ]
         },
         "TransformComponent": {
           "position": {
@@ -247,7 +252,7 @@
           "name": "Camera",
           "prefab": "",
           "tags": [],
-          "uuid": "9cfa05df-4513-497e-9fd2-c8498e7a5f32"
+          "uuid": "2adc3baa-28b4-4c2b-9eec-889969011429"
         },
         "ParentComponent": {
           "parent": 2

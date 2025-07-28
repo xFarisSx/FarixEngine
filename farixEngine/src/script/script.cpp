@@ -5,10 +5,8 @@
 
 namespace farixEngine {
 
-GameObject* Script::getGameObject() {
-  return gameObject;
-}
+GameObject *Script::getGameObject() { return gameObject; }
 GameWorld *Script::getGameWorld() { return &getScene()->gameWorld(); }
 Scene *Script::getScene() const { return scene; }
 
-} // namespace farixEngine 
+} // namespace farixEngine

@@ -15,13 +15,12 @@ GameObject &GameWorld::createGameObject() {
   return obj;
 }
 
-GameObject& GameWorld::registerExistingEntity(Entity e) {
+GameObject &GameWorld::registerExistingEntity(Entity e) {
   if (gameObjects.count(e))
     return gameObjects.at(e);
-  auto& obj = gameObjects[e] = GameObject(this, e);
+  auto &obj = gameObjects[e] = GameObject(this, e);
   return obj;
 }
-
 
 GameObject &GameWorld::getGameObject(Entity entity) {
   return gameObjects.at(entity);
@@ -42,11 +41,10 @@ GameWorld::getGameObjectsByName(const std::string &name) {
       list.push_back(&obj);
   return list;
 }
-void GameWorld::destroyObject(GameObject& go){
+void GameWorld::destroyObject(GameObject &go) {
   gameObjects.erase(go.getEntity());
   _world->destroyEntity(go.getEntity());
-  
-} 
+}
 void GameWorld::setCamera(const GameObject &camera) {
   _world->setCameraEntity(camera.getEntity());
 }
@@ -57,7 +55,14 @@ GameObject &GameWorld::getCamera() {
   return getGameObject(camEntity);
 }
 
-void GameWorld::clear() { _world->clearStorages(); }
+void GameWorld::clear() {
+  std::vector<Entity> toDestroy;
+  for (const auto &[e, obj] : gameObjects)
+    toDestroy.push_back(e);
+
+  for (Entity e : toDestroy)
+    gameObjects[e].destroyObject();
+}
 
 World *GameWorld::getInternalWorld() { return _world; }
 

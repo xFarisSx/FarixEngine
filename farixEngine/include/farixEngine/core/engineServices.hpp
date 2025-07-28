@@ -1,6 +1,7 @@
 #pragma once
 
 #include "farixEngine/core/engineRegistry.hpp"
+#include "farixEngine/events/eventDispatcher.hpp"
 #include <memory>
 #include <unordered_map>
 
@@ -11,6 +12,7 @@ public:
     static EngineServices& get(); // Singleton accessor
 
     EngineRegistry& getEngineRegistry();
+    EventDispatcher& getEventDispatcher();
     EngineContext* getContext(); 
   void setContext(EngineContext* context); 
 

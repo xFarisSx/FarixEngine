@@ -1,12 +1,17 @@
 #include "farixEngine/systems/systems.hpp"
-#include "farixEngine/physics/collisionHelpers.hpp"
+#include "farixEngine/API/gameWorld.hpp"
 #include "farixEngine/components/components.hpp"
+#include "farixEngine/core/engineServices.hpp"
 #include "farixEngine/core/world.hpp"
 #include "farixEngine/ecs/system.hpp"
+#include "farixEngine/events/eventDispatcher.hpp"
+#include "farixEngine/events/events.hpp"
 #include "farixEngine/math/general.hpp"
 #include "farixEngine/math/mat4.hpp"
+#include "farixEngine/physics/collisionHelpers.hpp"
 #include "farixEngine/renderer/renderer.hpp"
-#include "farixEngine/core/engineServices.hpp"
+#include "farixEngine/scene/scene.hpp"
+#include "farixEngine/scene/sceneManager.hpp"
 #include "farixEngine/script/script.hpp"
 #include <SDL2/SDL.h>
 #include <algorithm>
@@ -15,7 +20,7 @@ namespace farixEngine {
 using Entity = uint32_t;
 
 void RenderSystem::update(World &world, float dt) {
-  Renderer* renderer = EngineServices::get().getContext()->renderer;
+  Renderer *renderer = EngineServices::get().getContext()->renderer;
   const auto &entities = world.getEntities();
 
   Entity cameraEntity = world.getCamera();
@@ -97,7 +102,7 @@ void HierarchySystem::update(World &world, float dt) {
 }
 
 void CameraControllerSystem::update(World &world, float dt) {
-  Controller* controller = EngineServices::get().getContext()->controller;
+  Controller *controller = EngineServices::get().getContext()->controller;
   if (!controller)
     return;
   Vec3 moveDir{};
@@ -180,19 +185,29 @@ void CollisionSystem::update(World &world, float dt) {
 
       if (colA.shape == ColliderComponent::Shape::Box &&
           colB.shape == ColliderComponent::Shape::Box) {
-        collided = collision::AABBvsAABB(tfA.position, colA.size, tfB.position, colB.size);
+        collided = collision::AABBvsAABB(tfA.position, colA.size, tfB.position,
+                                         colB.size);
       } else if (colA.shape == ColliderComponent::Shape::Sphere &&
                  colB.shape == ColliderComponent::Shape::Sphere) {
-        collided = collision::SpherevsSphere(tfA.position, colA.radius, tfB.position,
-                                  colB.radius);
-      } else { 
+        collided = collision::SpherevsSphere(tfA.position, colA.radius,
+                                             tfB.position, colB.radius);
+      } else {
         // TODO: implement box-sphere and capsule collisions
         continue;
       }
 
       if (collided) {
-        std::cout << "Collision detected between entities " << a << " and " << b
-                  << std::endl;
+        // std::cout << "Collision detected between entities " << a << " and "
+        // << b
+        //           << std::endl;
+
+        GameWorld &gworld = EngineServices::get()
+                                .getContext()
+                                ->sceneManager->currentScene()
+                                ->gameWorld();
+        CollisionEvent collision(&gworld.getGameObject(a),
+                                 &gworld.getGameObject(b));
+        EngineServices::get().getEventDispatcher().emit(collision);
 
         // TODO: implement collision response (e.g. separate overlapping
         // entities, reflect velocities, trigger events)
@@ -200,8 +215,6 @@ void CollisionSystem::update(World &world, float dt) {
     }
   }
 }
-
-
 
 // StateSystem
 

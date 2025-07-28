@@ -2,7 +2,7 @@
 
 void setupScene(GameWorld &gameWorld) {
   // Ground (static)
-  auto ground = gameWorld.createGameObject();
+  auto& ground = gameWorld.createGameObject();
   ground.setName("Ground");
   ground.setMesh(Mesh::createBox(10.0f, 0.5f, 1.0f));
   ground.setMaterial(MaterialComponent{});
@@ -11,7 +11,7 @@ void setupScene(GameWorld &gameWorld) {
       {ColliderComponent::Shape::Box, Vec3(10.0f, 0.5f, 1.0f)});
 
   // Falling Box (dynamic)
-  auto box = gameWorld.createGameObject();
+  auto& box = gameWorld.createGameObject();
   box.setName("Box");
   box.setMesh(Mesh::createBox(1.0f, 1.0f, 1.0f));
   box.setMaterial(MaterialComponent{});
@@ -24,9 +24,10 @@ void setupScene(GameWorld &gameWorld) {
   box.addComponent<ColliderComponent>(
       {ColliderComponent::Shape::Box, Vec3(1.0f, 1.0f, 1.0f)});
   box.addComponent<LifetimeComponent>({5.0f}); // Destroy after 5 seconds
+  box.addScript(std::make_shared<TestCollisionScript>());
 
   // Camera
-  auto camera = gameWorld.createGameObject();
+  auto& camera = gameWorld.createGameObject();
   camera.setName("Camera");
   camera.getComponent<TransformComponent>().position = Vec3(0, 0, -10);
   camera.addComponent<CameraComponent>();
@@ -36,14 +37,16 @@ void setupScene(GameWorld &gameWorld) {
 }
 void Game::onStart() {
   auto &engine = EngineServices::get().getEngineRegistry();
+  engine.getScriptRegistry().registerScript<TestCollisionScript>(
+      "TestCollisionScript");
 
   // Create scene
   SceneManager &sceneManager = getSceneManager();
-  // auto &scene = sceneManager.createScene("physics_test");
-  auto &scene = sceneManager.loadSceneFromFile("scenes/physics_test.json");
+  auto &scene = sceneManager.createScene("physics_test");
+  // auto &scene = sceneManager.loadSceneFromFile("scenes/physics_test.json");
   GameWorld &world = *sceneManager.currentGameWorld();
 
-  // setupScene(world);
+  setupScene(world);
 
   sceneManager.saveCurrentScene("scenes/");
 }

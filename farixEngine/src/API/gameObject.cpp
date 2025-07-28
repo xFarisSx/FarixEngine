@@ -53,12 +53,15 @@ void GameObject::removeScriptByName(const std::string &scriptName) {
                            [&](const std::shared_ptr<Script> &scriptPtr) {
                              return scriptPtr->name == scriptName;
                            });
+  it->get()->onDestroy();
   scriptComp.scripts.erase(it, scriptComp.scripts.end());
 }
 GameWorld *GameObject::getGameWorld() { return gameWorld; }
 
 void GameObject::destroyObject() {
-
+  if (hasComponent<ScriptComponent>())
+    for (ScriptPtr sc : getComponent<ScriptComponent>().scripts)
+      sc->onDestroy();
   gameWorld->destroyObject(*this);
   gameWorld = nullptr;
   entity = 0;
@@ -71,8 +74,9 @@ std::vector<std::string> GameObject::getTags() {
 void GameObject::addScript(const std::shared_ptr<Script> &script) {
   if (!isValid())
     return;
-  script->onCreate(this, gameWorld->getOwningScene());
+
   world()->addScript(entity, script);
+  script->onCreate(this, gameWorld->getOwningScene());
 }
 
 void GameObject::setParent(const GameObject &parent) {

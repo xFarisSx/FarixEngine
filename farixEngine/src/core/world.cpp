@@ -46,7 +46,7 @@ std::string World::getEntityName(Entity entity) const {
   if (!hasComponent<Metadata>(entity))
     return "";
   return getComponent<Metadata>(entity).name;
-}
+} 
 
 void World::updateSystems(float dt) { systemManager.updateAll(*this, dt); }
 

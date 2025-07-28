@@ -10,7 +10,7 @@
 #include <utility>
 #include <vector>
 
-#include <engine/thirdparty/nlohmann/json.hpp>
+#include "farixEngine/thirdparty/nlohmann/json.hpp"
 
 #include "farixEngine/components/components.hpp"
 #include "farixEngine/core/engineContext.hpp"

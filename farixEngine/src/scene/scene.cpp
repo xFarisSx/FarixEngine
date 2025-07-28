@@ -14,13 +14,14 @@ Scene::Scene(const std::string &name, const std::string &path)
 World &Scene::world() { return _world; }
 GameWorld &Scene::gameWorld() { return _gameWorld; }
 void Scene::onLoad() {
+      _gameWorld.clear();
   _world.clearStorages();
   _world.clearSystems();
   _world.registerDefaults();
+
   _world.addSystem(std::make_shared<RenderSystem>());
   _world.addSystem(std::make_shared<ScriptSystem>());
-  _world.addSystem(
-      std::make_shared<CameraControllerSystem>());
+  _world.addSystem(std::make_shared<CameraControllerSystem>());
   _world.addSystem(std::make_shared<HierarchySystem>());
   _world.addSystem(std::make_shared<PhysicsSystem>());
   _world.addSystem(std::make_shared<StateSystem>());
@@ -34,5 +35,7 @@ const std::string &Scene::name() const { return _name; }
 const std::string &Scene::path() const { return _path; }
 void Scene::setName(const std::string &name) { _name = name; }
 void Scene::setPath(const std::string &name) { _path = name; }
+
+EventDispatcher &Scene::getEventDispatcher() { return eventDispatcher; }
 
 } // namespace farixEngine
