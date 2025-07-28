@@ -29,7 +29,7 @@ public:
       velocity.x *= -1;
 
     // Fake paddle bounce
-    auto world = getGameWorld();
+    auto* world = getGameWorld();
     for (auto &paddle : world->getGameObjectsByTags("Paddle")) {
       auto &paddleTransform = paddle->getComponent<TransformComponent>();
 
