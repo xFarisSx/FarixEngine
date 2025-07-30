@@ -3,9 +3,6 @@
   "entities": [
     {
       "components": {
-        "BillboardComponent": {
-          "type": 2
-        },
         "ColliderComponent": {
           "isTrigger": false,
           "radius": 1.0,
@@ -51,7 +48,7 @@
             "y": 1.0,
             "z": 1.0
           },
-          "doubleSided": false,
+          "doubleSided": true,
           "shininess": 32.0,
           "specular": 0.5,
           "texture": "assets/textures/textcat.bmp",
@@ -75,7 +72,7 @@
           "name": "Ground",
           "prefab": "",
           "tags": [],
-          "uuid": "25190a3c-9d15-4949-9442-6675c855e497"
+          "uuid": "7231643a-44e4-4361-87d3-551ee09c23e3"
         },
         "TransformComponent": {
           "position": {
@@ -176,7 +173,7 @@
           "name": "Box",
           "prefab": "",
           "tags": [],
-          "uuid": "df34327d-92a8-4f20-a2bb-f6ea04d29c95"
+          "uuid": "c62a7a31-a93b-48f8-973c-b33b1c9d87b2"
         },
         "RigidBodyComponent": {
           "acceleration": {
@@ -269,7 +266,7 @@
           "name": "Camera",
           "prefab": "",
           "tags": [],
-          "uuid": "7f3db4b1-cc98-461e-9b16-2df499de8c1a"
+          "uuid": "7f47c515-9a83-4fb5-ba21-d1d23c4490dc"
         },
         "ParentComponent": {
           "parent": 2

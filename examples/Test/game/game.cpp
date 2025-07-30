@@ -11,9 +11,10 @@ void setupScene(GameWorld &gameWorld) {
   ground.getComponent<TransformComponent>().position = Vec3(0, -3, 0);
   ground.addComponent<ColliderComponent>(
       {ColliderComponent::Shape::Box, Vec3(10.0f, 0.5f, 1.0f)});
-  ground.getComponent<MaterialComponent>().doubleSided = false;
+  ground.getComponent<MaterialComponent>().doubleSided = true;
 
   ground.emplaceComponent<BillboardComponent>(
+     
       BillboardComponent::BillboardType::BillboardFull);
 
   // Falling Box (dynamic)
