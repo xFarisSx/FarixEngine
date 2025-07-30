@@ -74,7 +74,7 @@ void Renderer::present() {
   SDL_RenderPresent(sdlRenderer);
 }
 
-Vec3 Renderer::project(const Vec4 &point, const Mat4 &globalMat,
+Vec4 Renderer::project(const Vec4 &point, const Mat4 &globalMat,
                        const Mat4 &viewM, const Mat4 &perspM) const {
   Vec4 projected4 = perspM * viewM * globalMat * point;
 
@@ -82,8 +82,8 @@ Vec3 Renderer::project(const Vec4 &point, const Mat4 &globalMat,
     return Vec3(-1, -1, -1);
 
   Vec3 pr = projected4.toVec3();
-  return Vec3(screenWidth * (pr.x + 1) / 2, screenHeight * (1 - pr.y) / 2,
-              pr.z);
+  return Vec4(screenWidth * (pr.x + 1) / 2, screenHeight * (1 - pr.y) / 2, pr.z,
+              projected4.w);
 }
 
 void Renderer::drawPixel(int x, int y, float z, uint32_t color) {
@@ -98,14 +98,14 @@ void Renderer::drawPixel(int x, int y, float z, uint32_t color) {
 Vec3 Renderer::reflect(const Vec3 &L, const Vec3 &N) {
   return L - N * (2.0f * L.dot(N));
 }
-float Renderer::edgeFunction(const Vec3 &a, const Vec3 &b,
-                             const Vec3 &c) const {
-  Vec3 v1 = b - a;
-  Vec3 v2 = c - a;
+float Renderer::edgeFunction(const Vec4 &a, const Vec4 &b,
+                             const Vec4 &c) const {
+  Vec4 v1 = b - a;
+  Vec4 v2 = c - a;
   return v1.x * v2.y - v1.y * v2.x;
 }
 
-auto isValid = [](const Vec3 &v) {
+auto isValid = [](const Vec4 &v) {
   return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
 };
 
@@ -127,20 +127,29 @@ void Renderer::drawTriangle(const Mesh *mesh, const Triangle &tri,
 
   Mat4 viewM = Mat4::lookAt(cameraTransform.position,
                             cameraTransform.position + forward, Vec3(0, 1, 0));
-  Mat4 perspM = Mat4::perspective(camera.fov, camera.aspectRatio,
-                                  camera.nearPlane, camera.farPlane);
+
+  Mat4 projection;
+  if (camera.mode == CameraProjectionMode::Perspective) {
+    projection = Mat4::perspective(camera.fov, camera.aspectRatio,
+                                   camera.nearPlane, camera.farPlane);
+  } else {
+
+    projection =
+        Mat4::ortho(camera.orthoLeft, camera.orthoRight, camera.orthoBottom,
+                    camera.orthoTop, camera.orthoNear, camera.orthoFar);
+  }
 
   Vec3 normal = (v1 - v0).cross(v2 - v0);
 
   Vec3 normalWorld = (globalMat * Vec4(normal, 0.0f)).toVec3().normalized();
 
-  if (normalWorld.dot(forward) > 0.2f) {
+  if (!material.doubleSided && normalWorld.dot(forward) > 0.2f) {
     return;
   }
 
-  Vec3 p0 = project(v04, globalMat, viewM, perspM);
-  Vec3 p1 = project(v14, globalMat, viewM, perspM);
-  Vec3 p2 = project(v24, globalMat, viewM, perspM);
+  Vec4 p0 = project(v04, globalMat, viewM, projection);
+  Vec4 p1 = project(v14, globalMat, viewM, projection);
+  Vec4 p2 = project(v24, globalMat, viewM, projection);
 
   if (p0.z < 0.0f || p0.z > 1.0f || p0.x < 0 || p0.x >= screenWidth ||
       p0.y < 0 || p0.y >= screenHeight)
@@ -189,7 +198,7 @@ void Renderer::drawTriangle(const Mesh *mesh, const Triangle &tri,
       float w1 = edgeFunction(p2, p0, c);
       float w2 = edgeFunction(p0, p1, c);
 
-      if (w0 >= 0 && w1 >= 0 && w2 >= 0) {
+      if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
 
         float alpha = w0 / area;
         float beta = w1 / area;
@@ -201,12 +210,24 @@ void Renderer::drawTriangle(const Mesh *mesh, const Triangle &tri,
         }
 
         Vec3 worldPos = v0 * alpha + v1 * beta + v2 * gamma;
+        float invW0 = 1.0f / p0.w;
+        float invW1 = 1.0f / p1.w;
+        float invW2 = 1.0f / p2.w;
+        float invW = alpha * invW0 + beta * invW1 + gamma * invW2;
+
+        float uOverW = alpha * (uv0.x * invW0) + beta * (uv1.x * invW1) +
+                       gamma * (uv2.x * invW2);
+        float vOverW = alpha * (uv0.y * invW0) + beta * (uv1.y * invW1) +
+                       gamma * (uv2.y * invW2);
+
+        float u = uOverW / invW;
+        float v = vOverW / invW;
 
         Vec3 finalColor = material.baseColor;
 
         if (material.useTexture && material.texture) {
-          float u = alpha * uv0.x + beta * uv1.x + gamma * uv2.x;
-          float v = alpha * uv0.y + beta * uv1.y + gamma * uv2.y;
+          // float u = alpha * uv0.x + beta * uv1.x + gamma * uv2.x;
+          // float v = alpha * uv0.y + beta * uv1.y + gamma * uv2.y;
 
           Uint32 texColor = material.texture->sample(u, v);
 

@@ -24,6 +24,7 @@ struct Mesh {
 
   static std::shared_ptr<Mesh> createBox(float width, float height, float depth);
   static std::shared_ptr<Mesh> createSphere(float radius, int latSegments, int lonSegments);
+  static std::shared_ptr<Mesh> createQuad(Vec3 size);
   static std::shared_ptr<Mesh> loadFromObj(const std::string &filename);
 };
 } // namespace farixEngine

@@ -59,9 +59,6 @@ void GameObject::removeScriptByName(const std::string &scriptName) {
 GameWorld *GameObject::getGameWorld() { return gameWorld; }
 
 void GameObject::destroyObject() {
-  if (hasComponent<ScriptComponent>())
-    for (ScriptPtr sc : getComponent<ScriptComponent>().scripts)
-      sc->onDestroy();
   gameWorld->destroyObject(*this);
   gameWorld = nullptr;
   entity = 0;

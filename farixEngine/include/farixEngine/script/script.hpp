@@ -41,7 +41,6 @@ public:
   virtual void onCreate(GameObject *obj, Scene *scene) {
     this->gameObject = obj;
     this->scene = scene;
-    std::cout << "hi from" << name << "\n";
 
     collisionListener = scene->getEventDispatcher().listen<CollisionEvent>(
         [this](CollisionEvent &event) {
@@ -52,10 +51,10 @@ public:
         });
 
     keypListener = scene->getEventDispatcher().listen<KeyPressedEvent>(
-    [this](KeyPressedEvent& e) { onKeyPressed(e); });
+        [this](KeyPressedEvent &e) { onKeyPressed(e); });
 
     keyrListener = scene->getEventDispatcher().listen<KeyReleasedEvent>(
-    [this](KeyReleasedEvent& e) { onKeyReleased(e); });
+        [this](KeyReleasedEvent &e) { onKeyReleased(e); });
   }
   virtual void onCollision(CollisionEvent &collider) {}
   virtual void onKeyPressed(KeyPressedEvent &event) {}
@@ -68,12 +67,11 @@ public:
         keypListener);
     EngineServices::get().getEventDispatcher().removeListener<KeyReleasedEvent>(
         keyrListener);
-        gameObject = nullptr;
+    gameObject = nullptr;
     scene = nullptr;
     world = nullptr;
     entity = 0;
-
-  } 
+  }
 
   void setContext(Entity e, World *w) {
     world = w;

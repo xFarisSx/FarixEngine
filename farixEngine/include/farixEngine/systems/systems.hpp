@@ -98,4 +98,12 @@ public:
   void removeTimer(World &world, Entity e, const std::string &name);
 };
 
+class BillboardSystem : public System {
+public:
+  BillboardSystem() : System("BillboardSystem") {}
+
+  void start(World &world) override {}
+  void update(World &world, float dt) override;
+};
+
 } // namespace farixEngine

@@ -25,6 +25,7 @@ public:
   ~GameWorld();
 
   GameObject& createGameObject();
+  GameObject& createSprite3D( std::shared_ptr<Texture> texture, Vec3 size = {1, 1, 0});
   GameObject& registerExistingEntity(Entity e);
   GameObject& getGameObject(Entity entity);
 

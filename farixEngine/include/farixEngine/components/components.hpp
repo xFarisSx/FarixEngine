@@ -37,14 +37,37 @@ struct Metadata {
   std::string uuid = utils::generateUUID();
   std::string prefab;
 };
-
+enum class CameraProjectionMode {
+  Perspective,
+  Orthographic
+};
 struct CameraComponent {
+  CameraProjectionMode mode = CameraProjectionMode::Perspective;
 
   float fov = M_PI / 2;
   float aspectRatio = 16.0f / 9.0f;
   float nearPlane = 1.0f;
   float farPlane = 100.0f;
+
+  float orthoLeft = -1.0f;
+  float orthoRight = 1.0f;
+  float orthoBottom = -1.0f;
+  float orthoTop = 1.0f;
+  float orthoNear = 0;
+  float orthoFar = 100.0f;
+
+  void setOrthoZoom(float zoom) {
+    float aspect = aspectRatio; 
+    orthoLeft = -aspect * zoom;
+    orthoRight = aspect * zoom;
+    orthoBottom = -zoom;
+    orthoTop = zoom;
+}
+
+
 };
+
+
 
 struct CameraControllerComponent {
   float sens = 0.5f;
@@ -57,6 +80,16 @@ struct MeshComponent {
   std::shared_ptr<Mesh> mesh;
 };
 
+
+
+struct BillboardComponent {
+  enum class BillboardType {
+    None,       
+    BillboardY,  
+    BillboardFull, 
+};
+    BillboardType type = BillboardType::BillboardY;
+};
 struct MaterialComponent {
   Vec3 baseColor = Vec3(1.0f, 1.0f, 1.0f);
   float ambient = 0.1f;
@@ -65,6 +98,7 @@ struct MaterialComponent {
   std::shared_ptr<Texture> texture;
 
   bool useTexture = false;
+  bool doubleSided = true;
 };
 
 struct ScriptComponent {
@@ -131,6 +165,12 @@ struct TimersComponent {
   std::unordered_map<std::string,TimerPtr> timers;
 };
 
+
+struct Sprite2DComponent;
+
+struct UIComponent{
+
+};
 
 
 } // namespace farixEngine

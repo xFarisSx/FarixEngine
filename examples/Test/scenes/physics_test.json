@@ -3,6 +3,9 @@
   "entities": [
     {
       "components": {
+        "BillboardComponent": {
+          "type": 2
+        },
         "ColliderComponent": {
           "isTrigger": false,
           "radius": 1.0,
@@ -48,30 +51,31 @@
             "y": 1.0,
             "z": 1.0
           },
+          "doubleSided": false,
           "shininess": 32.0,
           "specular": 0.5,
-          "texture": "",
-          "useTexture": false
+          "texture": "assets/textures/textcat.bmp",
+          "useTexture": true
         },
         "MeshComponent": {
           "mesh": "",
           "size": {
             "x": 10.0,
-            "y": 0.5,
-            "z": 1.0
+            "y": 10.0,
+            "z": 0.0
           },
           "sphereData": {
             "x": 1.0,
             "y": 16.0,
             "z": 32.0
           },
-          "type": "Box"
+          "type": "Sprite"
         },
         "Metadata": {
           "name": "Ground",
           "prefab": "",
           "tags": [],
-          "uuid": "3ad6968c-45f5-4b94-8eac-c316deb94852"
+          "uuid": "25190a3c-9d15-4949-9442-6675c855e497"
         },
         "TransformComponent": {
           "position": {
@@ -148,6 +152,7 @@
             "y": 1.0,
             "z": 1.0
           },
+          "doubleSided": true,
           "shininess": 32.0,
           "specular": 0.5,
           "texture": "",
@@ -171,7 +176,7 @@
           "name": "Box",
           "prefab": "",
           "tags": [],
-          "uuid": "c2c8ebf0-c77d-4e79-8d5a-dd27ac64cedc"
+          "uuid": "df34327d-92a8-4f20-a2bb-f6ea04d29c95"
         },
         "RigidBodyComponent": {
           "acceleration": {
@@ -218,7 +223,19 @@
           "aspectRatio": 1.7777777910232544,
           "farPlane": 100.0,
           "fov": 1.5707963705062866,
-          "nearPlane": 1.0
+          "mode": "Orthographic",
+          "nearPlane": 1.0,
+          "orthoBottom": -20.0,
+          "orthoFar": 100.0,
+          "orthoLeft": -35.55555725097656,
+          "orthoNear": 0.0,
+          "orthoRight": 35.55555725097656,
+          "orthoTop": 20.0
+        },
+        "CameraControllerComponent": {
+          "active": true,
+          "sens": 0.5,
+          "speed": 5.0
         },
         "GlobalTransform": {
           "worldMatrix": [
@@ -252,7 +269,7 @@
           "name": "Camera",
           "prefab": "",
           "tags": [],
-          "uuid": "2adc3baa-28b4-4c2b-9eec-889969011429"
+          "uuid": "7f3db4b1-cc98-461e-9b16-2df499de8c1a"
         },
         "ParentComponent": {
           "parent": 2
@@ -261,7 +278,7 @@
           "position": {
             "x": 0.0,
             "y": 0.0,
-            "z": -10.0
+            "z": 10.0
           },
           "rotation": {
             "x": 0.0,

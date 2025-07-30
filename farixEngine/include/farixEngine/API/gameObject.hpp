@@ -82,7 +82,7 @@ template <typename T> GameObject &GameObject::addComponent() {
 }
 template <typename T, typename... Args, typename>
 GameObject &GameObject::emplaceComponent(Args &&...args) {
-  T component(std::forward<Args>(args)...);
+  T component{std::forward<Args>(args)...};
   world()->addComponent<T>(entity, component);
   return *this;
 }

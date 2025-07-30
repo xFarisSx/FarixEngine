@@ -40,30 +40,31 @@
         "y": 1.0,
         "z": 1.0
       },
+      "doubleSided": true,
       "shininess": 32.0,
       "specular": 0.5,
-      "texture": "",
-      "useTexture": false
+      "texture": "assets/textures/textcat.bmp",
+      "useTexture": true
     },
     "MeshComponent": {
       "mesh": "",
       "size": {
-        "x": 1.0,
-        "y": 1.0,
-        "z": 1.0
+        "x": 0.4000000059604645,
+        "y": 0.4000000059604645,
+        "z": 0.0
       },
       "sphereData": {
-        "x": 0.20000000298023224,
-        "y": 8.0,
-        "z": 16.0
+        "x": 1.0,
+        "y": 16.0,
+        "z": 32.0
       },
-      "type": "Sphere"
+      "type": "Sprite"
     },
     "Metadata": {
       "name": "Ball",
       "prefab": "",
       "tags": [],
-      "uuid": "ec0cfe8e-a259-46f4-85a7-302931114343"
+      "uuid": "de7bb5aa-e2a5-4b58-8ca5-77bc3ccb9861"
     },
     "ScriptComponent": {
       "scripts": [

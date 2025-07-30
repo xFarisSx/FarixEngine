@@ -1,8 +1,9 @@
 
 #include "game.hpp"
+#include "components/components.hpp"
 #include <memory>
 
-void setupScene(GameWorld &gameWorld) {
+void setupScene3D(GameWorld &gameWorld) {
   // Ball
   auto &ball = gameWorld.createGameObject();
   ball.setName("Ball");
@@ -11,7 +12,7 @@ void setupScene(GameWorld &gameWorld) {
   ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
   ball.addScript(std::make_shared<BallScript>());
   ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
-  // auto& ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
+  // auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
 
   // Player Paddle
   auto &paddle1 = gameWorld.createGameObject();
@@ -21,7 +22,7 @@ void setupScene(GameWorld &gameWorld) {
   paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
   paddle1.addTag("Paddle");
   paddle1.addScript(std::make_shared<PlayerPaddleScript>());
-  // auto& paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  // auto &paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
 
   // Opponent Paddle
   auto &paddle2 = gameWorld.createGameObject();
@@ -31,7 +32,7 @@ void setupScene(GameWorld &gameWorld) {
   paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
   paddle2.addTag("Paddle");
   paddle2.addScript(std::make_shared<OpponentPaddleScript>());
-  // auto& paddle2 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  // auto &paddle2 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
   // paddle2.setName("Opponent");
   // paddle2.removeScriptByName("PlayerPaddleScript");
   // paddle2.addScript(std::make_shared<OpponentPaddleScript>());
@@ -39,8 +40,56 @@ void setupScene(GameWorld &gameWorld) {
 
   // Camera
   auto &camera = gameWorld.createGameObject();
-  camera.getComponent<TransformComponent>().position = Vec3(0, 0, -7);
-  camera.addComponent<CameraComponent>();
+  camera.getComponent<TransformComponent>().position = Vec3(0, 0, 7);
+  camera.addComponent<CameraComponent>().getComponent<CameraComponent>().mode =
+      CameraProjectionMode::Perspective;
+  camera.getComponent<CameraComponent>().setOrthoZoom(7);
+
+  gameWorld.setCamera(camera);
+
+  //
+  // Prefab::save(paddle1, "prefabs/paddle.json");
+  // Prefab::save(ball, "prefabs/ball.json");
+}
+
+void setupScene2D(GameWorld &gameWorld) {
+  // Ball
+  // auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
+  auto &ball = gameWorld.createSprite3D(
+      Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(0.4f, 0.4f, 0));
+  ball.setName("Ball");
+  ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
+  ball.addScript(std::make_shared<BallScript>());
+  ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
+
+  // Player Paddle
+  // auto &paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  auto &paddle1 = gameWorld.createSprite3D(
+      Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(2.0f, 0.2f, 0));
+  paddle1.setName("Player");
+  paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
+  paddle1.addTag("Paddle");
+  paddle1.addScript(std::make_shared<PlayerPaddleScript>());
+
+  // Opponent Paddle
+  // auto &paddle2 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  // paddle2.setName("Opponent");
+  // paddle2.removeScriptByName("PlayerPaddleScript");
+  // paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+  // paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
+  auto &paddle2 = gameWorld.createSprite3D(
+      Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(2.0f, 0.2f, 1));
+  paddle2.setName("Opponent");
+  paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
+  paddle2.addTag("Paddle");
+  paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+
+  // Camera
+  auto &camera = gameWorld.createGameObject();
+  camera.getComponent<TransformComponent>().position = Vec3(0, 0, 7);
+  camera.addComponent<CameraComponent>().getComponent<CameraComponent>().mode =
+      CameraProjectionMode::Orthographic;
+  camera.getComponent<CameraComponent>().setOrthoZoom(7);
 
   gameWorld.setCamera(camera);
 
@@ -80,7 +129,8 @@ void Game::onStart() {
   auto &scene = sceneManager.createScene("pong");
   scene.gameWorld().registerComponent<BlinkComponent>();
 
-  setupScene(*sceneManager.currentGameWorld());
+  setupScene3D(*sceneManager.currentGameWorld());
+  // setupScene2D(*sceneManager.currentGameWorld());
 
   sceneManager.currentGameWorld()->addSystem(std::make_shared<BlinkSystem>());
 

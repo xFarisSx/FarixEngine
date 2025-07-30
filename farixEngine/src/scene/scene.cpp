@@ -29,6 +29,7 @@ void Scene::onLoad() {
   _world.addSystem(std::make_shared<TimerSystem>());
   _world.addSystem(std::make_shared<AudioSystem>());
   _world.addSystem(std::make_shared<CollisionSystem>());
+  _world.addSystem(std::make_shared<BillboardSystem>());
 }
 
 const std::string &Scene::name() const { return _name; }

@@ -100,7 +100,7 @@ struct Mat4 {
     return pm;
   }
   static Mat4 lookAt(const Vec3 &eye, const Vec3 &target, const Vec3 &rup) {
-    Vec3 forward = (target - eye).normalized() * -1;
+    Vec3 forward = (target-eye).normalized() ;
     Vec3 right = forward.cross(rup).normalized();
     Vec3 up = right.cross(forward).normalized();
 
@@ -113,12 +113,27 @@ struct Mat4 {
     vm[1][1] = up.y;
     vm[2][1] = up.z;
     vm[3][1] = -1 * up.dot(eye);
-    vm[0][2] = forward.x;
-    vm[1][2] = forward.y;
-    vm[2][2] = forward.z;
-    vm[3][2] = -1 * forward.dot(eye);
+    vm[0][2] = -forward.x;
+    vm[1][2] = -forward.y;
+    vm[2][2] = -forward.z;
+    vm[3][2] =  forward.dot(eye);
 
     return vm;
+  }
+
+  static Mat4 ortho(float left, float right, float bottom, float top,
+                    float nearZ, float farZ) {
+    Mat4 m = Mat4::identity();
+
+    m[0][0] = 2.0f / (right - left);
+    m[1][1] = 2.0f / (top - bottom);
+    m[2][2] = -1.0f / (farZ - nearZ);
+    m[3][0] = -(right + left) / (right - left);
+    m[3][1] = -(top + bottom) / (top - bottom);
+    m[3][2] = -nearZ / (farZ - nearZ);
+
+    return m;
+
   }
 };
 } // namespace farixEngine

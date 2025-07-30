@@ -22,12 +22,12 @@ public:
   void clear(uint32_t color = 0xFF000000);
   void present();
 
-  Vec3 project(const Vec4 &point, const Mat4 &globalMat,
+  Vec4 project(const Vec4 &point, const Mat4 &globalMat,
                        const Mat4 &viewM, const Mat4 &perspM) const ;
 
   void drawPixel(int x, int y, float z, uint32_t color);
 
-  float edgeFunction(const Vec3 &a, const Vec3 &b, const Vec3 &c) const;
+  float edgeFunction(const Vec4 &a, const Vec4 &b, const Vec4 &c) const;
 
   void drawTriangle(const Mesh *mesh, const Triangle &tri,
                     const std::vector<Vec3> &vertices,
@@ -54,7 +54,7 @@ public:
   uint32_t *framebuffer = nullptr;
   std::vector<float> zBuffer;
 
-  Vec3 lightDir = Vec3(0, 0, 1);
+  Vec3 lightDir = Vec3(0, 0, -1);
 };
 
 } // namespace farixEngine

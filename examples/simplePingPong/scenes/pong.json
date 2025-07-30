@@ -43,6 +43,7 @@
             "y": 1.0,
             "z": 1.0
           },
+          "doubleSided": true,
           "shininess": 32.0,
           "specular": 0.5,
           "texture": "",
@@ -66,7 +67,7 @@
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "463dfc54-f8c8-4f89-8520-33043263464b"
+          "uuid": "02bc089f-1ff0-4e7d-bb13-038b86a53f6d"
         },
         "ScriptComponent": {
           "scripts": [
@@ -130,6 +131,7 @@
             "y": 1.0,
             "z": 1.0
           },
+          "doubleSided": true,
           "shininess": 32.0,
           "specular": 0.5,
           "texture": "",
@@ -155,7 +157,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "a31c8532-45f1-45bb-ab35-dd9779604457"
+          "uuid": "ac47b25d-167c-4079-9a2b-20c9f249b807"
         },
         "ScriptComponent": {
           "scripts": [
@@ -219,6 +221,7 @@
             "y": 1.0,
             "z": 1.0
           },
+          "doubleSided": true,
           "shininess": 32.0,
           "specular": 0.5,
           "texture": "",
@@ -244,7 +247,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "c2923c3c-0ba5-4219-95d8-456ae8555866"
+          "uuid": "f47bc18f-c100-4768-becc-79df4f3e4570"
         },
         "ScriptComponent": {
           "scripts": [
@@ -277,7 +280,14 @@
           "aspectRatio": 1.7777777910232544,
           "farPlane": 100.0,
           "fov": 1.5707963705062866,
-          "nearPlane": 1.0
+          "mode": "Perspective",
+          "nearPlane": 1.0,
+          "orthoBottom": -7.0,
+          "orthoFar": 100.0,
+          "orthoLeft": -12.44444465637207,
+          "orthoNear": 0.0,
+          "orthoRight": 12.44444465637207,
+          "orthoTop": 7.0
         },
         "GlobalTransform": {
           "worldMatrix": [
@@ -311,13 +321,13 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "4ab000c2-2641-4bb5-b2fe-ffc7bde77284"
+          "uuid": "3a8499fe-54be-4d2e-9e69-51649d9bf363"
         },
         "TransformComponent": {
           "position": {
             "x": 0.0,
             "y": 0.0,
-            "z": -7.0
+            "z": 7.0
           },
           "rotation": {
             "x": 0.0,

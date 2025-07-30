@@ -144,6 +144,7 @@ void CameraControllerSystem::update(World &world, float dt) {
       transform.rotation.y += controller->dx * cameraC.sens * dt;
 
       transform.rotation.x -= controller->dy * cameraC.sens * dt;
+
       transform.rotation.x = std::clamp(transform.rotation.x, -1.5f, 1.5f);
     }
   }
@@ -284,6 +285,49 @@ void TimerSystem::removeTimer(World &world, Entity e, const std::string &name) {
     return;
   auto &timersComp = world.getComponent<TimersComponent>(e);
   timersComp.timers.erase(name);
+}
+
+void BillboardSystem::update(World &world, float dt) {
+  auto cameraEntities = world.view<CameraComponent, TransformComponent>();
+  if (cameraEntities.empty())
+    return;
+
+  Entity camEntity = cameraEntities.front();
+  auto &camTransform = world.getComponent<TransformComponent>(camEntity);
+  auto &camGlobal = world.getComponent<GlobalTransform>(camEntity).worldMatrix;
+  Vec3 cameraPos = (camGlobal * Vec4(camTransform.position,1)).toVec3();
+
+  for (Entity e : world.view<TransformComponent, BillboardComponent>()) {
+    auto &tf = world.getComponent<TransformComponent>(e);
+    auto &bb = world.getComponent<BillboardComponent>(e);
+
+    Vec3 toCamera = (cameraPos - tf.position).normalized();
+
+    switch (bb.type) {
+    case BillboardComponent::BillboardType::BillboardY: {
+
+      float yaw = std::atan2(toCamera.x, toCamera.z);
+      tf.rotation = Vec3(0, yaw, 0);
+      break;
+    }
+
+    case BillboardComponent::BillboardType::BillboardFull: {
+
+      Vec3 forward = toCamera;
+      Vec3 up(0, 1, 0);
+
+      float pitch = -std::atan2(
+          forward.y, std::sqrt(forward.x * forward.x + forward.z * forward.z));
+      float yaw = std::atan2(forward.x, forward.z);
+
+      tf.rotation = Vec3(pitch, yaw, 0);
+      break;
+    }
+
+    default:
+      break;
+    }
+  }
 }
 
 } // namespace farixEngine

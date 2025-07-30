@@ -1,6 +1,6 @@
 #include "farixEngine/core/engineRegistry.hpp"
-#include "farixEngine/core/engineServices.hpp"
 #include "farixEngine/components/components.hpp"
+#include "farixEngine/core/engineServices.hpp"
 #include "farixEngine/script/script.hpp"
 #include "farixEngine/systems/systems.hpp"
 
@@ -13,7 +13,7 @@ ComponentSerializerRegistry &EngineRegistry::getSerializerRegistry() {
 }
 
 SystemRegistry &EngineRegistry::getSystemRegistry() { return systemRegistry; }
- 
+
 void EngineRegistry::clear() {}
 
 void EngineRegistry::registerDefaults() {
@@ -77,17 +77,37 @@ void EngineRegistry::registerDefaults() {
       "CameraComponent",
       [](World &world, Entity e) -> json {
         const auto &comp = world.getComponent<CameraComponent>(e);
-        return {{"fov", comp.fov},
+        return {{"mode", comp.mode == CameraProjectionMode::Perspective
+                             ? "Perspective"
+                             : "Orthographic"},
+                {"fov", comp.fov},
                 {"aspectRatio", comp.aspectRatio},
                 {"nearPlane", comp.nearPlane},
-                {"farPlane", comp.farPlane}};
+                {"farPlane", comp.farPlane},
+                {"orthoLeft", comp.orthoLeft},
+                {"orthoRight", comp.orthoRight},
+                {"orthoBottom", comp.orthoBottom},
+                {"orthoTop", comp.orthoTop},
+                {"orthoNear", comp.orthoNear},
+                {"orthoFar", comp.orthoFar}};
       },
       [](World &world, Entity e, const json &j) {
         CameraComponent comp;
+        std::string modeStr = j.at("mode").get<std::string>();
+        comp.mode = (modeStr == "Perspective")
+                        ? CameraProjectionMode::Perspective
+                        : CameraProjectionMode::Orthographic;
         comp.fov = j.at("fov").get<float>();
         comp.aspectRatio = j.at("aspectRatio").get<float>();
         comp.nearPlane = j.at("nearPlane").get<float>();
         comp.farPlane = j.at("farPlane").get<float>();
+        comp.orthoLeft = j.at("orthoLeft").get<float>();
+        comp.orthoRight = j.at("orthoRight").get<float>();
+        comp.orthoBottom = j.at("orthoBottom").get<float>();
+        comp.orthoTop = j.at("orthoTop").get<float>();
+        comp.orthoNear = j.at("orthoNear").get<float>();
+        comp.orthoFar = j.at("orthoFar").get<float>();
+
         world.registerComponent<CameraComponent>();
         world.addComponent<CameraComponent>(e, comp);
       });
@@ -130,6 +150,8 @@ void EngineRegistry::registerDefaults() {
           comp.mesh = Mesh::loadFromObj(path);
         else if (typeStr == "Box")
           comp.mesh = Mesh::createBox(size[0], size[1], size[2]);
+        else if (typeStr == "Sprite")
+          comp.mesh = Mesh::createQuad(Vec3(size[0], size[1], size[2]));
         else if (typeStr == "Sphere")
           comp.mesh = Mesh::createSphere(sd[0], sd[1], sd[2]);
         world.registerComponent<MeshComponent>();
@@ -146,7 +168,8 @@ void EngineRegistry::registerDefaults() {
                 {"specular", comp.specular},
                 {"shininess", comp.shininess},
                 {"useTexture", comp.useTexture},
-                {"texture", comp.texture ? comp.texture->path : ""}};
+                {"texture", comp.texture ? comp.texture->path : ""}
+        ,{"doubleSided", comp.doubleSided}};
       },
       [](World &world, Entity e, const json &j) {
         MaterialComponent comp;
@@ -155,6 +178,7 @@ void EngineRegistry::registerDefaults() {
         comp.specular = j.at("specular").get<float>();
         comp.shininess = j.at("shininess").get<float>();
         comp.useTexture = j.at("useTexture").get<bool>();
+        comp.doubleSided = j.at("doubleSided").get<bool>();
         std::string path = j.at("texture").get<std::string>();
         if (!path.empty()) {
           comp.texture = Texture::loadFromBmp(path);
@@ -192,13 +216,18 @@ void EngineRegistry::registerDefaults() {
           if (name.empty())
             continue;
 
-          if (!EngineServices::get().getEngineRegistry().getScriptRegistry().exists(name)) {
+          if (!EngineServices::get()
+                   .getEngineRegistry()
+                   .getScriptRegistry()
+                   .exists(name)) {
             throw std::runtime_error("Script type '" + name +
                                      "' not registered.");
           }
 
-          world.addScript(
-              e, EngineServices::get().getEngineRegistry().getScriptRegistry().create(name));
+          world.addScript(e, EngineServices::get()
+                                 .getEngineRegistry()
+                                 .getScriptRegistry()
+                                 .create(name));
         }
       });
 
@@ -268,6 +297,22 @@ void EngineRegistry::registerDefaults() {
         world.registerComponent<ColliderComponent>();
         world.addComponent<ColliderComponent>(e, c);
       });
+
+  rg.registerSerializer<BillboardComponent>(
+      "BillboardComponent",
+      [](World &world, Entity e) -> json {
+        const auto &c = world.getComponent<BillboardComponent>(e);
+        return {{"type", static_cast<int>(c.type)}};
+      },
+      [](World &world, Entity e, const json &j) {
+        BillboardComponent c;
+        c.type =
+            static_cast<BillboardComponent::BillboardType>(j.at("type").get<int>());
+
+        world.registerComponent<BillboardComponent>();
+        world.addComponent<BillboardComponent>(e, c); 
+      });
+
 
   rg.registerSerializer<VariableComponent>(
       "VariableComponent",

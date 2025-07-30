@@ -12,13 +12,14 @@ inline void updateCameraBasis(const Vec3 &rotation, Vec3 &forward, Vec3 &right,
 
   forward.x = std::cos(pitch) * std::sin(yaw);
   forward.y = std::sin(pitch);
-  forward.z = std::cos(pitch) * std::cos(yaw);
+  forward.z = -std::cos(pitch) * std::cos(yaw);
+
   forward = forward.normalized();
 
-  right = worldUp.cross(forward);
+  right = forward.cross(worldUp);
   right = right.normalized();
 
-  up = forward.cross(right);
+  up = right.cross(forward);
   up = up.normalized();
 }
 

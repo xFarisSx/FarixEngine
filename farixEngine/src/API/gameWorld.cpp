@@ -15,6 +15,20 @@ GameObject &GameWorld::createGameObject() {
   return obj;
 }
 
+GameObject &GameWorld::createSprite3D(std::shared_ptr<Texture> texture,
+                                      Vec3 size) {
+  GameObject &obj = createGameObject();
+
+  obj.setMesh(Mesh::createQuad(size));
+
+  MaterialComponent mat;
+  mat.useTexture = true;
+  mat.texture = texture;
+  obj.setMaterial(mat);
+
+  return obj;
+}
+
 GameObject &GameWorld::registerExistingEntity(Entity e) {
   if (gameObjects.count(e))
     return gameObjects.at(e);

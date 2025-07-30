@@ -8,18 +8,37 @@
 
 namespace farixEngine {
 
+std::shared_ptr<Mesh> Mesh::createQuad(Vec3 size) {
+  auto mesh = std::make_shared<Mesh>();
+  mesh->type = "Sprite";
+
+  mesh->size = {size[0], size[1], 0};
+
+  float w = size[0] / 2.0f;
+  float h = size[1] / 2.0f;
+
+  mesh->vertices = {Vec3(-w, -h, 0), Vec3(w, -h, 0), Vec3(w, h, 0),
+                    Vec3(-w, h, 0)};
+
+  mesh->triangles = {{0, 1, 2, 0, 1, 2}, {0, 2, 3, 0, 2, 3}};
+
+  mesh->textureMap = {Vec3(0, 0, 0), Vec3(1, 0, 0), Vec3(1, 1, 0),
+                      Vec3(0, 1, 0)};
+  return mesh;
+}
+
 std::shared_ptr<Mesh> Mesh::createSphere(float radius, int latSegments,
                                          int lonSegments) {
   auto mesh = std::make_shared<Mesh>();
   mesh->sphereData = {radius, (float)latSegments, (float)lonSegments};
-  // Generate vertices
+
   for (int lat = 0; lat <= latSegments; ++lat) {
-    float theta = lat * M_PI / latSegments; // [0, π]
+    float theta = lat * M_PI / latSegments;
     float sinTheta = sin(theta);
     float cosTheta = cos(theta);
 
     for (int lon = 0; lon <= lonSegments; ++lon) {
-      float phi = lon * 2.0f * M_PI / lonSegments; // [0, 2π]
+      float phi = lon * 2.0f * M_PI / lonSegments;
       float sinPhi = sin(phi);
       float cosPhi = cos(phi);
 
@@ -37,12 +56,12 @@ std::shared_ptr<Mesh> Mesh::createSphere(float radius, int latSegments,
       int next = current + lonSegments + 1;
 
       mesh->triangles.push_back({current, current + 1, next});
-      mesh->triangles.push_back({next + 1, next, current + 1});
+      mesh->triangles.push_back({next, current + 1, next + 1});
     }
   }
 
   mesh->type = "Sphere";
-  mesh->textureMap.resize(mesh->vertices.size(), Vec3(0)); // dummy UV
+  mesh->textureMap.resize(mesh->vertices.size(), Vec3(0));
 
   return mesh;
 }
@@ -56,38 +75,41 @@ std::shared_ptr<Mesh> Mesh::createBox(float width, float height, float depth) {
   float h = height / 2.0f;
   float d = depth / 2.0f;
 
-  mesh->vertices = {
-      Vec3(-w, -h, -d), // 0
-      Vec3(w, -h, -d),  // 1
-      Vec3(w, h, -d),   // 2
-      Vec3(-w, h, -d),  // 3
-      Vec3(-w, -h, d),  // 4
-      Vec3(w, -h, d),   // 5
-      Vec3(w, h, d),    // 6
-      Vec3(-w, h, d)    // 7
+   mesh->vertices = {
+
+      Vec3(-w, -h, d),  // 0
+      Vec3(w, -h, d),   // 1
+      Vec3(w, h, d),    // 2
+      Vec3(-w, h, d),   // 3
+
+
+      Vec3(-w, -h, -d), // 4
+      Vec3(w, -h, -d),  // 5
+      Vec3(w, h, -d),   // 6
+      Vec3(-w, h, -d)   // 7
   };
 
-  mesh->triangles = {// Back face
-                     {2, 1, 0},
-                     {3, 2, 0},
-                     // Front face
-                     {4, 5, 6},
-                     {4, 6, 7},
-                     // Left face
-                     {0, 4, 7},
-                     {0, 7, 3},
-                     // Right face
-                     {6, 5, 1},
-                     {6, 1, 2},
-                     // Top face
-                     {3, 7, 6},
-                     {3, 6, 2},
-                     // Bottom face
-                     {0, 1, 5},
-                     {0, 5, 4}};
+  mesh->triangles = {
+
+      {0, 1, 2}, {0, 2, 3},
+
+
+      {5, 4, 7}, {5, 7, 6},
+
+
+      {4, 0, 3}, {4, 3, 7},
+
+
+      {1, 5, 6}, {1, 6, 2},
+
+
+      {3, 2, 6}, {3, 6, 7},
+
+
+      {4, 5, 1}, {4, 1, 0}
+  };
 
   mesh->textureMap.resize(mesh->vertices.size(), Vec3(0.0f, 0.0f, 0.0f));
-
   return mesh;
 }
 std::shared_ptr<Mesh> Mesh::loadFromObj(const std::string &filename) {

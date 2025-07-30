@@ -35,24 +35,25 @@
         "y": 1.0,
         "z": 1.0
       },
+      "doubleSided": true,
       "shininess": 32.0,
       "specular": 0.5,
-      "texture": "",
-      "useTexture": false
+      "texture": "assets/textures/textcat.bmp",
+      "useTexture": true
     },
     "MeshComponent": {
       "mesh": "",
       "size": {
         "x": 2.0,
         "y": 0.20000000298023224,
-        "z": 0.5
+        "z": 0.0
       },
       "sphereData": {
         "x": 1.0,
         "y": 16.0,
         "z": 32.0
       },
-      "type": "Box"
+      "type": "Sprite"
     },
     "Metadata": {
       "name": "Player",
@@ -60,7 +61,7 @@
       "tags": [
         "Paddle"
       ],
-      "uuid": "d18d9a0f-2af9-4a59-ac71-123f1e9f1362"
+      "uuid": "53e34cf8-5755-4f59-844a-68206f62ad2d"
     },
     "ScriptComponent": {
       "scripts": [
