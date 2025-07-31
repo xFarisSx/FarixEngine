@@ -154,7 +154,6 @@ g++ -std=c++17 -Wall -I/usr/local/include/farixEngine main.cpp -L/usr/local/lib 
 
 ## To Do / Planned
 
-- Event system and refactor systems to support events
 - 2D and UI rendering layers with components
 - Clipping, improved lighting and shadow support
 - Audio system enhancements

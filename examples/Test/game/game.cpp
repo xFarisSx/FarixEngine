@@ -14,7 +14,6 @@ void setupScene(GameWorld &gameWorld) {
   ground.getComponent<MaterialComponent>().doubleSided = true;
 
   ground.emplaceComponent<BillboardComponent>(
-     
       BillboardComponent::BillboardType::BillboardFull);
 
   // Falling Box (dynamic)
@@ -39,7 +38,7 @@ void setupScene(GameWorld &gameWorld) {
   camera.setName("Camera");
   camera.getComponent<TransformComponent>().position = Vec3(0, 0, 10);
   camera.addComponent<CameraComponent>().getComponent<CameraComponent>().mode =
-      CameraProjectionMode::Orthographic;
+      CameraProjectionMode::Perspective;
   camera.getComponent<CameraComponent>().setOrthoZoom(20);
   camera.addComponent<CameraControllerComponent>();
   camera.setParent(box);

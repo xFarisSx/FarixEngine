@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-namespace farixEngine {
+namespace farixEngine::renderer {
 
 Renderer::Renderer(int width, int height, const char *title)
     : screenWidth(width), screenHeight(height) {
@@ -47,6 +47,12 @@ Renderer::~Renderer() {
   SDL_DestroyWindow(window);
 }
 
+void Renderer::beginFrame(const RenderContext &context) {
+  currentContext = context;
+  clear(context.clearColor);
+}
+void Renderer::endFrame() { present(); }
+
 void Renderer::clear(uint32_t color) {
   if (!framebuffer) {
     std::cerr << "Error: framebuffer is null!" << std::endl;
@@ -57,12 +63,7 @@ void Renderer::clear(uint32_t color) {
     return;
   }
 
-  Uint8 skyR = 135;
-  Uint8 skyG = 206;
-  Uint8 skyB = 235;
-
-  Uint32 clearColor = (skyR << 16) | (skyG << 8) | skyB;
-  std::fill(framebuffer, framebuffer + screenWidth * screenHeight, clearColor);
+  std::fill(framebuffer, framebuffer + screenWidth * screenHeight, color);
   std::fill(zBuffer.begin(), zBuffer.end(), std::numeric_limits<float>::max());
 }
 
@@ -74,13 +75,26 @@ void Renderer::present() {
   SDL_RenderPresent(sdlRenderer);
 }
 
-Vec4 Renderer::project(const Vec4 &point, const Mat4 &globalMat,
-                       const Mat4 &viewM, const Mat4 &perspM) const {
-  Vec4 projected4 = perspM * viewM * globalMat * point;
+uint32_t Renderer::packColor(const Vec3 &color) {
+  uint8_t a = 255;
+  uint8_t r = static_cast<uint8_t>(std::clamp(color.x, 0.f, 1.f) * 255.f);
+  uint8_t g = static_cast<uint8_t>(std::clamp(color.y, 0.f, 1.f) * 255.f);
+  uint8_t b = static_cast<uint8_t>(std::clamp(color.z, 0.f, 1.f) * 255.f);
+  return (a << 24) | (r << 16) | (g << 8) | b;
+}
 
+Vec3 Renderer::unpackColor(uint32_t color) {
+  uint8_t r = (color >> 16) & 0xFF;
+  uint8_t g = (color >> 8) & 0xFF;
+  uint8_t b = color & 0xFF;
+  return Vec3(r, g, b) / 255.0f;
+}
+
+Vec4 Renderer::project(const Vec4 &point, const Mat4 &model,
+                       const RenderContext &ctx) const {
+  Vec4 projected4 = ctx.projectionMatrix * ctx.viewMatrix * model * point;
   if (projected4.w <= 0.0f)
     return Vec3(-1, -1, -1);
-
   Vec3 pr = projected4.toVec3();
   return Vec4(screenWidth * (pr.x + 1) / 2, screenHeight * (1 - pr.y) / 2, pr.z,
               projected4.w);
@@ -95,9 +109,11 @@ void Renderer::drawPixel(int x, int y, float z, uint32_t color) {
     }
   }
 }
+
 Vec3 Renderer::reflect(const Vec3 &L, const Vec3 &N) {
   return L - N * (2.0f * L.dot(N));
 }
+
 float Renderer::edgeFunction(const Vec4 &a, const Vec4 &b,
                              const Vec4 &c) const {
   Vec4 v1 = b - a;
@@ -105,196 +121,190 @@ float Renderer::edgeFunction(const Vec4 &a, const Vec4 &b,
   return v1.x * v2.y - v1.y * v2.x;
 }
 
-auto isValid = [](const Vec4 &v) {
-  return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
-};
+bool Renderer::isTriangleValid(const Vec4 &p0, const Vec4 &p1,
+                               const Vec4 &p2) const {
+  auto isValid = [](const Vec4 &v) {
+    return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
+  };
+  return isValid(p0) && isValid(p1) && isValid(p2) && p0.z >= 0 && p0.z <= 1 &&
+         p1.z >= 0 && p1.z <= 1 && p2.z >= 0 && p2.z <= 1;
+}
 
-void Renderer::drawTriangle(const Mesh *mesh, const Triangle &tri,
-                            const std::vector<Vec3> &vertices,
-                            const Mat4 &globalMat,
-                            const TransformComponent &cameraTransform,
-                            const CameraComponent &camera,
-                            const MaterialComponent &material) {
-  Vec3 v0 = vertices[tri.i0];
-  Vec3 v1 = vertices[tri.i1];
-  Vec3 v2 = vertices[tri.i2];
-  Vec4 v04 = Vec4(v0.x, v0.y, v0.z, 1);
-  Vec4 v14 = Vec4(v1.x, v1.y, v1.z, 1);
-  Vec4 v24 = Vec4(v2.x, v2.y, v2.z, 1);
+std::array<Vec4, 3>
+Renderer::fetchTransformedVertices(const MeshData &mesh,
+                                   const TriangleData &tri, const Mat4 &model,
+                                   const RenderContext &ctx) const {
 
-  Vec3 forward, right, up;
-  math::updateCameraBasis(cameraTransform.rotation, forward, right, up);
+  Vec4 v0 = project(Vec4(mesh.positions[tri.i0], 1), model, ctx);
+  Vec4 v1 = project(Vec4(mesh.positions[tri.i1], 1), model, ctx);
+  Vec4 v2 = project(Vec4(mesh.positions[tri.i2], 1), model, ctx);
+  return {v0, v1, v2};
+}
 
-  Mat4 viewM = Mat4::lookAt(cameraTransform.position,
-                            cameraTransform.position + forward, Vec3(0, 1, 0));
+bool Renderer::isTriangleVisible(std::array<Vec4, 3> &projected,
+                                 const MaterialData &material,
+                                 const RenderContext &ctx) const {
 
-  Mat4 projection;
-  if (camera.mode == CameraProjectionMode::Perspective) {
-    projection = Mat4::perspective(camera.fov, camera.aspectRatio,
-                                   camera.nearPlane, camera.farPlane);
-  } else {
+  if (!isTriangleValid(projected[0], projected[1], projected[2]))
+    return false;
 
-    projection =
-        Mat4::ortho(camera.orthoLeft, camera.orthoRight, camera.orthoBottom,
-                    camera.orthoTop, camera.orthoNear, camera.orthoFar);
+  if (material.doubleSided)
+    return true;
+
+  Vec3 normal = (projected[1].toVec3() - projected[0].toVec3())
+                    .cross(projected[2].toVec3() - projected[0].toVec3())
+                    .normalized();
+
+  Vec3 viewDir = (ctx.viewMatrix.getCol(2).xyz().normalized()) * -1;
+  return normal.dot(viewDir) < 0.2f;
+}
+
+std::array<Vec3, 3> Renderer::fetchUVs(const MeshData &mesh,
+                                       const TriangleData &tri,
+                                       const MaterialData &material) const {
+
+  if (material.useTexture && !mesh.uvs.empty()) {
+    return {mesh.uvs[tri.uv0], mesh.uvs[tri.uv1], mesh.uvs[tri.uv2]};
   }
+  return {Vec3(), Vec3(), Vec3()};
+}
 
-  Vec3 normal = (v1 - v0).cross(v2 - v0);
+void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
+                                 const std::array<Vec3, 3> &uvs,
+                                 const MeshData &mesh, const TriangleData &tri,
+                                 const RenderContext &ctx,
+                                 const MaterialData &material) {
 
-  Vec3 normalWorld = (globalMat * Vec4(normal, 0.0f)).toVec3().normalized();
+  float minX = std::min({projected[0].x, projected[1].x, projected[2].x});
+  float maxX = std::max({projected[0].x, projected[1].x, projected[2].x});
+  float minY = std::min({projected[0].y, projected[1].y, projected[2].y});
+  float maxY = std::max({projected[0].y, projected[1].y, projected[2].y});
 
-  if (!material.doubleSided && normalWorld.dot(forward) > 0.2f) {
+  int minXInt = std::max(0, (int)std::floor(minX));
+  int maxXInt = std::min(screenWidth - 1, (int)std::ceil(maxX));
+  int minYInt = std::max(0, (int)std::floor(minY));
+  int maxYInt = std::min(screenHeight - 1, (int)std::ceil(maxY));
+
+  float area = edgeFunction(projected[0], projected[1], projected[2]);
+  if (std::abs(area) < 1e-6f)
     return;
-  }
 
-  Vec4 p0 = project(v04, globalMat, viewM, projection);
-  Vec4 p1 = project(v14, globalMat, viewM, projection);
-  Vec4 p2 = project(v24, globalMat, viewM, projection);
-
-  if (p0.z < 0.0f || p0.z > 1.0f || p0.x < 0 || p0.x >= screenWidth ||
-      p0.y < 0 || p0.y >= screenHeight)
-    return;
-  if (p1.z < 0.0f || p1.z > 1.0f || p1.x < 0 || p1.x >= screenWidth ||
-      p1.y < 0 || p1.y >= screenHeight)
-    return;
-  if (p2.z < 0.0f || p2.z > 1.0f || p2.x < 0 || p2.x >= screenWidth ||
-      p2.y < 0 || p2.y >= screenHeight)
-    return;
-
-  if (!isValid(p0) || !isValid(p1) || !isValid(p2)) {
-    std::cout << "Skipping triangle due to invalid projection values\n";
-    return;
-  }
-
-  Vec3 uv0;
-  Vec3 uv1;
-  Vec3 uv2;
-  if (material.useTexture) {
-    uv0 = mesh->textureMap[tri.uv0];
-    uv1 = mesh->textureMap[tri.uv1];
-    uv2 = mesh->textureMap[tri.uv2];
-  }
-  float minX = std::min({p0.x, p1.x, p2.x});
-  float maxX = std::max({p0.x, p1.x, p2.x});
-  float minY = std::min({p0.y, p1.y, p2.y});
-  float maxY = std::max({p0.y, p1.y, p2.y});
-
-  int minXInt = std::max(0, static_cast<int>(std::floor(minX)));
-  int maxXInt = std::min(screenWidth - 1, static_cast<int>(std::ceil(maxX)));
-  int minYInt = std::max(0, static_cast<int>(std::floor(minY)));
-  int maxYInt = std::min(screenHeight - 1, static_cast<int>(std::ceil(maxY)));
-
-  float area = edgeFunction(p0, p1, p2);
-  if (std::abs(area) < 1e-6f) {
-    return;
-  }
-
-  Vec3 lightDirViewSpace = (viewM * Vec4(lightDir, 0.0f)).toVec3().normalized();
   for (int y = minYInt; y <= maxYInt; ++y) {
     for (int x = minXInt; x <= maxXInt; ++x) {
-      Vec3 c(x, y, 0);
-
-      float w0 = edgeFunction(p1, p2, c);
-      float w1 = edgeFunction(p2, p0, c);
-      float w2 = edgeFunction(p0, p1, c);
+      Vec3 p(x, y, 0);
+      float w0 = edgeFunction(projected[1], projected[2], p);
+      float w1 = edgeFunction(projected[2], projected[0], p);
+      float w2 = edgeFunction(projected[0], projected[1], p);
 
       if ((w0 >= 0 && w1 >= 0 && w2 >= 0) || (w0 <= 0 && w1 <= 0 && w2 <= 0)) {
-
-        float alpha = w0 / area;
-        float beta = w1 / area;
-        float gamma = w2 / area;
-
-        float depth = alpha * p0.z + beta * p1.z + gamma * p2.z;
-        if (!std::isfinite(depth) || depth < 0 || depth > 1) {
+        float alpha = w0 / area, beta = w1 / area, gamma = w2 / area;
+        float depth = alpha * projected[0].z + beta * projected[1].z +
+                      gamma * projected[2].z;
+        if (!std::isfinite(depth) || depth < 0 || depth > 1)
           continue;
-        }
 
-        Vec3 worldPos = v0 * alpha + v1 * beta + v2 * gamma;
-        float invW0 = 1.0f / p0.w;
-        float invW1 = 1.0f / p1.w;
-        float invW2 = 1.0f / p2.w;
-        float invW = alpha * invW0 + beta * invW1 + gamma * invW2;
+        Vec3 worldPos = mesh.positions[tri.i0] * alpha +
+                        mesh.positions[tri.i1] * beta +
+                        mesh.positions[tri.i2] * gamma;
 
-        float uOverW = alpha * (uv0.x * invW0) + beta * (uv1.x * invW1) +
-                       gamma * (uv2.x * invW2);
-        float vOverW = alpha * (uv0.y * invW0) + beta * (uv1.y * invW1) +
-                       gamma * (uv2.y * invW2);
+        float invW = alpha / projected[0].w + beta / projected[1].w +
+                     gamma / projected[2].w;
+        float u = (alpha * uvs[0].x / projected[0].w +
+                   beta * uvs[1].x / projected[1].w +
+                   gamma * uvs[2].x / projected[2].w) /
+                  invW;
+        float v = (alpha * uvs[0].y / projected[0].w +
+                   beta * uvs[1].y / projected[1].w +
+                   gamma * uvs[2].y / projected[2].w) /
+                  invW;
 
-        float u = uOverW / invW;
-        float v = vOverW / invW;
+        Vec3 n0 = mesh.normals[tri.n0];
+        Vec3 n1 = mesh.normals[tri.n1];
+        Vec3 n2 = mesh.normals[tri.n2];
+        Vec3 interpolatedNormal =
+            (n0 * alpha + n1 * beta + n2 * gamma).normalized();
 
-        Vec3 finalColor = material.baseColor;
+        Vec3 finalColor = shadeFragment(worldPos, Vec3(u, v, 0),
+                                        interpolatedNormal, ctx, material);
 
-        if (material.useTexture && material.texture) {
-          // float u = alpha * uv0.x + beta * uv1.x + gamma * uv2.x;
-          // float v = alpha * uv0.y + beta * uv1.y + gamma * uv2.y;
-
-          Uint32 texColor = material.texture->sample(u, v);
-
-          Uint8 r = (texColor >> 16) & 0xFF;
-          Uint8 g = (texColor >> 8) & 0xFF;
-          Uint8 b = texColor & 0xFF;
-
-          finalColor = Vec3(r / 255.0f, g / 255.0f, b / 255.0f);
-        }
-
-        Vec3 normalViewSpace =
-            (viewM * Vec4(normalWorld, 0.0f)).toVec3().normalized();
-
-        // Ambient + diffuse lighting
-        float diffIntensity = std::max(
-            material.ambient, normalViewSpace.dot(lightDirViewSpace * -1));
-
-        Vec3 viewDir = (cameraTransform.position - worldPos).normalized();
-
-        // Reflection direction for specular
-        Vec3 reflectDir = reflect(lightDirViewSpace * -1, normalViewSpace);
-
-        // Specular intensity
-        float spec =
-            pow(std::max(0.0f, viewDir.dot(reflectDir)), material.shininess);
-
-        // Total light intensity combining ambient, diffuse, specular
-        float totalLight = diffIntensity + material.specular * spec;
-
-        Vec3 litColor = finalColor * totalLight;
-
-        Uint8 r =
-            static_cast<Uint8>(std::clamp(litColor.x * 255.0f, 0.0f, 255.0f));
-        Uint8 g =
-            static_cast<Uint8>(std::clamp(litColor.y * 255.0f, 0.0f, 255.0f));
-        Uint8 b =
-            static_cast<Uint8>(std::clamp(litColor.z * 255.0f, 0.0f, 255.0f));
-
-        Uint32 color = (r << 16) | (g << 8) | b;
-
-        drawPixel(x, y, depth, color);
+        drawPixel(x, y, depth, packColor(finalColor));
       }
     }
   }
 }
 
-void Renderer::renderMesh(const Mesh *mesh, const Mat4 &globalMat,
-                          const TransformComponent &cameraTransform,
-                          const CameraComponent &camera,
-                          const MaterialComponent &material) {
-  if (!mesh) {
-
-    return;
+Vec3 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
+                             const Vec3 &normal, const RenderContext &ctx,
+                             const MaterialData &material) {
+  Vec3 finalColor = material.baseColor;
+  if (material.useTexture && material.texture) {
+    uint32_t texColor = material.texture->sample(uv.x, uv.y);
+    finalColor = unpackColor(texColor);
   }
 
-  SDL_SetRenderDrawColor(sdlRenderer, 255, 255, 255, 255);
-  for (const Triangle &tri : mesh->triangles) {
-    drawTriangle(mesh, tri, mesh->vertices, globalMat, cameraTransform, camera,
-                 material);
+  Vec3 lightDirView =
+      (ctx.viewMatrix * Vec4(lightDir, 0)).toVec3().normalized();
+  Vec3 normalView = (ctx.viewMatrix * Vec4(normal, 0)).toVec3().normalized();
+  Vec3 viewDir = (ctx.cameraPosition - worldPos).normalized();
+
+  float diff = std::max(material.ambient, normalView.dot(lightDirView * -1));
+  Vec3 reflectDir = reflect(lightDirView * -1, normalView);
+  float spec =
+      std::pow(std::max(0.0f, viewDir.dot(reflectDir)), material.shininess);
+
+  return finalColor * (diff + material.specular * spec);
+}
+
+void Renderer::drawTriangle(const MeshData &mesh, const TriangleData &tri,
+                            const Mat4 &model, const RenderContext &ctx,
+                            const MaterialData &material) {
+  auto vertices = fetchTransformedVertices(mesh, tri, model, ctx);
+  if (!isTriangleVisible(vertices, material, ctx))
+    return;
+
+  auto uvs = fetchUVs(mesh, tri, material);
+  rasterizeTriangle(vertices, uvs, mesh, tri, ctx, material);
+}
+
+void Renderer::renderMesh(const MeshData &mesh, const Mat4 &model,
+                          const MaterialData &material) {
+  for (const TriangleData &tri : mesh.indices) {
+    drawTriangle(mesh, tri, model, currentContext, material);
   }
 }
-//
-// void Renderer::renderWorld(Mesh *mesh,
-//                            const TransformComponent &entityTransform,
-//                            const TransformComponent &cameraTransform,
-//                            const CameraComponent &camera) {
-//   renderMesh(mesh, entityTransform, cameraTransform, camera);
-// }
-//
-} // namespace farixEngine
+
+void Renderer::renderSprite(const SpriteData &sprite, const Mat4 &model) {
+
+  MeshData quadMesh = quadMesh2D();
+  MaterialData mat;
+  mat.useTexture = sprite.useTexture;
+  mat.texture = sprite.texture;
+  mat.baseColor = Vec3(1, 1, 1);
+  mat.doubleSided = true;
+
+  Mat4 scaleMat = Mat4::scale(Vec3(sprite.size[0], sprite.size[1], 1.0f));
+  Mat4 finalMat = model * scaleMat;
+
+  renderMesh(quadMesh, finalMat, mat);
+}
+
+MeshData Renderer::quadMesh2D() {
+  static MeshData quad;
+
+  if (quad.positions.empty()) {
+    float hw = 0.5f, hh = 0.5f;
+
+    quad.positions = {Vec3(-hw, -hh, 0), Vec3(hw, -hh, 0), Vec3(hw, hh, 0),
+                      Vec3(-hw, hh, 0)};
+
+    quad.uvs = {Vec3(0, 0, 0), Vec3(1, 0, 0), Vec3(1, 1, 0), Vec3(0, 1, 0)};
+
+    quad.normals = {Vec3(0, 0, 1)};
+
+    quad.indices = {{0, 1, 2, 0, 1, 2, 0, 0, 0}, {0, 2, 3, 0, 2, 3, 0, 0, 0}};
+  }
+
+  return quad;
+}
+
+} // namespace farixEngine::renderer

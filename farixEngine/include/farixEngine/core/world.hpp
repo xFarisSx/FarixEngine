@@ -152,7 +152,7 @@ World::addComponent<TransformComponent>(Entity e,
   auto &t = componentManager.getStorage<TransformComponent>().add(e, transform);
   if (!hasComponent<GlobalTransform>(e)) {
     componentManager.getStorage<GlobalTransform>().add(
-        e, GlobalTransform{Mat4::identity()});
+        e, GlobalTransform());
   }
   return t;
 }

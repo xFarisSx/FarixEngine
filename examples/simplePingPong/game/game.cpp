@@ -55,7 +55,7 @@ void setupScene3D(GameWorld &gameWorld) {
 void setupScene2D(GameWorld &gameWorld) {
   // Ball
   // auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
-  auto &ball = gameWorld.createSprite3D(
+  auto &ball = gameWorld.createSprite2D(
       Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(0.4f, 0.4f, 0));
   ball.setName("Ball");
   ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
@@ -64,7 +64,7 @@ void setupScene2D(GameWorld &gameWorld) {
 
   // Player Paddle
   // auto &paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
-  auto &paddle1 = gameWorld.createSprite3D(
+  auto &paddle1 = gameWorld.createSprite2D(
       Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(2.0f, 0.2f, 0));
   paddle1.setName("Player");
   paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
@@ -77,7 +77,7 @@ void setupScene2D(GameWorld &gameWorld) {
   // paddle2.removeScriptByName("PlayerPaddleScript");
   // paddle2.addScript(std::make_shared<OpponentPaddleScript>());
   // paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
-  auto &paddle2 = gameWorld.createSprite3D(
+  auto &paddle2 = gameWorld.createSprite2D(
       Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(2.0f, 0.2f, 1));
   paddle2.setName("Opponent");
   paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
@@ -128,7 +128,7 @@ void Game::onStart() {
 
   auto &scene = sceneManager.createScene("pong");
   scene.gameWorld().registerComponent<BlinkComponent>();
-
+  //
   setupScene3D(*sceneManager.currentGameWorld());
   // setupScene2D(*sceneManager.currentGameWorld());
 

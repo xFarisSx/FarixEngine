@@ -24,22 +24,25 @@ public:
 
   ~GameWorld();
 
-  GameObject& createGameObject();
-  GameObject& createSprite3D( std::shared_ptr<Texture> texture, Vec3 size = {1, 1, 0});
-  GameObject& registerExistingEntity(Entity e);
-  GameObject& getGameObject(Entity entity);
+  GameObject &createGameObject();
+  GameObject &createSprite3D(std::shared_ptr<Texture> texture,
+                             Vec3 size = {1, 1, 0});
+  GameObject &createSprite2D(std::shared_ptr<Texture> texture,
+                             Vec3 size = {1, 1, 0});
+  GameObject &registerExistingEntity(Entity e);
+  GameObject &getGameObject(Entity entity);
 
-  std::vector<GameObject*> getAllGameObjects();
-  std::vector<GameObject*> getGameObjectsByName(const std::string &name);
+  std::vector<GameObject *> getAllGameObjects();
+  std::vector<GameObject *> getGameObjectsByName(const std::string &name);
 
   template <typename... Tags>
-  std::vector<GameObject*>getGameObjectsByTags(Tags &&...tags);
+  std::vector<GameObject *> getGameObjectsByTags(Tags &&...tags);
 
   void setCamera(const GameObject &camera);
-  GameObject& getCamera();
+  GameObject &getCamera();
 
   void clear();
-  void destroyObject(GameObject& go);
+  void destroyObject(GameObject &go);
 
   World *getInternalWorld();
   const World *getInternalWorld() const;
@@ -53,15 +56,16 @@ private:
 };
 
 template <typename... Tags>
-std::vector<GameObject*> GameWorld::getGameObjectsByTags(Tags&&... tags) {
-  std::vector<GameObject*> result;
+std::vector<GameObject *> GameWorld::getGameObjectsByTags(Tags &&...tags) {
+  std::vector<GameObject *> result;
   auto entities = _world->getEntitiesByTags(std::forward<Tags>(tags)...);
   result.reserve(entities.size());
   for (Entity e : entities) {
     result.push_back(&getGameObject(e));
   }
   return result;
-}template <typename T> void GameWorld::registerComponent() {
+}
+template <typename T> void GameWorld::registerComponent() {
   _world->registerComponent<T>();
 }
 

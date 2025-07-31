@@ -30,14 +30,14 @@ public:
   void endFrame();
   void shutdown();
 
-  Renderer *getRenderer() const { return renderer; }
+  renderer::Renderer *getRenderer() const { return renderer; }
   Controller *getController() const { return controller; }
   SceneManager *getSceneManager() const {return sceneManager;}
   InputManager *getInputManager() { return &inputManager; }
   EngineContext *getContext() const { return context; }
 
 private:
-  Renderer *renderer;
+  renderer::Renderer *renderer;
   Controller *controller = nullptr;
   SceneManager* sceneManager = nullptr;
   InputManager inputManager;

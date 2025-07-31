@@ -9,6 +9,7 @@
 #include "farixEngine/math/general.hpp"
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/physics/collisionHelpers.hpp"
+#include "farixEngine/renderer/helpers.hpp"
 #include "farixEngine/renderer/renderer.hpp"
 #include "farixEngine/scene/scene.hpp"
 #include "farixEngine/scene/sceneManager.hpp"
@@ -19,38 +20,135 @@
 namespace farixEngine {
 using Entity = uint32_t;
 
-void RenderSystem::update(World &world, float dt) {
-  Renderer *renderer = EngineServices::get().getContext()->renderer;
-  const auto &entities = world.getEntities();
-
+Mat4 RenderSystem::getViewMatrix(World &world) {
   Entity cameraEntity = world.getCamera();
 
   if (!cameraEntity || cameraEntity <= 0)
-    return;
+    return Mat4();
 
-  auto &cameraGM =
+  auto &cameraGlobalMat =
       world.getComponent<GlobalTransform>(cameraEntity).worldMatrix;
+  auto cameraTransform = math::transformFromMatrix(cameraGlobalMat);
+
+  Vec3 forward, right, up;
+  math::updateCameraBasis(cameraTransform.rotation, forward, right, up);
+  return Mat4::lookAt(cameraTransform.position,
+                      cameraTransform.position + forward, Vec3(0, 1, 0));
+}
+Mat4 RenderSystem::getProjectionMatrix(World &world) {
+  Entity cameraEntity = world.getCamera();
+
+  if (!cameraEntity || cameraEntity <= 0)
+    return Mat4();
 
   auto &camera = world.getComponent<CameraComponent>(cameraEntity);
 
-  TransformComponent cameraGlobalT = math::transformFromMatrix(cameraGM);
-  for (Entity entity : entities) {
+  if (camera.mode == CameraProjectionMode::Perspective) {
+    return Mat4::perspective(camera.fov, camera.aspectRatio, camera.nearPlane,
+                             camera.farPlane);
+  } else {
+    return Mat4::ortho(camera.orthoLeft, camera.orthoRight, camera.orthoBottom,
+                       camera.orthoTop, camera.orthoNear, camera.orthoFar);
+  }
+}
+
+renderer::RenderContext
+RenderSystem::createRenderContext(World &world, const CameraComponent &cam,
+                                  const Mat4 &cameraTransform,
+                                  const Vec3 &camPosition) {
+  renderer::RenderContext ctx;
+  ctx.clearColor = 0xFF87CEEB;
+
+  ctx.viewMatrix = getViewMatrix(world);
+  ctx.cameraPosition = camPosition;
+
+  if (cam.mode == CameraProjectionMode::Perspective) {
+    ctx.projectionMatrix = Mat4::perspective(cam.fov, cam.aspectRatio,
+                                             cam.nearPlane, cam.farPlane);
+    ctx.isOrthographic = false;
+  } else {
+    ctx.projectionMatrix =
+        Mat4::ortho(cam.orthoLeft, cam.orthoRight, cam.orthoBottom,
+                    cam.orthoTop, cam.orthoNear, cam.orthoFar);
+    ctx.isOrthographic = true;
+  }
+
+  return ctx;
+}
+
+void RenderSystem::update(World &world, float dt) {
+  renderer::Renderer *renderer = EngineServices::get().getContext()->renderer;
+
+  Entity cameraEntity = world.getCamera();
+  if (!cameraEntity || cameraEntity <= 0)
+    return;
+
+  const auto &camera = world.getComponent<CameraComponent>(cameraEntity);
+  const auto &cameraTransform =
+      world.getComponent<TransformComponent>(cameraEntity);
+  const auto &cameraGlobal =
+      world.getComponent<GlobalTransform>(cameraEntity).worldMatrix;
+  Vec3 cameraPosition = math::transformFromMatrix(cameraGlobal).position;
+
+  renderer::RenderContext ctx =
+      createRenderContext(world, camera, cameraGlobal, cameraPosition);
+  renderer->beginFrame(ctx);
+
+  for (Entity entity : world.getEntities()) {
     if (world.hasComponent<GlobalTransform>(entity) &&
         world.hasComponent<MeshComponent>(entity) &&
         world.hasComponent<MaterialComponent>(entity)) {
 
-      Mat4 &globalMat = world.getComponent<GlobalTransform>(entity).worldMatrix;
+      const Mat4 &model =
+          world.getComponent<GlobalTransform>(entity).worldMatrix;
       auto &meshC = world.getComponent<MeshComponent>(entity);
+      auto &matC = world.getComponent<MaterialComponent>(entity);
+
       if (!meshC.mesh)
         continue;
-      auto &material = world.getComponent<MaterialComponent>(entity);
 
-      renderer->renderMesh(meshC.mesh.get(), globalMat, cameraGlobalT, camera,
-                           material);
+      renderer::MeshData meshData;
+      meshData.positions = meshC.mesh->vertices;
+      meshData.normals = meshC.mesh->normals;
+      meshData.uvs = meshC.mesh->textureMap;
+      for (auto &tri : meshC.mesh->triangles) {
+        meshData.indices.push_back(
+            renderer::TriangleData{tri.i0, tri.i1, tri.i2, tri.uv0, tri.uv1,
+                                   tri.uv2, tri.n0, tri.n1, tri.n2});
+      }
+
+      renderer::MaterialData matData;
+      matData.baseColor = matC.baseColor;
+      matData.ambient = matC.ambient;
+      matData.diffuse = matC.diffuse;
+      matData.specular = matC.specular;
+      matData.shininess = matC.shininess;
+      matData.useTexture = matC.useTexture;
+      matData.texture = matC.texture.get();
+      matData.doubleSided = matC.doubleSided;
+
+      renderer->renderMesh(meshData, model, matData);
+    }
+
+    if (world.hasComponent<GlobalTransform>(entity) &&
+        world.hasComponent<Sprite2DComponent>(entity)) {
+      const Mat4 &model =
+          world.getComponent<GlobalTransform>(entity).worldMatrix;
+      const auto &sprite = world.getComponent<Sprite2DComponent>(entity);
+
+      renderer::SpriteData spriteData;
+      spriteData.texture = sprite.texture.get();
+      spriteData.size = sprite.size;
+      spriteData.useTexture = sprite.useTexture;
+      spriteData.color = sprite.color;
+      spriteData.flipX = sprite.flipX;
+      spriteData.flipY = sprite.flipY;
+
+      renderer->renderSprite(spriteData, model);
     }
   }
+  renderer->endFrame();
 }
-
 void ScriptSystem::update(World &world, float dt) {
   const auto &entities = world.getEntities();
   for (Entity entity : entities) {
@@ -293,9 +391,9 @@ void BillboardSystem::update(World &world, float dt) {
     return;
 
   Entity camEntity = cameraEntities.front();
-  auto &camTransform = world.getComponent<TransformComponent>(camEntity);
+  // auto &camTransform = world.getComponent<TransformComponent>(camEntity);
   auto &camGlobal = world.getComponent<GlobalTransform>(camEntity).worldMatrix;
-  Vec3 cameraPos = (camGlobal * Vec4(camTransform.position,1)).toVec3();
+  Vec3 cameraPos = math::transformFromMatrix(camGlobal).position;
 
   for (Entity e : world.view<TransformComponent, BillboardComponent>()) {
     auto &tf = world.getComponent<TransformComponent>(e);

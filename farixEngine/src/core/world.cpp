@@ -199,6 +199,7 @@ void World::registerDefaults() {
   registerComponent<LightComponent>();
   registerComponent<TimersComponent>();
   registerComponent<BillboardComponent>();
+  registerComponent<Sprite2DComponent>();
 }
 
 } // namespace farixEngine

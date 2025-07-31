@@ -19,6 +19,7 @@ struct Vec4 {
   Vec4 operator*(float s) const;
 
   Vec3 toVec3();
+  Vec3 xyz();
   float dot(const Vec4 &rhs) const;
 };
 } // namespace farixEngine

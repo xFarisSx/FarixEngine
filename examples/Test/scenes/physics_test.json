@@ -3,6 +3,9 @@
   "entities": [
     {
       "components": {
+        "BillboardComponent": {
+          "type": 2
+        },
         "ColliderComponent": {
           "isTrigger": false,
           "radius": 1.0,
@@ -72,7 +75,7 @@
           "name": "Ground",
           "prefab": "",
           "tags": [],
-          "uuid": "7231643a-44e4-4361-87d3-551ee09c23e3"
+          "uuid": "936b5cd0-250e-4788-bb10-99cf47728a11"
         },
         "TransformComponent": {
           "position": {
@@ -173,7 +176,7 @@
           "name": "Box",
           "prefab": "",
           "tags": [],
-          "uuid": "c62a7a31-a93b-48f8-973c-b33b1c9d87b2"
+          "uuid": "457a6d9c-0f58-4e12-922a-936e0163a462"
         },
         "RigidBodyComponent": {
           "acceleration": {
@@ -220,7 +223,7 @@
           "aspectRatio": 1.7777777910232544,
           "farPlane": 100.0,
           "fov": 1.5707963705062866,
-          "mode": "Orthographic",
+          "mode": "Perspective",
           "nearPlane": 1.0,
           "orthoBottom": -20.0,
           "orthoFar": 100.0,
@@ -266,7 +269,7 @@
           "name": "Camera",
           "prefab": "",
           "tags": [],
-          "uuid": "7f47c515-9a83-4fb5-ba21-d1d23c4490dc"
+          "uuid": "cb68bf8f-55b5-49fa-8cc1-3e14e917bc05"
         },
         "ParentComponent": {
           "parent": 2

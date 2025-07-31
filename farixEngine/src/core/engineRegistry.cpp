@@ -188,6 +188,34 @@ void EngineRegistry::registerDefaults() {
         world.addComponent<MaterialComponent>(e, comp);
       });
 
+  rg.registerSerializer<Sprite2DComponent>(
+      "Sprite2DComponent",
+      [](World &world, Entity e) -> json {
+        const auto &comp = world.getComponent<Sprite2DComponent>(e);
+        return {{"color", comp.color},
+                {"flipX", comp.flipX},
+                {"flipY", comp.flipY},
+                {"size", comp.size},
+                {"useTexture", comp.useTexture},
+                {"texture", comp.texture ? comp.texture->path : ""}};
+      },
+      [](World &world, Entity e, const json &j) {
+        Sprite2DComponent comp;
+        comp.color = j.at("color").get<Vec3>();
+      comp.flipX = j.at("flipX").get<bool>();
+            comp.flipY = j.at("flipY").get<bool>();
+      comp.size = j.at("size").get<Vec3>();
+
+        comp.useTexture = j.at("useTexture").get<bool>();
+        std::string path = j.at("texture").get<std::string>();
+        if (!path.empty()) {
+          comp.texture = Texture::loadFromBmp(path);
+        }
+        world.registerComponent<Sprite2DComponent>();
+
+        world.addComponent<Sprite2DComponent>(e, comp);
+      });
+
   rg.registerSerializer<ScriptComponent>(
       "ScriptComponent",
 

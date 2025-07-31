@@ -29,6 +29,20 @@ GameObject &GameWorld::createSprite3D(std::shared_ptr<Texture> texture,
   return obj;
 }
 
+GameObject &GameWorld::createSprite2D(std::shared_ptr<Texture> texture,
+                                      Vec3 size) {
+  GameObject &obj = createGameObject();
+  Sprite2DComponent sprite;
+
+  sprite.useTexture = true;
+  sprite.texture = texture;
+  sprite.size = size;
+
+  obj.addComponent<Sprite2DComponent>(sprite);
+
+  return obj;
+}
+
 GameObject &GameWorld::registerExistingEntity(Entity e) {
   if (gameObjects.count(e))
     return gameObjects.at(e);

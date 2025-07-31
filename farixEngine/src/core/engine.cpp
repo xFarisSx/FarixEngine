@@ -17,29 +17,27 @@ void Engine::init(int width, int height, const char *title) {
 
   context = new EngineContext();
 
-  renderer = new Renderer(width, height, title);
+  renderer = new renderer::Renderer(width, height, title);
   controller = new Controller();
   sceneManager = new SceneManager();
   inputManager = InputManager();
   context->controller = controller;
   context->renderer = renderer;
-  context->sceneManager=sceneManager;
+  context->sceneManager = sceneManager;
   EngineServices::get().setContext(context);
   std::cout << "Engine initialized\n";
 }
- 
-void Engine::beginFrame(bool& running){
+
+void Engine::beginFrame(bool &running) {
   inputManager.pollEvents(running, controller);
 
-  renderer->clear();
-
-} 
- 
-void Engine::endFrame(){
-  renderer->present();
-
+  // renderer->clear();
 }
- 
+
+void Engine::endFrame() {
+  // renderer->present();
+}
+
 void Engine::shutdown() {
   _running = false;
   delete controller;

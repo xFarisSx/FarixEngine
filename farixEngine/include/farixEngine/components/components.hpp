@@ -5,16 +5,17 @@
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec3.hpp"
 #include "farixEngine/utils/uuid.hpp"
+#include <functional>
 #include <memory>
 #include <unordered_map>
 namespace farixEngine {
 
-struct Timer{
-    float current = 0.0f;
-    float max = 1.0f;
-    bool repeat = false;
-    bool finished = false; 
-    std::string name = ""; 
+struct Timer {
+  float current = 0.0f;
+  float max = 1.0f;
+  bool repeat = false;
+  bool finished = false;
+  std::string name = "";
 };
 class Script;
 using ScriptPtr = std::shared_ptr<Script>;
@@ -37,10 +38,7 @@ struct Metadata {
   std::string uuid = utils::generateUUID();
   std::string prefab;
 };
-enum class CameraProjectionMode {
-  Perspective,
-  Orthographic
-};
+enum class CameraProjectionMode { Perspective, Orthographic };
 struct CameraComponent {
   CameraProjectionMode mode = CameraProjectionMode::Perspective;
 
@@ -57,18 +55,13 @@ struct CameraComponent {
   float orthoFar = 100.0f;
 
   void setOrthoZoom(float zoom) {
-    float aspect = aspectRatio; 
+    float aspect = aspectRatio;
     orthoLeft = -aspect * zoom;
     orthoRight = aspect * zoom;
     orthoBottom = -zoom;
     orthoTop = zoom;
-}
-
-
+  }
 };
-
-
-
 struct CameraControllerComponent {
   float sens = 0.5f;
   float speed = 5.f;
@@ -80,21 +73,20 @@ struct MeshComponent {
   std::shared_ptr<Mesh> mesh;
 };
 
-
-
 struct BillboardComponent {
   enum class BillboardType {
-    None,       
-    BillboardY,  
-    BillboardFull, 
-};
-    BillboardType type = BillboardType::BillboardY;
+    None,
+    BillboardY,
+    BillboardFull,
+  };
+  BillboardType type = BillboardType::BillboardY;
 };
 struct MaterialComponent {
   Vec3 baseColor = Vec3(1.0f, 1.0f, 1.0f);
   float ambient = 0.1f;
   float specular = 0.5f;
   float shininess = 32.0f;
+  float diffuse = 1.0f;
   std::shared_ptr<Texture> texture;
 
   bool useTexture = false;
@@ -121,7 +113,7 @@ struct RigidBodyComponent {
 };
 
 struct ColliderComponent {
-enum class Shape { Box, Sphere, Capsule };
+  enum class Shape { Box, Sphere, Capsule };
 
   Shape shape = Shape::Box;
   Vec3 size = Vec3(1.0f);
@@ -154,23 +146,64 @@ struct LightComponent {
   enum class Light { Point, Directional, Spot };
   Light type = Light::Point;
   Vec3 color = Vec3(1.0f);
-  Vec3 dir =  Vec3(0);
+  Vec3 dir = Vec3(0);
   float intensity = 1.0f;
   float range = 10.0f;
-  float spotAngle = 45.0f; 
+  float spotAngle = 45.0f;
 };
-
 
 struct TimersComponent {
-  std::unordered_map<std::string,TimerPtr> timers;
+  std::unordered_map<std::string, TimerPtr> timers;
 };
 
+struct Sprite2DComponent {
+  std::shared_ptr<Texture> texture;
+  Vec3 color = Vec3(1.0f);
+  Vec3 size = Vec3(1.f, 1.f, 0);
+  bool flipX = false;
+  bool flipY = false;
 
-struct Sprite2DComponent;
-
-struct UIComponent{
-
+  bool useTexture = false;
 };
 
+struct UIComponent {
+  enum class Anchor {
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+    Center,
+    TopCenter,
+    BottomCenter,
+    LeftCenter,
+    RightCenter
+  };
+  Anchor anchor = Anchor::TopLeft;
+  bool interactable = false;
+  bool blockRaycast = true;
+};
+
+struct RectComponent {
+  Vec3 position = Vec3(0);
+  Vec3 size = Vec3(100, 50, 0);
+  float rotation = 0.0f;
+  float zOrder = 0.0f;
+};
+
+struct UIImageComponent {
+  std::shared_ptr<Texture> texture;
+  Vec4 color = Vec4(1.0f);
+};
+struct UITextComponent {
+  std::string text;
+  Vec4 color = Vec4(1.0f);
+  float fontSize = 16.0f;
+};
+
+struct UIButtonComponent {
+  std::function<void()> onClick;
+  bool isHovered = false;
+  bool isPressed = false;
+};
 
 } // namespace farixEngine

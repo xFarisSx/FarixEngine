@@ -67,12 +67,7 @@
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "02bc089f-1ff0-4e7d-bb13-038b86a53f6d"
-        },
-        "ScriptComponent": {
-          "scripts": [
-            "BallScript"
-          ]
+          "uuid": "1dbf3c5f-5e44-444a-b168-0a10e6b273c9"
         },
         "TransformComponent": {
           "position": {
@@ -157,12 +152,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "ac47b25d-167c-4079-9a2b-20c9f249b807"
-        },
-        "ScriptComponent": {
-          "scripts": [
-            "PlayerPaddleScript"
-          ]
+          "uuid": "065dd87f-3c3f-49cc-9931-8dd26ed4c055"
         },
         "TransformComponent": {
           "position": {
@@ -247,12 +237,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "f47bc18f-c100-4768-becc-79df4f3e4570"
-        },
-        "ScriptComponent": {
-          "scripts": [
-            "OpponentPaddleScript"
-          ]
+          "uuid": "116e21e7-4128-4442-9b56-82fdc73d0ead"
         },
         "TransformComponent": {
           "position": {
@@ -289,6 +274,11 @@
           "orthoRight": 12.44444465637207,
           "orthoTop": 7.0
         },
+        "CameraControllerComponent": {
+          "active": true,
+          "sens": 0.5,
+          "speed": 5.0
+        },
         "GlobalTransform": {
           "worldMatrix": [
             [
@@ -321,7 +311,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "3a8499fe-54be-4d2e-9e69-51649d9bf363"
+          "uuid": "060ad9db-7b39-44f0-809f-0f31f3e2a172"
         },
         "TransformComponent": {
           "position": {

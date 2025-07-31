@@ -2,6 +2,7 @@
 #include "farixEngine/ecs/system.hpp"
 #include "farixEngine/input/controller.hpp"
 #include "farixEngine/renderer/renderer.hpp"
+#include "farixEngine/components/components.hpp"
 #include <memory>
 
 namespace farixEngine {
@@ -12,6 +13,11 @@ public:
   void start(World &world) override {};
 
   void update(World &world, float dt) override;
+
+    Mat4 getViewMatrix(World& world);
+  Mat4 getProjectionMatrix(World& world);
+
+  renderer::RenderContext createRenderContext(World& world,const CameraComponent& cam, const Mat4& cameraTransform, const Vec3& camPosition);
 };
 
 class ScriptSystem : public System {

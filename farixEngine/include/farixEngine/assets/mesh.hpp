@@ -10,11 +10,13 @@ namespace farixEngine {
 struct Triangle {
   int i0, i1, i2;
   int uv0, uv1, uv2 = 0;
+  int n0, n1, n2;
 };
 
 struct Mesh {
   std::vector<Vec3> vertices;
   std::vector<Triangle> triangles;
+  std::vector<Vec3> normals;
   std::vector<Vec3> textureMap;
   std::string path;
   std::string type;

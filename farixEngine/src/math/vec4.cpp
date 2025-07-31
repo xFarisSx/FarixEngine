@@ -55,7 +55,9 @@ Vec3 Vec4::toVec3() {
     return Vec3(x, y, z);
   return Vec3(x / w, y / w, z / w);
 }
-
+  Vec3 Vec4::xyz(){
+  return Vec3(x, y, z);
+}
 float Vec4::dot(const Vec4 &rhs) const {
   return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
 }

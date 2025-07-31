@@ -3,49 +3,70 @@
 
 #include <SDL2/SDL.h>
 #include <cstdint>
-#include <limits>
 #include <vector>
 
-#include "farixEngine/assets/mesh.hpp"
-#include "farixEngine/components/components.hpp"
-#include "farixEngine/input/controller.hpp"
 #include "farixEngine/math/vec3.hpp"
 #include "farixEngine/math/vec4.hpp"
- 
-namespace farixEngine {
+#include "farixEngine/renderer/helpers.hpp"
+
+namespace farixEngine::renderer {
 
 class Renderer {
 public:
   Renderer(int width, int height, const char *title);
   ~Renderer();
 
+  void beginFrame(const RenderContext &context);
+  void endFrame();
+
   void clear(uint32_t color = 0xFF000000);
   void present();
 
-  Vec4 project(const Vec4 &point, const Mat4 &globalMat,
-                       const Mat4 &viewM, const Mat4 &perspM) const ;
+  uint32_t packColor(const Vec3 &color);
+  Vec3 unpackColor(uint32_t color);
+
+  Vec4 project(const Vec4 &point, const Mat4 &model,
+               const RenderContext &ctx) const;
 
   void drawPixel(int x, int y, float z, uint32_t color);
 
   float edgeFunction(const Vec4 &a, const Vec4 &b, const Vec4 &c) const;
+  bool isTriangleValid(const Vec4 &p0, const Vec4 &p1, const Vec4 &p2) const;
 
-  void drawTriangle(const Mesh *mesh, const Triangle &tri,
-                    const std::vector<Vec3> &vertices,
-                    const  Mat4 & globalMat,
-                    const TransformComponent &cameraTransform,
-                    const CameraComponent &camera, const MaterialComponent& material);
+  Vec3 reflect(const Vec3 &L, const Vec3 &N);
+  std::array<Vec4, 3>
+  fetchTransformedVertices(const MeshData &mesh,
+                                   const TriangleData &tri, const Mat4 &model,
+                                   const RenderContext &ctx) const ;
+  bool isTriangleVisible(std::array<Vec4, 3> &projected,
+                                 const MaterialData &material,
+                                 const RenderContext &ctx) const;
+  std::array<Vec3, 3>fetchUVs(const MeshData &mesh,
+                                       const TriangleData &tri,
+                                       const MaterialData &material) const ;
 
-  void renderMesh(const Mesh *mesh, const Mat4 & globalMat,
-                  const TransformComponent &cameraTransform,
-                  const CameraComponent &camera, const MaterialComponent& material);
+  Vec3 shadeFragment(const Vec3 &worldPos, const Vec3 &uv, const Vec3 &normal,
+                     const RenderContext &ctx, const MaterialData &material);
 
-  void renderWorld(Mesh *mesh, const TransformComponent &entityTransform,
-                   const TransformComponent &cameraTransform,
-                   const CameraComponent &camera);
-  Vec3 reflect(const Vec3& L, const Vec3& N) ;
-  private:
+  void rasterizeTriangle(const std::array<Vec4, 3> &projected,
+                                 const std::array<Vec3, 3> &uvs,
+                                 const MeshData &mesh, const TriangleData &tri,
+                                 const RenderContext &ctx,
+                                 const MaterialData &material) ;
+
+  void drawTriangle(const MeshData &mesh, const TriangleData &tri,
+                    const Mat4 &model, const RenderContext &ctx,
+                    const MaterialData &material);
+
+  void renderMesh(const MeshData &mesh, const Mat4 &model,
+                  const MaterialData &material);
+
+  void renderSprite(const SpriteData &sprite, const Mat4 &model);
+  MeshData quadMesh2D();
+
+private:
   SDL_Window *window = nullptr;
-  SDL_Renderer *sdlRenderer = nullptr; 
+  SDL_Renderer *sdlRenderer = nullptr;
   SDL_Texture *sdlTexture = nullptr;
 
   int screenWidth = 0;
@@ -54,7 +75,8 @@ public:
   uint32_t *framebuffer = nullptr;
   std::vector<float> zBuffer;
 
+  RenderContext currentContext;
   Vec3 lightDir = Vec3(0, 0, -1);
 };
 
-} // namespace farixEngine
+} // namespace farixEngine::renderer
