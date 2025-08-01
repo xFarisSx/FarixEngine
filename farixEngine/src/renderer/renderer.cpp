@@ -7,6 +7,7 @@
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec4.hpp"
 #include <SDL2/SDL.h>
+#include <SDL_ttf.h>
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -36,6 +37,11 @@ Renderer::Renderer(int width, int height, const char *title)
   sdlTexture =
       SDL_CreateTexture(sdlRenderer, SDL_PIXELFORMAT_ARGB8888,
                         SDL_TEXTUREACCESS_STREAMING, screenWidth, screenHeight);
+  if (TTF_Init() == -1) {
+    std::cerr << "Failed to initialize SDL_ttf: " << TTF_GetError()
+              << std::endl;
+    exit(1);
+  }
 
   framebuffer = new uint32_t[screenWidth * screenHeight];
   zBuffer.resize(screenWidth * screenHeight);
@@ -52,6 +58,26 @@ void Renderer::beginFrame(const RenderContext &context) {
   currentContext = context;
   clear(context.clearColor);
 }
+void Renderer::setContext(const RenderContext &context) {
+  currentContext = context;
+}
+
+RenderContext Renderer::makeUIContext(int screenW, int screenH) {
+  RenderContext ctx;
+  ctx.viewMatrix = Mat4::identity();
+  ctx.projectionMatrix = Mat4::ortho(0, screenW, screenH, 0, 0, 1);
+  ctx.enableZBuffer = false;
+  ctx.enableLighting = false;
+  ctx.is2DPass = true;
+  ctx.cameraPosition = Vec3(0);
+  return ctx;
+}
+
+void Renderer::beginUIPass(int screenW, int screenH) {
+  RenderContext uiCtx = makeUIContext(screenW, screenH);
+  currentContext = uiCtx;
+}
+
 void Renderer::endFrame() { present(); }
 
 void Renderer::clear(uint32_t color) {
@@ -73,6 +99,7 @@ void Renderer::present() {
                     screenWidth * sizeof(uint32_t));
   SDL_RenderClear(sdlRenderer);
   SDL_RenderCopy(sdlRenderer, sdlTexture, nullptr, nullptr);
+  flushTextDraws();
   SDL_RenderPresent(sdlRenderer);
 }
 
@@ -105,22 +132,22 @@ Vec4 Renderer::project(const Vec4 &point, const Mat4 &model,
 void Renderer::drawPixel(int x, int y, float z, uint32_t color) {
   if (x >= 0 && x < screenWidth && y >= 0 && y < screenHeight) {
     int index = y * screenWidth + x;
-    if (z < zBuffer[index]) {
-      zBuffer[index] = z;
+    if (currentContext.enableZBuffer && z >= zBuffer[index])
+      return;
+    zBuffer[index] = z;
 
-      Vec4 src = unpackColor(color);
-      Vec4 dst = unpackColor(framebuffer[index]);
-      float alpha = src.w;
+    Vec4 src = unpackColor(color);
+    Vec4 dst = unpackColor(framebuffer[index]);
+    float alpha = src.w;
 
-      Vec3 outRGB = src.xyz() * alpha + dst.xyz() * (1.0f - alpha);
-      float outA = alpha + dst.w * (1.0f - alpha);
+    Vec3 outRGB = src.xyz() * alpha + dst.xyz() * (1.0f - alpha);
+    float outA = alpha + dst.w * (1.0f - alpha);
 
-      Vec4 outColor(std::clamp(outRGB.x, 0.f, 1.f),
-                    std::clamp(outRGB.y, 0.f, 1.f),
-                    std::clamp(outRGB.z, 0.f, 1.f), std::clamp(outA, 0.f, 1.f));
+    Vec4 outColor(std::clamp(outRGB.x, 0.f, 1.f),
+                  std::clamp(outRGB.y, 0.f, 1.f),
+                  std::clamp(outRGB.z, 0.f, 1.f), std::clamp(outA, 0.f, 1.f));
 
-      framebuffer[index] = packColor(outColor);
-    }
+    framebuffer[index] = packColor(outColor);
   }
 }
 
@@ -259,7 +286,10 @@ void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
                    beta * uvs[1].y / projected[1].w +
                    gamma * uvs[2].y / projected[2].w) /
                   invW;
-
+        float remappedU =
+            material.uvMin[0] + u * (material.uvMax[0] - material.uvMin[0]);
+        float remappedV =
+            material.uvMin[1] + v * (material.uvMax[1] - material.uvMin[1]);
         Vec3 interpolatedNormal = (ns[0] * (alpha / projected[0].w) +
                                    ns[1] * (beta / projected[1].w) +
                                    ns[2] * (gamma / projected[2].w)) /
@@ -267,7 +297,7 @@ void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
 
         interpolatedNormal = interpolatedNormal.normalized();
 
-        Vec4 finalColor = shadeFragment(worldPos, Vec3(u, v, 0),
+        Vec4 finalColor = shadeFragment(worldPos, Vec3(remappedU, remappedV, 0),
                                         interpolatedNormal, ctx, material);
 
         drawPixel(x, y, depth, packColor(finalColor));
@@ -295,6 +325,9 @@ Vec4 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
   if (material.useTexture && material.texture) {
     uint32_t texColor = material.texture->sample(uv.x, uv.y);
     finalColor = unpackColor(texColor);
+  }
+  if (!ctx.enableLighting) {
+    return finalColor;
   }
 
   Vec3 lightDirView =
@@ -337,6 +370,18 @@ void Renderer::drawTriangle(const MeshData &mesh, const TriangleData &tri,
   auto uvs = fetchUVs(mesh, tri, material);
   auto ns = fetchNs(mesh, tri, material);
   auto ps = fetchPs(mesh, tri, material);
+
+  if (ctx.is2DPass) {
+    Vec4 v0_screen = ndcToScreen(v0_clip, screenWidth, screenHeight);
+    Vec4 v1_screen = ndcToScreen(v1_clip, screenWidth, screenHeight);
+    Vec4 v2_screen = ndcToScreen(v2_clip, screenWidth, screenHeight);
+
+    std::array<Vec4, 3> vertices = {v0_screen, v1_screen, v2_screen};
+    if (!isTriangleVisible(vertices, material, ctx))
+      return;
+    rasterizeTriangle(vertices, ps, uvs, ns, ctx, material);
+    return;
+  }
 
   auto clippedTris = clipTriangleAgainstNearPlane(
       {v0_clip, ns[0], uvs[0], ps[0]}, {v1_clip, ns[1], uvs[1], ps[1]},
@@ -410,6 +455,8 @@ void Renderer::renderSprite(const SpriteData &sprite, const Mat4 &model) {
   mat.texture = sprite.texture;
   mat.baseColor = sprite.color;
   mat.doubleSided = true;
+  mat.uvMin = sprite.uvMin;
+  mat.uvMax = sprite.uvMax;
 
   Mat4 scaleMat = Mat4::scale(Vec3(sprite.size[0], sprite.size[1], 1.0f));
   Mat4 finalMat = model * scaleMat;
@@ -436,4 +483,84 @@ MeshData Renderer::quadMesh2D() {
   return quad;
 }
 
+void Renderer::drawText(Font *font, const std::string &text, Vec3 pos,
+                        float size, Vec4 color) {
+  if (!font || !font->sdlFont || text.empty())
+    return;
+
+  textDrawQueue.push_back({font, text, pos, size, color});
+}
+
+void Renderer::flushTextDraws() {
+  for (const auto &cmd : textDrawQueue) {
+    SDL_Color sdlColor = {static_cast<Uint8>(cmd.color.x * 255),
+                          static_cast<Uint8>(cmd.color.y * 255),
+                          static_cast<Uint8>(cmd.color.z * 255),
+                          static_cast<Uint8>(cmd.color.w * 255)};
+
+    SDL_Surface *textSurface =
+        TTF_RenderUTF8_Blended(cmd.font->sdlFont, cmd.text.c_str(), sdlColor);
+    if (!textSurface) {
+      std::cerr << "Failed to render text surface: " << TTF_GetError()
+                << std::endl;
+      continue;
+    }
+
+    SDL_Texture *textTexture =
+        SDL_CreateTextureFromSurface(sdlRenderer, textSurface);
+    SDL_FreeSurface(textSurface);
+    if (!textTexture) {
+      std::cerr << "Failed to create texture from text surface: "
+                << SDL_GetError() << std::endl;
+      continue;
+    }
+
+    int texW = 0, texH = 0;
+    SDL_QueryTexture(textTexture, nullptr, nullptr, &texW, &texH);
+
+    SDL_Rect dstRect;
+    dstRect.x = static_cast<int>(cmd.pos.x);
+    dstRect.y = static_cast<int>(cmd.pos.y);
+    dstRect.w = texW;
+    dstRect.h = texH;
+
+    SDL_RenderCopy(sdlRenderer, textTexture, nullptr, &dstRect);
+    SDL_DestroyTexture(textTexture);
+  }
+
+  textDrawQueue.clear();
+}
+
+// void Renderer::drawText(Font* font, const std::string& str, Vec3 pos, float
+// size, Vec4 color) {
+//     float cursorX = pos.x;
+//
+//     for (char c : str) {
+//         const Glyph& glyph = font->getGlyph(c);
+//
+//         Vec3 charPos = {cursorX + glyph.offsetX * size, pos.y + glyph.offsetY
+//         * size, 0}; Vec3 charSize = {glyph.width * size, glyph.height * size,
+//         0};
+//
+//
+//         SpriteData sprite;
+//         sprite.texture = font->atlas;
+//         sprite.useTexture = true;
+//         sprite.color = color;
+//         sprite.size = charSize;
+//
+//         Mat4 model = Mat4::translate(Vec3(charPos.x, charPos.y, 0));
+//
+//         sprite.uvMin = glyph.uvMin;
+//         sprite.uvMax = glyph.uvMax;
+//
+//         renderSprite(sprite, model);
+//
+//         cursorX += glyph.advance * size;
+//     }
+// }
+
+std::array<int, 2> Renderer::getScreenSize() {
+  return {screenWidth, screenHeight};
+}
 } // namespace farixEngine::renderer

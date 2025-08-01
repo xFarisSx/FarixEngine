@@ -2,7 +2,7 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -IfarixEngine/include `sdl2-config --cflags`
-LDFLAGS = `sdl2-config --cflags --libs`
+LDFLAGS =  -lSDL2_ttf `sdl2-config --cflags --libs` 
 
 # Directories and files
 ENGINE_INC = farixEngine/include

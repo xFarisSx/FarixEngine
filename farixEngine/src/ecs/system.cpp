@@ -8,12 +8,18 @@ void SystemManager::addSystem(std::shared_ptr<System> system) {
 
 void SystemManager::updateAll(World &world, float dt) {
   for (auto &system : systems) {
+    if (!system->started) {
+      system->start(world);
+      system->started = true;
+
+    }
     system->update(world, dt);
   }
 }
 
 void SystemManager::startAll(World &world) {
   for (auto &system : systems) {
+    system->started = true;
     system->start(world);
   }
 }

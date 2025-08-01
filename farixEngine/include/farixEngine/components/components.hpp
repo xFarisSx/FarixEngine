@@ -1,6 +1,7 @@
 #pragma once
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/assets/texture.hpp"
+#include "farixEngine/assets/font.hpp"
 
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec3.hpp"
@@ -187,17 +188,18 @@ struct RectComponent {
   Vec3 position = Vec3(0);
   Vec3 size = Vec3(100, 50, 0);
   float rotation = 0.0f;
-  float zOrder = 0.0f;
 };
 
 struct UIImageComponent {
   std::shared_ptr<Texture> texture;
   Vec4 color = Vec4(1.0f);
+  bool useTexture= false;
 };
 struct UITextComponent {
   std::string text;
   Vec4 color = Vec4(1.0f);
   float fontSize = 16.0f;
+  std::shared_ptr<Font> font; 
 };
 
 struct UIButtonComponent {

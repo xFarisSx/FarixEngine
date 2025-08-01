@@ -11,6 +11,7 @@
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec3.hpp"
 #include "farixEngine/math/vec4.hpp"
+#include "farixEngine/assets/font.hpp"
 
 namespace farixEngine::renderer {
 struct RenderContext {
@@ -18,6 +19,9 @@ struct RenderContext {
   Mat4 projectionMatrix;
   Vec3 cameraPosition;
   bool isOrthographic = false;
+  bool is2DPass = false;
+  bool enableZBuffer = true;
+  bool enableLighting = true;
 
   uint32_t clearColor = 0xFF87CEEB;
 };
@@ -30,6 +34,8 @@ struct MaterialData {
   float shininess = 32.0f;
   bool useTexture = false;
   bool doubleSided = true;
+    Vec3 uvMin = Vec3(0.0f, 0.0f, 0); 
+  Vec3 uvMax = Vec3(1.0f, 1.0f, 0);
   Texture *texture = nullptr;
 };
 
@@ -55,6 +61,14 @@ struct ClippableVertex {
     };
   }
 };
+struct UITextDrawCommand {
+    Font* font;
+    std::string text;
+    Vec3 pos;
+    float size;
+    Vec4 color;
+};
+
 
 struct MeshData {
   std::vector<Vec3> positions;
@@ -69,6 +83,8 @@ struct SpriteData {
   Vec3 size = Vec3(1.f, 1.f, 0);
   bool flipX = false;
   bool flipY = false;
+  Vec3 uvMin = Vec3(0.0f, 0.0f, 0); 
+  Vec3 uvMax = Vec3(1.0f, 1.0f, 0); 
 
   bool useTexture = false;
 };

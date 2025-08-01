@@ -3,19 +3,6 @@
   "entities": [
     {
       "components": {
-        "BillboardComponent": {
-          "type": 1
-        },
-        "ColliderComponent": {
-          "isTrigger": false,
-          "radius": 1.0,
-          "shape": 0,
-          "size": {
-            "x": 10.0,
-            "y": 0.5,
-            "z": 1.0
-          }
-        },
         "GlobalTransform": {
           "worldMatrix": [
             [
@@ -44,44 +31,16 @@
             ]
           ]
         },
-        "MaterialComponent": {
-          "ambient": 0.10000000149011612,
-          "baseColor": {
-            "w": 1.0,
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          },
-          "doubleSided": true,
-          "shininess": 32.0,
-          "specular": 0.5,
-          "texture": "assets/textures/textcat.bmp",
-          "useTexture": true
-        },
-        "MeshComponent": {
-          "mesh": "",
-          "size": {
-            "x": 10.0,
-            "y": 10.0,
-            "z": 0.0
-          },
-          "sphereData": {
-            "x": 1.0,
-            "y": 16.0,
-            "z": 32.0
-          },
-          "type": "Sprite"
-        },
         "Metadata": {
-          "name": "Ground",
+          "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "1df4feca-66c8-4924-b6f4-ff7a22245eab"
+          "uuid": "6f7ae274-41ca-4a61-b976-3a38e55b2cd0"
         },
         "TransformComponent": {
           "position": {
             "x": 0.0,
-            "y": -3.0,
+            "y": 0.0,
             "z": 0.0
           },
           "rotation": {
@@ -178,7 +137,7 @@
           "name": "Box",
           "prefab": "",
           "tags": [],
-          "uuid": "5fa79611-ebba-488d-ab89-1d64f9630131"
+          "uuid": "b4eef4d1-1328-472f-9472-9dd8ad9120ea"
         },
         "RigidBodyComponent": {
           "acceleration": {
@@ -271,7 +230,7 @@
           "name": "Camera",
           "prefab": "",
           "tags": [],
-          "uuid": "98b7fbdd-4994-4f92-9bca-9bd36d35941d"
+          "uuid": "9726df1e-38b2-4b34-a80c-d3b20f6e6529"
         },
         "ParentComponent": {
           "parent": 2

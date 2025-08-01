@@ -4,6 +4,16 @@
 
 using namespace farixEngine;
 
+struct ScoreEvent : Event {
+  bool byPlayer = false;
+  ScoreEvent(bool bp) : byPlayer(bp) {}
+};
+
+struct ScoreComponent {
+  int playerScore = 0;
+  int opponentScore = 0;
+};
+
 class BallScript : public Script {
   TransformComponent *transform = nullptr;
   EngineContext *ctx = nullptr;
@@ -16,7 +26,7 @@ public:
 
     transform = &getGameObject()->getComponent<TransformComponent>();
     ctx = EngineServices::get().getContext();
-  } 
+  }
 
   void onUpdate(float dt) override {
     if (!transform)
@@ -29,7 +39,7 @@ public:
       velocity.x *= -1;
 
     // Fake paddle bounce
-    auto* world = getGameWorld();
+    auto *world = getGameWorld();
     for (auto &paddle : world->getGameObjectsByTags("Paddle")) {
       auto &paddleTransform = paddle->getComponent<TransformComponent>();
 
@@ -45,13 +55,20 @@ public:
 
     // Check if ball passed player
     if (transform->position.y > 6.0f) {
-      std::cout << "Game Over, Down won\n";
-      velocity = Vec3(0); // stop
-      ctx->sceneManager->reloadScene();
+      // std::cout << "Game Over, Down won\n";
+      // velocity = Vec3(0); // stop
+      // ctx->sceneManager->reloadScene();
+      transform->position = Vec3(0);
+      ScoreEvent e(false);
+      EngineServices::get().getEventDispatcher().emit(e);
+
     } else if (transform->position.y < -6.0f) {
-      std::cout << "Game Over, Up won\n";
-      velocity = Vec3(0); // stop
-      ctx->sceneManager->reloadScene();
+      // std::cout << "Game Over, Up won\n";
+      // velocity = Vec3(0); // stop
+      // ctx->sceneManager->reloadScene();
+      transform->position = Vec3(0);
+      ScoreEvent e(true);
+      EngineServices::get().getEventDispatcher().emit(e);
     }
   }
 };
@@ -107,7 +124,7 @@ public:
 //// Example user defined component and system
 struct BlinkComponent {
   float timer = 0.0f;
-  float interval = 0.5f; // seconds between blinks
+  float interval = 0.2f; // seconds between blinks
   bool visible = true;
 };
 class BlinkSystem : public System {
@@ -127,12 +144,43 @@ public:
         if (world.hasComponent<MaterialComponent>(entity)) {
           auto &mat = world.getComponent<MaterialComponent>(entity);
           if (blink.visible) {
-            mat.baseColor = Vec3(1, 0, 0);
+            mat.baseColor = Vec4(1, 1, 1, 1);
           } else {
-            mat.baseColor = Vec3(1, 1, 1);
+            mat.baseColor = Vec4(1, 1, 1, 0);
           }
         }
       }
+    }
+  }
+};
+
+class ScoreSystem : public System {
+public:
+  int playerScore = 0;
+  int opponentScore = 0;
+
+  ScoreSystem() : System("ScoreSystem") {}
+
+  void start(World &world) override {
+    EngineServices::get().getEventDispatcher().listen<ScoreEvent>(
+        [this](ScoreEvent &e) { this->onScored(e); });
+  }
+
+  void onScored(ScoreEvent &event) {
+
+    if (event.byPlayer)
+      playerScore++;
+    else
+      opponentScore++;
+  }
+
+  void update(World &world, float dt) override {
+
+    // Update UITextComponent(s) with score text
+    for (auto &uiEntity : world.view<UITextComponent>()) {
+      auto &uiText = world.getComponent<UITextComponent>(uiEntity);
+      uiText.text = "Player: " + std::to_string(playerScore) +
+                    "  Opponent: " + std::to_string(opponentScore);
     }
   }
 };

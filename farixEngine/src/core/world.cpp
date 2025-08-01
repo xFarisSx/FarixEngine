@@ -200,6 +200,11 @@ void World::registerDefaults() {
   registerComponent<TimersComponent>();
   registerComponent<BillboardComponent>();
   registerComponent<Sprite2DComponent>();
+  registerComponent<UIComponent>();
+  registerComponent<RectComponent>();
+  registerComponent<UIImageComponent>();
+  registerComponent<UITextComponent>();
+
 }
 
 } // namespace farixEngine

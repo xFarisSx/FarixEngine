@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <vector>
 
+#include "farixEngine/assets/font.hpp"
 #include "farixEngine/math/vec3.hpp"
 #include "farixEngine/math/vec4.hpp"
 #include "farixEngine/renderer/helpers.hpp"
@@ -17,6 +18,9 @@ public:
   ~Renderer();
 
   void beginFrame(const RenderContext &context);
+  void setContext(const RenderContext &context);
+  void beginUIPass(int screenW, int screenH);
+  RenderContext makeUIContext(int screenW, int screenH);
   void endFrame();
 
   void clear(uint32_t color = 0xFF000000);
@@ -77,6 +81,11 @@ public:
 
   void renderSprite(const SpriteData &sprite, const Mat4 &model);
   MeshData quadMesh2D();
+  void drawText(Font *font, const std::string &str, Vec3 pos, float size,
+                Vec4 color);
+  void flushTextDraws();
+
+  std::array<int, 2> getScreenSize();
 
 private:
   SDL_Window *window = nullptr;
@@ -90,6 +99,8 @@ private:
   std::vector<float> zBuffer;
 
   RenderContext currentContext;
+  std::vector<UITextDrawCommand> textDrawQueue;
+
   Vec3 lightDir = Vec3(0, 0, -1);
 };
 

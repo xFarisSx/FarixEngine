@@ -61,6 +61,9 @@ RenderSystem::createRenderContext(World &world, const CameraComponent &cam,
 
   ctx.viewMatrix = getViewMatrix(world);
   ctx.cameraPosition = camPosition;
+  ctx.enableLighting = true;
+  ctx.enableZBuffer = true;
+  ctx.is2DPass = false;
 
   if (cam.mode == CameraProjectionMode::Perspective) {
     ctx.projectionMatrix = Mat4::perspective(cam.fov, cam.aspectRatio,
@@ -76,6 +79,45 @@ RenderSystem::createRenderContext(World &world, const CameraComponent &cam,
   return ctx;
 }
 
+Vec3 RenderSystem::calculateAnchoredPosition(const RectComponent &rect,
+                                             UIComponent::Anchor anchor,
+                                             float screenWidth,
+                                             float screenHeight) {
+  Vec3 pos = rect.position;
+  Vec3 offset;
+
+  switch (anchor) {
+  case UIComponent::Anchor::TopLeft:
+    offset = Vec3(0, 0, 0);
+    break;
+  case UIComponent::Anchor::TopCenter:
+    offset = Vec3(screenWidth / 2, 0, 0);
+    break;
+  case UIComponent::Anchor::TopRight:
+    offset = Vec3(screenWidth, 0, 0);
+    break;
+  case UIComponent::Anchor::LeftCenter:
+    offset = Vec3(0, screenHeight / 2, 0);
+    break;
+  case UIComponent::Anchor::Center:
+    offset = Vec3(screenWidth / 2, screenHeight / 2, 0);
+    break;
+  case UIComponent::Anchor::RightCenter:
+    offset = Vec3(screenWidth, screenHeight / 2, 0);
+    break;
+  case UIComponent::Anchor::BottomLeft:
+    offset = Vec3(0, screenHeight, 0);
+    break;
+  case UIComponent::Anchor::BottomCenter:
+    offset = Vec3(screenWidth / 2, screenHeight, 0);
+    break;
+  case UIComponent::Anchor::BottomRight:
+    offset = Vec3(screenWidth, screenHeight, 0);
+    break;
+  }
+
+  return offset + pos;
+}
 void RenderSystem::update(World &world, float dt) {
   renderer::Renderer *renderer = EngineServices::get().getContext()->renderer;
 
@@ -147,6 +189,40 @@ void RenderSystem::update(World &world, float dt) {
       renderer->renderSprite(spriteData, model);
     }
   }
+  renderer->beginUIPass(renderer->getScreenSize()[0],
+                        renderer->getScreenSize()[1]);
+
+  for (Entity entity : world.view<RectComponent, UIComponent>()) {
+
+    const auto &uiCom = world.getComponent<UIComponent>(entity);
+    const auto &uiRect = world.getComponent<RectComponent>(entity);
+    const auto &rectPos = calculateAnchoredPosition(
+        uiRect, uiCom.anchor, renderer->getScreenSize()[0],
+        renderer->getScreenSize()[1]);
+    Mat4 model = Mat4::translate(rectPos) * Mat4::rotateZ(uiRect.rotation) *
+                 Mat4::scale(Vec3{uiRect.size.x, -uiRect.size.y, 1.0f});
+
+    if (world.hasComponent<UIImageComponent>(entity)) {
+      const auto &uiImage = world.getComponent<UIImageComponent>(entity);
+
+      renderer::SpriteData spriteData;
+      spriteData.texture = uiImage.texture.get();
+      spriteData.size = Vec3(1.f);
+      spriteData.useTexture = uiImage.useTexture;
+      spriteData.color = uiImage.color;
+      spriteData.flipX = false;
+      spriteData.flipY = false;
+
+      renderer->renderSprite(spriteData, model);
+    }
+    if (world.hasComponent<UITextComponent>(entity)) {
+      auto &uiText = world.getComponent<UITextComponent>(entity);
+
+      renderer->drawText(uiText.font.get(), uiText.text, uiRect.position,
+                         uiText.fontSize, uiText.color);
+    }
+  }
+
   renderer->endFrame();
 }
 void ScriptSystem::update(World &world, float dt) {
@@ -166,6 +242,7 @@ void ScriptSystem::update(World &world, float dt) {
 }
 
 void ScriptSystem::start(World &world) {
+
   const auto &entities = world.getEntities();
   for (Entity entity : entities) {
     if (world.hasComponent<ScriptComponent>(entity)) {

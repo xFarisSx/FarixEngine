@@ -98,6 +98,19 @@ void setupScene2D(GameWorld &gameWorld) {
   // Prefab::save(ball, "prefabs/ball.json");
 }
 
+void setupUI(GameWorld &gameWorld, std::shared_ptr<Font> font) {
+  auto &scoreUI = gameWorld.createGameObject();
+  scoreUI.addComponent<ScoreComponent>();
+  scoreUI.setName("ScoreUI");
+  scoreUI.addComponent<UITextComponent>({.text = "Player: 0  Opponent: 0",
+                                         .color = Vec4(1, 1, 1, 1),
+                                         .fontSize = 24.0f,
+                                         .font = font});
+
+  scoreUI.addComponent<RectComponent>({Vec3(10, 10, 0), Vec3(100, 100, 0), 0});
+  scoreUI.addComponent<UIComponent>();
+}
+
 void Game::onStart() {
   auto &engine = EngineServices::get().getEngineRegistry();
   engine.getScriptRegistry().registerScript<BallScript>("BallScript");
@@ -106,6 +119,7 @@ void Game::onStart() {
   engine.getScriptRegistry().registerScript<OpponentPaddleScript>(
       "OpponentPaddleScript");
   engine.getSystemRegistry().registerSystem<BlinkSystem>("BlinkSystem");
+  engine.getSystemRegistry().registerSystem<ScoreSystem>("ScoreSystem");
 
   engine.getSerializerRegistry().registerSerializer<BlinkComponent>(
       "BlinkComponent",
@@ -128,11 +142,16 @@ void Game::onStart() {
 
   auto &scene = sceneManager.createScene("pong");
   scene.gameWorld().registerComponent<BlinkComponent>();
+  scene.gameWorld().registerComponent<ScoreComponent>();
+
   //
-  // setupScene3D(*sceneManager.currentGameWorld());
-  setupScene2D(*sceneManager.currentGameWorld());
+  setupScene3D(*sceneManager.currentGameWorld());
+  // setupScene2D(*sceneManager.currentGameWorld());
+  auto font = Font::loadFont("assets/fonts/font.ttf", 32);
+  setupUI(*sceneManager.currentGameWorld(), font);
 
   sceneManager.currentGameWorld()->addSystem(std::make_shared<BlinkSystem>());
+  sceneManager.currentGameWorld()->addSystem(std::make_shared<ScoreSystem>());
 
   sceneManager.saveCurrentScene("scenes/");
 }

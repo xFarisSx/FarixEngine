@@ -14,8 +14,12 @@ public:
 
   void update(World &world, float dt) override;
 
-    Mat4 getViewMatrix(World& world);
+  Mat4 getViewMatrix(World& world);
   Mat4 getProjectionMatrix(World& world);
+  Vec3 calculateAnchoredPosition(const RectComponent &rect,
+                                             UIComponent::Anchor anchor,
+                                             float screenWidth,
+                                             float screenHeight);
 
   renderer::RenderContext createRenderContext(World& world,const CameraComponent& cam, const Mat4& cameraTransform, const Vec3& camPosition);
 };

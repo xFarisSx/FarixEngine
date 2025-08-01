@@ -10,6 +10,7 @@ namespace farixEngine {
 class World;
 class System {
 public:
+  bool started = false;
   std::string name = "System";
 
   System(const std::string &systemName) : name(systemName) {}

@@ -3,18 +3,31 @@
 void setupScene(GameWorld &gameWorld) {
   // Ground (static)
   // auto &ground = gameWorld.createGameObject();
-  auto &ground = gameWorld.createSprite3D(
-      Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(10, 10, 0));
-  ground.setName("Ground");
-  // ground.setMesh(Mesh::createBox(10.0f, 0.5f, 1.0f));
-  // ground.setMaterial(MaterialComponent{});
-  ground.getComponent<TransformComponent>().position = Vec3(0, -3, 0);
-  ground.addComponent<ColliderComponent>(
-      {ColliderComponent::Shape::Box, Vec3(10.0f, 0.5f, 1.0f)});
-  ground.getComponent<MaterialComponent>().doubleSided = true;
+  // auto &ground = gameWorld.createSprite3D(
+  //     Texture::loadFromBmp("assets/textures/tests.bmp"), Vec3(10, 10, 0));
+  // ground.setName("Ground");
+  // // ground.setMesh(Mesh::createBox(10.0f, 0.5f, 1.0f));
+  // // ground.setMaterial(MaterialComponent{});
+  // ground.getComponent<TransformComponent>().position = Vec3(0, -3, 0);
+  // ground.addComponent<ColliderComponent>(
+  //     {ColliderComponent::Shape::Box, Vec3(10.0f, 0.5f, 1.0f)});
+  // ground.getComponent<MaterialComponent>().doubleSided = true;
+  //
+  // ground.emplaceComponent<BillboardComponent>(
+  //     BillboardComponent::BillboardType::BillboardY);
 
-  ground.emplaceComponent<BillboardComponent>(
-      BillboardComponent::BillboardType::BillboardY);
+  auto &image = gameWorld.createGameObject();
+  UIComponent uic;
+  uic.anchor = UIComponent::Anchor::Center;
+  image.addComponent<UIComponent>(uic);
+  RectComponent rect;
+  rect.position = Vec3(0.f, 0.f, 0);
+  rect.size = Vec3(160.f, 90.f, 0);
+  image.addComponent<RectComponent>(rect);
+  UIImageComponent img;
+  img.texture = Texture::loadFromBmp("assets/textures/tests.bmp");
+  img.useTexture = true;
+  image.addComponent<UIImageComponent>(img);
 
   // Falling Box (dynamic)
   auto &box = gameWorld.createGameObject();
