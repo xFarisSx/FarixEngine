@@ -82,7 +82,7 @@ struct BillboardComponent {
   BillboardType type = BillboardType::BillboardY;
 };
 struct MaterialComponent {
-  Vec3 baseColor = Vec3(1.0f, 1.0f, 1.0f);
+  Vec4 baseColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
   float ambient = 0.1f;
   float specular = 0.5f;
   float shininess = 32.0f;
@@ -158,7 +158,7 @@ struct TimersComponent {
 
 struct Sprite2DComponent {
   std::shared_ptr<Texture> texture;
-  Vec3 color = Vec3(1.0f);
+  Vec4 color = Vec4(1.0f);
   Vec3 size = Vec3(1.f, 1.f, 0);
   bool flipX = false;
   bool flipY = false;

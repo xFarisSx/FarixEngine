@@ -17,6 +17,7 @@ struct Vec4 {
   Vec4 operator+(const Vec4 &v) const;
   Vec4 operator-(const Vec4 &v) const;
   Vec4 operator*(float s) const;
+  Vec4 operator/(float s) const;
 
   Vec3 toVec3();
   Vec3 xyz();

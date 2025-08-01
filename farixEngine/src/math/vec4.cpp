@@ -49,12 +49,17 @@ Vec4 Vec4::operator-(const Vec4 &v) const {
   return Vec4(x - v.x, y - v.y, z - v.z);
 }
 
-Vec4 Vec4::operator*(float s) const { return Vec4(x * s, y * s, z * s); }
+Vec4 Vec4::operator*(float s) const { return Vec4(x * s, y * s, z * s, w*s); }
 Vec3 Vec4::toVec3() {
   if (w == 0.0f)
     return Vec3(x, y, z);
   return Vec3(x / w, y / w, z / w);
 }
+
+  Vec4 Vec4::operator/(float s) const{
+    return Vec4(x / s, y / s, z / s, w/s);
+}
+
   Vec3 Vec4::xyz(){
   return Vec3(x, y, z);
 }

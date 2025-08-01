@@ -76,19 +76,20 @@ void Renderer::present() {
   SDL_RenderPresent(sdlRenderer);
 }
 
-uint32_t Renderer::packColor(const Vec3 &color) {
-  uint8_t a = 255;
+Vec4 Renderer::unpackColor(uint32_t color) {
+  uint8_t a = (color >> 24) & 0xFF;
+  uint8_t r = (color >> 16) & 0xFF;
+  uint8_t g = (color >> 8) & 0xFF;
+  uint8_t b = color & 0xFF;
+  return Vec4(r, g, b, a) / 255.0f;
+}
+
+uint32_t Renderer::packColor(const Vec4 &color) {
+  uint8_t a = static_cast<uint8_t>(std::clamp(color.w, 0.f, 1.f) * 255.f);
   uint8_t r = static_cast<uint8_t>(std::clamp(color.x, 0.f, 1.f) * 255.f);
   uint8_t g = static_cast<uint8_t>(std::clamp(color.y, 0.f, 1.f) * 255.f);
   uint8_t b = static_cast<uint8_t>(std::clamp(color.z, 0.f, 1.f) * 255.f);
   return (a << 24) | (r << 16) | (g << 8) | b;
-}
-
-Vec3 Renderer::unpackColor(uint32_t color) {
-  uint8_t r = (color >> 16) & 0xFF;
-  uint8_t g = (color >> 8) & 0xFF;
-  uint8_t b = color & 0xFF;
-  return Vec3(r, g, b) / 255.0f;
 }
 
 Vec4 Renderer::project(const Vec4 &point, const Mat4 &model,
@@ -106,7 +107,19 @@ void Renderer::drawPixel(int x, int y, float z, uint32_t color) {
     int index = y * screenWidth + x;
     if (z < zBuffer[index]) {
       zBuffer[index] = z;
-      framebuffer[index] = color;
+
+      Vec4 src = unpackColor(color);
+      Vec4 dst = unpackColor(framebuffer[index]);
+      float alpha = src.w;
+
+      Vec3 outRGB = src.xyz() * alpha + dst.xyz() * (1.0f - alpha);
+      float outA = alpha + dst.w * (1.0f - alpha);
+
+      Vec4 outColor(std::clamp(outRGB.x, 0.f, 1.f),
+                    std::clamp(outRGB.y, 0.f, 1.f),
+                    std::clamp(outRGB.z, 0.f, 1.f), std::clamp(outA, 0.f, 1.f));
+
+      framebuffer[index] = packColor(outColor);
     }
   }
 }
@@ -254,7 +267,7 @@ void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
 
         interpolatedNormal = interpolatedNormal.normalized();
 
-        Vec3 finalColor = shadeFragment(worldPos, Vec3(u, v, 0),
+        Vec4 finalColor = shadeFragment(worldPos, Vec3(u, v, 0),
                                         interpolatedNormal, ctx, material);
 
         drawPixel(x, y, depth, packColor(finalColor));
@@ -273,10 +286,12 @@ bool Renderer::isTriangleVisibleInFrustum(const Vec4 &v0, const Vec4 &v1,
 
   return inside(v0) || inside(v1) || inside(v2);
 }
-Vec3 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
+Vec4 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
                              const Vec3 &normal, const RenderContext &ctx,
                              const MaterialData &material) {
-  Vec3 finalColor = material.baseColor;
+
+  Vec4 finalColor = material.baseColor;
+
   if (material.useTexture && material.texture) {
     uint32_t texColor = material.texture->sample(uv.x, uv.y);
     finalColor = unpackColor(texColor);
@@ -292,7 +307,14 @@ Vec3 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
   float spec =
       std::pow(std::max(0.0f, viewDir.dot(reflectDir)), material.shininess);
 
-  return finalColor * (diff + material.specular * spec);
+  Vec3 rgb = finalColor.xyz() * (diff + material.specular * spec);
+  rgb.x = std::clamp(rgb.x, 0.0f, 1.0f);
+  rgb.y = std::clamp(rgb.y, 0.0f, 1.0f);
+  rgb.z = std::clamp(rgb.z, 0.0f, 1.0f);
+  float alpha = finalColor.w;
+  return Vec4(rgb, alpha);
+
+  return finalColor;
 }
 
 void Renderer::drawTriangle(const MeshData &mesh, const TriangleData &tri,
@@ -386,7 +408,7 @@ void Renderer::renderSprite(const SpriteData &sprite, const Mat4 &model) {
   MaterialData mat;
   mat.useTexture = sprite.useTexture;
   mat.texture = sprite.texture;
-  mat.baseColor = Vec3(1, 1, 1);
+  mat.baseColor = sprite.color;
   mat.doubleSided = true;
 
   Mat4 scaleMat = Mat4::scale(Vec3(sprite.size[0], sprite.size[1], 1.0f));

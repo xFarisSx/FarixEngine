@@ -14,7 +14,7 @@ ComponentSerializerRegistry &EngineRegistry::getSerializerRegistry() {
 
 SystemRegistry &EngineRegistry::getSystemRegistry() { return systemRegistry; }
 
-void EngineRegistry::clear() {}
+void EngineRegistry::clear() {} 
 
 void EngineRegistry::registerDefaults() {
   ComponentSerializerRegistry &rg = getSerializerRegistry();

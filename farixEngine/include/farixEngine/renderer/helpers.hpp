@@ -23,7 +23,7 @@ struct RenderContext {
 };
 
 struct MaterialData {
-  Vec3 baseColor = Vec3(1.0f, 1.0f, 1.0f);
+  Vec4 baseColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
   float ambient = 0.1f;
   float diffuse = 0.9f;
   float specular = 0.5f;
