@@ -39,6 +39,23 @@ struct TriangleData {
     int n0, n1, n2 = 0;
 };
 
+struct ClippableVertex {
+    Vec4 cposition;  
+  Vec3 normal;    
+  Vec3 uv;        
+  Vec3 position;
+
+  ClippableVertex lerp(const ClippableVertex& other, float t) const {
+    return {
+      cposition + (other.cposition - cposition) * t,
+            normal + (other.normal - normal) * t,
+      uv + (other.uv - uv) * t,
+
+        position + (other.position - position) * t
+    };
+  }
+};
+
 struct MeshData {
   std::vector<Vec3> positions;
   std::vector<Vec3> normals;

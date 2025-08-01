@@ -129,8 +129,8 @@ void Game::onStart() {
   auto &scene = sceneManager.createScene("pong");
   scene.gameWorld().registerComponent<BlinkComponent>();
   //
-  setupScene3D(*sceneManager.currentGameWorld());
-  // setupScene2D(*sceneManager.currentGameWorld());
+  // setupScene3D(*sceneManager.currentGameWorld());
+  setupScene2D(*sceneManager.currentGameWorld());
 
   sceneManager.currentGameWorld()->addSystem(std::make_shared<BlinkSystem>());
 

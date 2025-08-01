@@ -14,7 +14,7 @@ void setupScene(GameWorld &gameWorld) {
   ground.getComponent<MaterialComponent>().doubleSided = true;
 
   ground.emplaceComponent<BillboardComponent>(
-      BillboardComponent::BillboardType::BillboardFull);
+      BillboardComponent::BillboardType::BillboardY);
 
   // Falling Box (dynamic)
   auto &box = gameWorld.createGameObject();

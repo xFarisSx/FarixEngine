@@ -44,15 +44,31 @@ public:
   std::array<Vec3, 3>fetchUVs(const MeshData &mesh,
                                        const TriangleData &tri,
                                        const MaterialData &material) const ;
+  std::array<Vec3, 3> fetchNs(const MeshData &mesh,
+                                       const TriangleData &tri,
+                                       const MaterialData &material) const;
+  std::array<Vec3, 3> fetchPs(const MeshData &mesh,
+                                       const TriangleData &tri,
+                                       const MaterialData &material) const;
 
   Vec3 shadeFragment(const Vec3 &worldPos, const Vec3 &uv, const Vec3 &normal,
                      const RenderContext &ctx, const MaterialData &material);
 
   void rasterizeTriangle(const std::array<Vec4, 3> &projected,
+                         const std::array<Vec3, 3> &ps,
                                  const std::array<Vec3, 3> &uvs,
-                                 const MeshData &mesh, const TriangleData &tri,
+                                const std::array<Vec3,3> &ns,
                                  const RenderContext &ctx,
                                  const MaterialData &material) ;
+
+  Vec4 toCameraSpace(const Vec3& pos, const Mat4& model, const Mat4& view);
+  Vec4 projectToClipSpace(const Vec4& posCamera, const Mat4& proj);
+  Vec4 ndcToScreen( Vec4& posClip, int screenWidth, int screenHeight); 
+  bool isTriangleVisibleInFrustum(const Vec4 &v0, const Vec4 &v1, const Vec4 &v2); 
+  std::vector<std::vector<ClippableVertex>>
+  clipTriangleAgainstNearPlane(const ClippableVertex& v0,
+                                       const ClippableVertex& v1,
+                                       const ClippableVertex& v2) ;
 
   void drawTriangle(const MeshData &mesh, const TriangleData &tri,
                     const Mat4 &model, const RenderContext &ctx,

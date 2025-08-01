@@ -8,6 +8,7 @@
 #include "farixEngine/math/vec4.hpp"
 #include <SDL2/SDL.h>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <utility>
@@ -94,7 +95,7 @@ Vec4 Renderer::project(const Vec4 &point, const Mat4 &model,
                        const RenderContext &ctx) const {
   Vec4 projected4 = ctx.projectionMatrix * ctx.viewMatrix * model * point;
   if (projected4.w <= 0.0f)
-    return Vec3(-1, -1, -1);
+    return Vec4(-1, -1, -1, -1);
   Vec3 pr = projected4.toVec3();
   return Vec4(screenWidth * (pr.x + 1) / 2, screenHeight * (1 - pr.y) / 2, pr.z,
               projected4.w);
@@ -127,7 +128,8 @@ bool Renderer::isTriangleValid(const Vec4 &p0, const Vec4 &p1,
     return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
   };
   return isValid(p0) && isValid(p1) && isValid(p2) && p0.z >= 0 && p0.z <= 1 &&
-         p1.z >= 0 && p1.z <= 1 && p2.z >= 0 && p2.z <= 1;
+         p1.z >= 0 && p1.z <= 1 && p2.z >= 0 && p2.z <= 1 && p0.w > 0 &&
+         p1.w > 0 && p2.w > 0;
 }
 
 std::array<Vec4, 3>
@@ -139,6 +141,20 @@ Renderer::fetchTransformedVertices(const MeshData &mesh,
   Vec4 v1 = project(Vec4(mesh.positions[tri.i1], 1), model, ctx);
   Vec4 v2 = project(Vec4(mesh.positions[tri.i2], 1), model, ctx);
   return {v0, v1, v2};
+}
+Vec4 Renderer::toCameraSpace(const Vec3 &pos, const Mat4 &model,
+                             const Mat4 &view) {
+  return view * model * Vec4(pos, 1.0f);
+}
+Vec4 Renderer::projectToClipSpace(const Vec4 &posCamera, const Mat4 &proj) {
+  return proj * posCamera;
+}
+Vec4 Renderer::ndcToScreen(Vec4 &posClip, int screenWidth, int screenHeight) {
+  Vec3 ndc = posClip.xyz() / posClip.w;
+  float x = (ndc.x + 1.0f) * 0.5f * screenWidth;
+  float y = (1.0f - ndc.y) * 0.5f * screenHeight;
+  float z = ndc.z;
+  return Vec4(x, y, z, posClip.w);
 }
 
 bool Renderer::isTriangleVisible(std::array<Vec4, 3> &projected,
@@ -169,9 +185,24 @@ std::array<Vec3, 3> Renderer::fetchUVs(const MeshData &mesh,
   return {Vec3(), Vec3(), Vec3()};
 }
 
+std::array<Vec3, 3> Renderer::fetchNs(const MeshData &mesh,
+                                      const TriangleData &tri,
+                                      const MaterialData &material) const {
+
+  return {mesh.normals[tri.n0], mesh.normals[tri.n1], mesh.normals[tri.n2]};
+}
+std::array<Vec3, 3> Renderer::fetchPs(const MeshData &mesh,
+                                      const TriangleData &tri,
+                                      const MaterialData &material) const {
+
+  return {mesh.positions[tri.i0], mesh.positions[tri.i1],
+          mesh.positions[tri.i2]};
+}
+
 void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
+                                 const std::array<Vec3, 3> &ps,
                                  const std::array<Vec3, 3> &uvs,
-                                 const MeshData &mesh, const TriangleData &tri,
+                                 const std::array<Vec3, 3> &ns,
                                  const RenderContext &ctx,
                                  const MaterialData &material) {
 
@@ -203,9 +234,7 @@ void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
         if (!std::isfinite(depth) || depth < 0 || depth > 1)
           continue;
 
-        Vec3 worldPos = mesh.positions[tri.i0] * alpha +
-                        mesh.positions[tri.i1] * beta +
-                        mesh.positions[tri.i2] * gamma;
+        Vec3 worldPos = ps[0] * alpha + ps[1] * beta + ps[2] * gamma;
 
         float invW = alpha / projected[0].w + beta / projected[1].w +
                      gamma / projected[2].w;
@@ -218,11 +247,12 @@ void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
                    gamma * uvs[2].y / projected[2].w) /
                   invW;
 
-        Vec3 n0 = mesh.normals[tri.n0];
-        Vec3 n1 = mesh.normals[tri.n1];
-        Vec3 n2 = mesh.normals[tri.n2];
-        Vec3 interpolatedNormal =
-            (n0 * alpha + n1 * beta + n2 * gamma).normalized();
+        Vec3 interpolatedNormal = (ns[0] * (alpha / projected[0].w) +
+                                   ns[1] * (beta / projected[1].w) +
+                                   ns[2] * (gamma / projected[2].w)) /
+                                  invW;
+
+        interpolatedNormal = interpolatedNormal.normalized();
 
         Vec3 finalColor = shadeFragment(worldPos, Vec3(u, v, 0),
                                         interpolatedNormal, ctx, material);
@@ -233,6 +263,16 @@ void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
   }
 }
 
+bool Renderer::isTriangleVisibleInFrustum(const Vec4 &v0, const Vec4 &v1,
+                                          const Vec4 &v2) {
+
+  auto inside = [](const Vec4 &v) {
+    return v.x >= -v.w && v.x <= v.w && v.y >= -v.w && v.y <= v.w && v.z >= 0 &&
+           v.z <= v.w && v.w > 0;
+  };
+
+  return inside(v0) || inside(v1) || inside(v2);
+}
 Vec3 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
                              const Vec3 &normal, const RenderContext &ctx,
                              const MaterialData &material) {
@@ -258,12 +298,79 @@ Vec3 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
 void Renderer::drawTriangle(const MeshData &mesh, const TriangleData &tri,
                             const Mat4 &model, const RenderContext &ctx,
                             const MaterialData &material) {
-  auto vertices = fetchTransformedVertices(mesh, tri, model, ctx);
-  if (!isTriangleVisible(vertices, material, ctx))
+  Vec4 v0_cam = toCameraSpace(mesh.positions[tri.i0], model, ctx.viewMatrix);
+  Vec4 v1_cam = toCameraSpace(mesh.positions[tri.i1], model, ctx.viewMatrix);
+  Vec4 v2_cam = toCameraSpace(mesh.positions[tri.i2], model, ctx.viewMatrix);
+
+  if (v0_cam.z > 0 && v1_cam.z > 0 && v2_cam.z > 0)
+    return;
+
+  Vec4 v0_clip = projectToClipSpace(v0_cam, ctx.projectionMatrix);
+  Vec4 v1_clip = projectToClipSpace(v1_cam, ctx.projectionMatrix);
+  Vec4 v2_clip = projectToClipSpace(v2_cam, ctx.projectionMatrix);
+
+  if (!isTriangleVisibleInFrustum(v0_clip, v1_clip, v2_clip))
     return;
 
   auto uvs = fetchUVs(mesh, tri, material);
-  rasterizeTriangle(vertices, uvs, mesh, tri, ctx, material);
+  auto ns = fetchNs(mesh, tri, material);
+  auto ps = fetchPs(mesh, tri, material);
+
+  auto clippedTris = clipTriangleAgainstNearPlane(
+      {v0_clip, ns[0], uvs[0], ps[0]}, {v1_clip, ns[1], uvs[1], ps[1]},
+      {v2_clip, ns[2], uvs[2], ps[2]});
+  for (auto &tri : clippedTris) {
+
+    Vec4 v0_screen = ndcToScreen(tri[0].cposition, screenWidth, screenHeight);
+    Vec4 v1_screen = ndcToScreen(tri[1].cposition, screenWidth, screenHeight);
+    Vec4 v2_screen = ndcToScreen(tri[2].cposition, screenWidth, screenHeight);
+
+    std::array<Vec4, 3> vertices = {v0_screen, v1_screen, v2_screen};
+    if (!isTriangleVisible(vertices, material, ctx))
+      return;
+    std::array<Vec3, 3> nuvs = {tri[0].uv, tri[1].uv, tri[2].uv};
+    std::array<Vec3, 3> nns = {tri[0].normal, tri[1].normal, tri[2].normal};
+    std::array<Vec3, 3> nps = {tri[0].position, tri[1].position,
+                               tri[2].position};
+
+    rasterizeTriangle(vertices, nps, nuvs, nns, ctx, material);
+  }
+}
+
+std::vector<std::vector<ClippableVertex>>
+Renderer::clipTriangleAgainstNearPlane(const ClippableVertex &v0,
+                                       const ClippableVertex &v1,
+                                       const ClippableVertex &v2) {
+  auto inside = [](const Vec4 &v) { return v.z >= 0.0f && v.z <= v.w; };
+
+  auto intersect = [](const ClippableVertex &a, const ClippableVertex &b) {
+    float t = (0.0f - a.cposition.z) / (b.cposition.z - a.cposition.z);
+    return a.lerp(b, t);
+  };
+
+  std::vector<ClippableVertex> verts = {v0, v1, v2};
+  std::vector<ClippableVertex> in, out;
+  for (const auto &v : verts)
+    (inside(v.cposition) ? in : out).push_back(v);
+
+  if (in.size() == 3)
+    return {{{v0, v1, v2}}};
+  if (in.size() == 0)
+    return {};
+
+  if (in.size() == 1) {
+    ClippableVertex i0 = intersect(in[0], out[0]);
+    ClippableVertex i1 = intersect(in[0], out[1]);
+    return {{{in[0], i0, i1}}};
+  }
+
+  if (in.size() == 2) {
+    ClippableVertex i0 = intersect(in[0], out[0]);
+    ClippableVertex i1 = intersect(in[1], out[0]);
+    return {{{in[0], in[1], i1}}, {in[0], i1, i0}};
+  }
+
+  return {};
 }
 
 void Renderer::renderMesh(const MeshData &mesh, const Mat4 &model,

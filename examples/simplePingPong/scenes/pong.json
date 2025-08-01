@@ -46,28 +46,33 @@
           "doubleSided": true,
           "shininess": 32.0,
           "specular": 0.5,
-          "texture": "",
-          "useTexture": false
+          "texture": "assets/textures/textcat.bmp",
+          "useTexture": true
         },
         "MeshComponent": {
           "mesh": "",
           "size": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 0.4000000059604645,
+            "y": 0.4000000059604645,
+            "z": 0.0
           },
           "sphereData": {
-            "x": 0.20000000298023224,
-            "y": 8.0,
-            "z": 16.0
+            "x": 1.0,
+            "y": 16.0,
+            "z": 32.0
           },
-          "type": "Sphere"
+          "type": "Sprite"
         },
         "Metadata": {
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "1dbf3c5f-5e44-444a-b168-0a10e6b273c9"
+          "uuid": "2606a490-8739-4150-ae93-a62ef9a5963a"
+        },
+        "ScriptComponent": {
+          "scripts": [
+            "BallScript"
+          ]
         },
         "TransformComponent": {
           "position": {
@@ -129,22 +134,22 @@
           "doubleSided": true,
           "shininess": 32.0,
           "specular": 0.5,
-          "texture": "",
-          "useTexture": false
+          "texture": "assets/textures/textcat.bmp",
+          "useTexture": true
         },
         "MeshComponent": {
           "mesh": "",
           "size": {
             "x": 2.0,
             "y": 0.20000000298023224,
-            "z": 0.5
+            "z": 0.0
           },
           "sphereData": {
             "x": 1.0,
             "y": 16.0,
             "z": 32.0
           },
-          "type": "Box"
+          "type": "Sprite"
         },
         "Metadata": {
           "name": "Player",
@@ -152,7 +157,12 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "065dd87f-3c3f-49cc-9931-8dd26ed4c055"
+          "uuid": "801e6cd0-b668-4af6-a1b3-b8b602039176"
+        },
+        "ScriptComponent": {
+          "scripts": [
+            "PlayerPaddleScript"
+          ]
         },
         "TransformComponent": {
           "position": {
@@ -214,22 +224,22 @@
           "doubleSided": true,
           "shininess": 32.0,
           "specular": 0.5,
-          "texture": "",
-          "useTexture": false
+          "texture": "assets/textures/textcat.bmp",
+          "useTexture": true
         },
         "MeshComponent": {
           "mesh": "",
           "size": {
             "x": 2.0,
             "y": 0.20000000298023224,
-            "z": 0.5
+            "z": 0.0
           },
           "sphereData": {
             "x": 1.0,
             "y": 16.0,
             "z": 32.0
           },
-          "type": "Box"
+          "type": "Sprite"
         },
         "Metadata": {
           "name": "Opponent",
@@ -237,7 +247,12 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "116e21e7-4128-4442-9b56-82fdc73d0ead"
+          "uuid": "452becd7-a067-4665-8637-577b20517032"
+        },
+        "ScriptComponent": {
+          "scripts": [
+            "OpponentPaddleScript"
+          ]
         },
         "TransformComponent": {
           "position": {
@@ -265,7 +280,7 @@
           "aspectRatio": 1.7777777910232544,
           "farPlane": 100.0,
           "fov": 1.5707963705062866,
-          "mode": "Perspective",
+          "mode": "Orthographic",
           "nearPlane": 1.0,
           "orthoBottom": -7.0,
           "orthoFar": 100.0,
@@ -273,11 +288,6 @@
           "orthoNear": 0.0,
           "orthoRight": 12.44444465637207,
           "orthoTop": 7.0
-        },
-        "CameraControllerComponent": {
-          "active": true,
-          "sens": 0.5,
-          "speed": 5.0
         },
         "GlobalTransform": {
           "worldMatrix": [
@@ -311,7 +321,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "060ad9db-7b39-44f0-809f-0f31f3e2a172"
+          "uuid": "67fe8041-b789-4ae2-83b8-cca50a36cadc"
         },
         "TransformComponent": {
           "position": {
