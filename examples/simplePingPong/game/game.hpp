@@ -131,9 +131,9 @@ class BlinkSystem : public System {
 public:
   BlinkSystem() : System("BlinkSystem") {}
 
-  void start(World &world) override {}
+  void onStart(World &world) override {}
 
-  void update(World &world, float dt) override {
+  void onUpdate(World &world, float dt) override {
     for (auto entity : world.view<BlinkComponent>()) {
       auto &blink = world.getComponent<BlinkComponent>(entity);
       blink.timer += dt;
@@ -146,7 +146,7 @@ public:
           if (blink.visible) {
             mat.baseColor = Vec4(1, 1, 1, 1);
           } else {
-            mat.baseColor = Vec4(1, 1, 1, 0);
+            mat.baseColor = Vec4(1, 0, 0, 0.6f);
           }
         }
       }
@@ -161,7 +161,7 @@ public:
 
   ScoreSystem() : System("ScoreSystem") {}
 
-  void start(World &world) override {
+  void onStart(World &world) override {
     EngineServices::get().getEventDispatcher().listen<ScoreEvent>(
         [this](ScoreEvent &e) { this->onScored(e); });
   }
@@ -174,7 +174,7 @@ public:
       opponentScore++;
   }
 
-  void update(World &world, float dt) override {
+  void onUpdate(World &world, float dt) override {
 
     // Update UITextComponent(s) with score text
     for (auto &uiEntity : world.view<UITextComponent>()) {
