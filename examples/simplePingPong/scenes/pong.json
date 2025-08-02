@@ -68,7 +68,7 @@
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "5d6974bf-e8d0-4306-a347-772001d3280d"
+          "uuid": "88713ab9-df21-4ab1-b53c-f1eb91b35641"
         },
         "ScriptComponent": {
           "scripts": [
@@ -159,7 +159,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "13a34aa9-4089-4461-8c05-f807a1b41bc8"
+          "uuid": "32142fe9-9741-45ed-a326-bf97a6c845f4"
         },
         "ScriptComponent": {
           "scripts": [
@@ -250,7 +250,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "c147e851-fdae-4de5-952c-3094cdba052a"
+          "uuid": "e535790f-0c3b-4f04-a27d-66e2c0d226e5"
         },
         "ScriptComponent": {
           "scripts": [
@@ -324,7 +324,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "2d9febbc-55e0-41ee-bdc2-417c24833066"
+          "uuid": "811b632b-a98b-4aa7-abbe-63f58992d09c"
         },
         "TransformComponent": {
           "position": {
@@ -380,7 +380,7 @@
           "name": "ScoreUI",
           "prefab": "",
           "tags": [],
-          "uuid": "6e053e6b-e733-456b-aeb2-fe5c47e1ed8d"
+          "uuid": "0ccde256-c367-457a-8f81-a92e8c873a7d"
         },
         "TransformComponent": {
           "position": {
