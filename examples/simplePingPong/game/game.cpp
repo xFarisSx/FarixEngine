@@ -109,6 +109,27 @@ void setupUI(GameWorld &gameWorld, std::shared_ptr<Font> font) {
 
   scoreUI.addComponent<RectComponent>({Vec3(10, 10, 0), Vec3(100, 100, 0), 0});
   scoreUI.addComponent<UIComponent>();
+
+  auto &panelUI = gameWorld.createGameObject();
+  UIImageComponent uiImage;
+  uiImage.useTexture = false;
+  uiImage.color = Vec4(0, 0.6, 0, 1);
+  panelUI.addComponent<UIImageComponent>(uiImage);
+
+  panelUI.addComponent<RectComponent>({Vec3(155, 30, 0), Vec3(300, 50, 0), 0});
+  UIComponent uic;
+  uic.anchor = UIComponent::Anchor::TopLeft;
+  panelUI.addComponent<UIComponent>(uic);
+
+  auto &panelUI2 = gameWorld.createGameObject();
+  UIImageComponent uiImage2;
+  uiImage2.useTexture = false;
+  uiImage2.color = Vec4(0, 0, 0.8, 1);
+  panelUI2.addComponent<UIImageComponent>(uiImage2);
+
+  panelUI2.addComponent<RectComponent>({Vec3(155, 30, -1), Vec3(310, 60, 0), 0});
+  panelUI2.addComponent<UIComponent>();
+
 }
 
 void Game::onStart() {

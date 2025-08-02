@@ -64,7 +64,7 @@ public:
 
     } else if (transform->position.y < -6.0f) {
       // std::cout << "Game Over, Up won\n";
-      // velocity = Vec3(0); // stop
+      // velocity = Vec3(0); // stop 
       // ctx->sceneManager->reloadScene();
       transform->position = Vec3(0);
       ScoreEvent e(true);

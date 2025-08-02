@@ -68,7 +68,7 @@
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "88713ab9-df21-4ab1-b53c-f1eb91b35641"
+          "uuid": "7b82b1d2-e6e6-485f-a559-ee9af61fbdc7"
         },
         "ScriptComponent": {
           "scripts": [
@@ -159,7 +159,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "32142fe9-9741-45ed-a326-bf97a6c845f4"
+          "uuid": "b633caad-ebaa-405a-b7b8-670922a45759"
         },
         "ScriptComponent": {
           "scripts": [
@@ -250,7 +250,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "e535790f-0c3b-4f04-a27d-66e2c0d226e5"
+          "uuid": "5d2390a7-08b1-4ba9-ae9c-18fb9f030abe"
         },
         "ScriptComponent": {
           "scripts": [
@@ -324,7 +324,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "811b632b-a98b-4aa7-abbe-63f58992d09c"
+          "uuid": "2e211352-b6e2-4179-9ea0-4f9a834093a3"
         },
         "TransformComponent": {
           "position": {
@@ -380,7 +380,7 @@
           "name": "ScoreUI",
           "prefab": "",
           "tags": [],
-          "uuid": "0ccde256-c367-457a-8f81-a92e8c873a7d"
+          "uuid": "f26636d6-3a39-4424-baaf-ffaa108f0694"
         },
         "TransformComponent": {
           "position": {
@@ -401,6 +401,118 @@
         }
       },
       "id": 5
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "Metadata": {
+          "name": "GameObject",
+          "prefab": "",
+          "tags": [],
+          "uuid": "98ce80cb-8edd-407d-9001-782b7667ef28"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 6
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "Metadata": {
+          "name": "GameObject",
+          "prefab": "",
+          "tags": [],
+          "uuid": "5a2a9004-f5e0-4785-b8bc-ae5679d7d134"
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        }
+      },
+      "id": 7
     }
   ],
   "name": "pong",

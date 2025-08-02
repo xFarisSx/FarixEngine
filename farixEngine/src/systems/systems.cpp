@@ -192,15 +192,18 @@ void RenderSystem::onUpdate(World &world, float dt) {
   renderer->beginUIPass(renderer->getScreenSize()[0],
                         renderer->getScreenSize()[1]);
 
-  for (Entity entity : world.view<RectComponent, UIComponent>()) {
+  auto uiEntities = world.view<RectComponent, UIComponent>();
+  std::sort(uiEntities.begin(),uiEntities.end(), [&world](Entity a, Entity b){ return world.getComponent<RectComponent>(a).position.z< world.getComponent<RectComponent>(b).position.z; });
+  for (Entity entity : uiEntities) {
 
     const auto &uiCom = world.getComponent<UIComponent>(entity);
     const auto &uiRect = world.getComponent<RectComponent>(entity);
     const auto &rectPos = calculateAnchoredPosition(
         uiRect, uiCom.anchor, renderer->getScreenSize()[0],
         renderer->getScreenSize()[1]);
-    Mat4 model = Mat4::translate(rectPos) * Mat4::rotateZ(uiRect.rotation) *
+    Mat4 model = Mat4::translate(Vec3(rectPos.x, rectPos.y, 0)) * Mat4::rotateZ(uiRect.rotation) *
                  Mat4::scale(Vec3{uiRect.size.x, -uiRect.size.y, 1.0f});
+
 
     if (world.hasComponent<UIImageComponent>(entity)) {
       const auto &uiImage = world.getComponent<UIImageComponent>(entity);
