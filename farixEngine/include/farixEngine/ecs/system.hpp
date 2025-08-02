@@ -14,8 +14,8 @@ public:
   std::string name = "System";
 
   System(const std::string &systemName) : name(systemName) {}
-  virtual void start(World &world) = 0;
-  virtual void update(World &world, float dt) = 0;
+  virtual void onStart(World &world) = 0;
+  virtual void onUpdate(World &world, float dt) = 0;
   virtual ~System() = default;
 };
 

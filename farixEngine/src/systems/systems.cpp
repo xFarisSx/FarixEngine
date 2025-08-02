@@ -117,8 +117,8 @@ Vec3 RenderSystem::calculateAnchoredPosition(const RectComponent &rect,
   }
 
   return offset + pos;
-}
-void RenderSystem::update(World &world, float dt) {
+} 
+void RenderSystem::onUpdate(World &world, float dt) {
   renderer::Renderer *renderer = EngineServices::get().getContext()->renderer;
 
   Entity cameraEntity = world.getCamera();
@@ -225,7 +225,7 @@ void RenderSystem::update(World &world, float dt) {
 
   renderer->endFrame();
 }
-void ScriptSystem::update(World &world, float dt) {
+void ScriptSystem::onUpdate(World &world, float dt) {
   const auto &entities = world.getEntities();
   for (Entity entity : entities) {
     if (world.hasComponent<ScriptComponent>(entity)) {
@@ -241,7 +241,7 @@ void ScriptSystem::update(World &world, float dt) {
   }
 }
 
-void ScriptSystem::start(World &world) {
+void ScriptSystem::onStart(World &world) {
 
   const auto &entities = world.getEntities();
   for (Entity entity : entities) {
@@ -267,7 +267,7 @@ void processEntity(World &world, Entity e, const Mat4 &parentMatrix) {
   }
 }
 
-void HierarchySystem::update(World &world, float dt) {
+void HierarchySystem::onUpdate(World &world, float dt) {
   for (Entity e : world.getEntities()) {
     if (!world.hasComponent<ParentComponent>(e)) {
       // This is a root node
@@ -276,7 +276,7 @@ void HierarchySystem::update(World &world, float dt) {
   }
 }
 
-void CameraControllerSystem::update(World &world, float dt) {
+void CameraControllerSystem::onUpdate(World &world, float dt) {
   Controller *controller = EngineServices::get().getContext()->controller;
   if (!controller)
     return;
@@ -329,7 +329,7 @@ void CameraControllerSystem::update(World &world, float dt) {
 
 // PhysicsSystem
 
-void PhysicsSystem::update(World &world, float dt) {
+void PhysicsSystem::onUpdate(World &world, float dt) {
   auto entities = world.view<RigidBodyComponent, TransformComponent>();
   for (Entity e : entities) {
     auto &rb = world.getComponent<RigidBodyComponent>(e);
@@ -344,7 +344,7 @@ void PhysicsSystem::update(World &world, float dt) {
 
 // CollisionSystem
 
-void CollisionSystem::update(World &world, float dt) {
+void CollisionSystem::onUpdate(World &world, float dt) {
   auto entities = world.view<ColliderComponent, TransformComponent>();
 
   for (size_t i = 0; i < entities.size(); ++i) {
@@ -394,7 +394,7 @@ void CollisionSystem::update(World &world, float dt) {
 
 // StateSystem
 
-void StateSystem::update(World &world, float dt) {
+void StateSystem::onUpdate(World &world, float dt) {
   auto entities = world.view<StateComponent>();
   for (Entity e : entities) {
     auto &state = world.getComponent<StateComponent>(e);
@@ -403,7 +403,7 @@ void StateSystem::update(World &world, float dt) {
 
 // LifetimeSystem
 
-void LifetimeSystem::update(World &world, float dt) {
+void LifetimeSystem::onUpdate(World &world, float dt) {
   auto entities = world.view<LifetimeComponent>();
   for (Entity e : entities) {
     auto &lifetime = world.getComponent<LifetimeComponent>(e);
@@ -416,7 +416,7 @@ void LifetimeSystem::update(World &world, float dt) {
 
 // AudioSystem
 
-void AudioSystem::update(World &world, float dt) {
+void AudioSystem::onUpdate(World &world, float dt) {
   auto entities = world.view<AudioSourceComponent>();
   for (Entity e : entities) {
     auto &audio = world.getComponent<AudioSourceComponent>(e);
@@ -425,7 +425,7 @@ void AudioSystem::update(World &world, float dt) {
 
 // TimerSystem
 
-void TimerSystem::update(World &world, float dt) {
+void TimerSystem::onUpdate(World &world, float dt) {
   auto entities = world.view<TimersComponent>();
   for (Entity e : entities) {
     auto &timersComp = world.getComponent<TimersComponent>(e);
@@ -462,7 +462,7 @@ void TimerSystem::removeTimer(World &world, Entity e, const std::string &name) {
   timersComp.timers.erase(name);
 }
 
-void BillboardSystem::update(World &world, float dt) {
+void BillboardSystem::onUpdate(World &world, float dt) {
   auto cameraEntities = world.view<CameraComponent, TransformComponent>();
   if (cameraEntities.empty())
     return;

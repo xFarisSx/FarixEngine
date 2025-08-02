@@ -5,13 +5,12 @@ Create a new system by inheriting from the `System` class:
 ```cpp
 class System {
 public:
+  bool started = false;
   std::string name = "System";
 
   System(const std::string &systemName) : name(systemName) {}
-  
-  virtual void start(World &world) = 0;
-  virtual void update(World &world, float dt) = 0;
-  
+  virtual void onStart(World &world) = 0;
+  virtual void onUpdate(World &world, float dt) = 0;
   virtual ~System() = default;
 };
 ```
@@ -22,11 +21,11 @@ class BlinkSystem : public System {
 public:
   BlinkSystem() : System("BlinkSystem") {}
 
-  void start(World& world) override {
+  void onStart(World& world) override {
     // initialization
   }
 
-  void update(World& world, float dt) override {
+  void onUpdate(World& world, float dt) override {
     // update logic
   }
 };

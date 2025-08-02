@@ -47,10 +47,12 @@ sudo make uninstall   # removes installed files
 - Entity-Component-System (ECS)
 - Software 3D rendering (OBJ, BMP)
 - Lighting & texture support
+- 2D rendering support (sprites, UI)
+- UI system with anchors, images, texts, buttons in screen space
 - Event system (keyboard, collision, custom events...)
-- Scripting system (`start()` / `update()` / `onKeyPressed()` / `onCollision()`, etc.)
+- Scripting system (`onStart()` / `onUpdate()` / `onKeyPressed()` / `onCollision()`, etc.)
 - GameObject and GameWorld wrappers for convenient entity & component access
-- Hierarchy system with `ParentComponent`, `ChildrenComponent`, and `GlobalTransform` to handle parent-child relationships and global matrices
+- Hierarchy system with parenting and global transforms
 - Easy extension with user-defined components, systems, and scripts
 - Scene management and hot reload support
 - Prefabs, save/load using JSON serialization
@@ -58,34 +60,51 @@ sudo make uninstall   # removes installed files
 ---
 
 ## Components
-
+### Core
 - `TransformComponent` — position, rotation, and scale 
 - `GlobalTransform` — global/world matrix calculated via hierarchy system
+- `Metadata` — name, tags, UUID (used in search/prefab)
 - `ParentComponent` — reference to parent entity
 - `ChildrenComponent` — list of child entities
+### 3D Rendering
 - `MeshComponent` — holds a shared mesh reference 
 - `MaterialComponent` — texture and lighting parameters 
+- `BillboardComponent` — face camera (Y-only/full)
+### Cameras
 - `CameraComponent` — FOV, aspect ratio, near/far planes 
 - `CameraControllerComponent` — WASD QE and mouse. Enables movement control 
+### Scripting
 - `ScriptComponent` — attaches logic via script classes
-- `Metadata` — name, tags, UUID (used in search/prefab)
-- `RigidBodyComponent` — velocity, acceleration, mass, kinematic flag
-- `ColliderComponent` — shape (box, sphere, capsule), size, radius, trigger flag
 - `VariableComponent` — flexible key-value storage for floats, ints, strings
 - `StateComponent` — state machine with current state and transitions
+### Physics & Collision
+- `RigidBodyComponent` — velocity, acceleration, mass, kinematic flag
+- `ColliderComponent` — shape (box, sphere, capsule), size, radius, trigger flag
+
+### Lifecycle
 - `LifetimeComponent` — self-destruct timer for entities
-- `AudioSourceComponent` — sound path, looping, volume control
-- `LightComponent` — point, directional, spot lights with color, intensity, range, spot angle
 - `TimersComponent` — named timers supporting repeat and finish states
+### Audio
+- `AudioSourceComponent` — sound path, looping, volume control
+### Lighting
+- `LightComponent` — point, directional, spot lights with color, intensity, range, spot angle
+### 2D & UI Components
+- `Sprite2DComponent` — textured quad with color tint
+- `RectComponent` — screen-space position, size, rotation
+- `UIComponent` — anchor (top/center/etc.), interactivity flags
+- `UIImageComponent` — draws texture to screen (UI)
+- `UITextComponent` — text string, font, size, color
+- `UIButtonComponent` — clickable logic with hover/press state
 
 ---
 
 ## Systems
 
 - `RenderSystem` — draws all mesh entities using the active camera 
-- `ScriptSystem` — calls `start()` once, then `update(dt)` every frame 
+- `ScriptSystem` — calls `onStart()` once, then `onUpdate(dt)` every frame 
 - `HierarchySystem` — updates global transforms based on parent-child hierarchy
 - `CameraControllerSystem` — basic WASD + mouse camera movement 
+- `BillboardSystem` — faces mesh/quads toward camera
 - `PhysicsSystem` — integrates velocity and acceleration for rigid bodies
 - `CollisionSystem` — detects collisions between colliders (AABB, spheres, capsules planned)
 - `StateSystem` — updates entity state machines and manages transitions
