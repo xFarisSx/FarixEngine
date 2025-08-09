@@ -2,7 +2,7 @@
 # Compiler and flags
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -I/usr/local/include/farixEngine `sdl2-config --cflags`
-LDFLAGS = -L/usr/local/lib -lfarixEngine `sdl2-config --libs`
+LDFLAGS = -L/usr/local/lib -lfarixEngine -lSDL2_ttf `sdl2-config --libs`
 
 # Source files and output binary
 SRC = main.cpp game/game.cpp

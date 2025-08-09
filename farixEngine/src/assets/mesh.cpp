@@ -146,76 +146,116 @@ std::shared_ptr<Mesh> Mesh::createBox(float width, float height, float depth) {
 
   return mesh;
 }
+
 std::shared_ptr<Mesh> Mesh::loadFromObj(const std::string &filename) {
-  auto parseIndexGroup = [](const std::string &group, int &v, int &vt,
-                            int &vn) {
-    size_t firstSlash = group.find('/');
-    size_t secondSlash = group.find('/', firstSlash + 1);
+    auto parseIndexGroup = [](const std::string &group, int &v, int &vt, int &vn) {
+        size_t firstSlash = group.find('/');
+        size_t secondSlash = group.find('/', firstSlash + 1);
 
-    if (firstSlash == std::string::npos) {
-      // vertex index
-      v = std::stoi(group) - 1;
-      vt = vn = -1;
-    } else if (secondSlash == std::string::npos) {
-      // Vertex/texture
-      v = std::stoi(group.substr(0, firstSlash)) - 1;
-      vt = std::stoi(group.substr(firstSlash + 1)) - 1;
-      vn = -1;
-    } else if (secondSlash == firstSlash + 1) {
-      // Vertex//normal
-      v = std::stoi(group.substr(0, firstSlash)) - 1;
-      vt = -1;
-      vn = std::stoi(group.substr(secondSlash + 1)) - 1;
-    } else {
-      // Vertex/texture/normal
-      v = std::stoi(group.substr(0, firstSlash)) - 1;
-      vt = std::stoi(
-               group.substr(firstSlash + 1, secondSlash - firstSlash - 1)) -
-           1;
-      vn = std::stoi(group.substr(secondSlash + 1)) - 1;
+        if (firstSlash == std::string::npos) {
+            // vertex index
+            v = std::stoi(group) - 1;
+            vt = vn = -1;
+        } else if (secondSlash == std::string::npos) {
+            // Vertex/texture
+            v = std::stoi(group.substr(0, firstSlash)) - 1;
+            vt = std::stoi(group.substr(firstSlash + 1)) - 1;
+            vn = -1;
+        } else if (secondSlash == firstSlash + 1) {
+            // Vertex//normal
+            v = std::stoi(group.substr(0, firstSlash)) - 1;
+            vt = -1;
+            vn = std::stoi(group.substr(secondSlash + 1)) - 1;
+        } else {
+            // Vertex/texture/normal
+            v = std::stoi(group.substr(0, firstSlash)) - 1;
+            vt = std::stoi(group.substr(firstSlash + 1, secondSlash - firstSlash - 1)) - 1;
+            vn = std::stoi(group.substr(secondSlash + 1)) - 1;
+        }
+    };
+
+    auto mesh = std::make_shared<Mesh>();
+    mesh->path = filename;
+    mesh->type = "Obj";
+
+    std::ifstream file(filename);
+    if (!file.is_open()) {
+        return mesh;
     }
-  };
 
-  auto mesh = std::make_shared<Mesh>();
-  mesh->path = filename;
-  std::ifstream file(filename);
-  mesh->type = "Obj";
+    std::string line;
+    double scale = 1;
 
-  if (!file.is_open()) {
+    while (std::getline(file, line)) {
+        std::istringstream iss(line);
+
+        std::string type, a, b, c;
+        iss >> type >> a >> b >> c;
+
+        if (type == "v") {
+            mesh->vertices.push_back(
+                Vec3(std::stof(a) * scale, std::stof(b) * scale, std::stof(c) * scale)
+            );
+        } 
+        else if (type == "vt") {
+            mesh->textureMap.push_back(Vec3(std::stof(a), std::stof(b), std::stof(c)));
+        }
+        else if (type == "vn") {
+            mesh->normals.push_back(Vec3(std::stof(a), std::stof(b), std::stof(c)));
+        }
+        else if (type == "f") {
+            int v0, v1, v2;
+            int vt0, vt1, vt2;
+            int vn0, vn1, vn2;
+
+            parseIndexGroup(a, v0, vt0, vn0);
+            parseIndexGroup(b, v1, vt1, vn1);
+            parseIndexGroup(c, v2, vt2, vn2);
+
+            mesh->triangles.push_back({v0, v1, v2, vt0, vt1, vt2, vn0, vn1, vn2});
+        }
+    }
+
+
+    if (mesh->normals.empty()) {
+        mesh->normals.resize(mesh->vertices.size(), Vec3(0));
+
+        for (const auto& tri : mesh->triangles) {
+            int i0 = tri.i0, i1 = tri.i1, i2 = tri.i2;
+            Vec3 p0 = mesh->vertices[i0];
+            Vec3 p1 = mesh->vertices[i1];
+            Vec3 p2 = mesh->vertices[i2];
+
+            Vec3 normal = (p1 - p0).cross(p2 - p0).normalized();
+
+            mesh->normals[i0] =mesh->normals[i0]  +normal;
+            mesh->normals[i1] =mesh->normals[i0]  +normal;
+            mesh->normals[i2] =mesh->normals[i0] + normal;
+        }
+
+
+        for (auto &n : mesh->normals) {
+            n = n.normalized();
+        }
+
+
+        for (auto& tri : mesh->triangles) {
+            tri.n0 = tri.i0;
+            tri.n1 = tri.i1;
+            tri.n2 = tri.i2;
+        }
+    }
+
+
+    if (mesh->textureMap.empty()) {
+        mesh->textureMap.resize(mesh->vertices.size(), Vec3(0, 0, 0));
+        for (auto& tri : mesh->triangles) {
+            tri.uv0 = tri.i0;
+            tri.uv1 = tri.i1;
+            tri.uv2 = tri.i2;
+        }
+    }
+
     return mesh;
-  }
-
-  std::string line;
-  double scale = 1;
-  while (std::getline(file, line)) {
-    std::istringstream iss(line);
-
-    std::string type, a, b, c;
-
-    iss >> type >> a >> b >> c;
-
-    if (type == "v") {
-      mesh->vertices.push_back(
-          Vec3(stof(a) * scale, stof(b) * scale, stof(c) * scale));
-    } else if (type == "vt") {
-      mesh->textureMap.push_back(Vec3(stof(a), stof(b), stof(c)));
-
-    }
-
-    else if (type == "f") {
-
-      int v0, v1, v2;
-      int vt0, vt1, vt2;
-      int vn0, vn1, vn2;
-
-      parseIndexGroup(a, v0, vt0, vn0);
-      parseIndexGroup(b, v1, vt1, vn1);
-      parseIndexGroup(c, v2, vt2, vn2);
-
-      mesh->triangles.push_back({v0, v1, v2, vt0, vt1, vt2, vn0, vn1, vn2});
-    }
-  }
-
-  return mesh;
 }
 } // namespace farixEngine
