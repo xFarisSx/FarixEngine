@@ -14,7 +14,7 @@ ComponentSerializerRegistry &EngineRegistry::getSerializerRegistry() {
 
 SystemRegistry &EngineRegistry::getSystemRegistry() { return systemRegistry; }
 
-void EngineRegistry::clear() {} 
+void EngineRegistry::clear() {}
 
 void EngineRegistry::registerDefaults() {
   ComponentSerializerRegistry &rg = getSerializerRegistry();
@@ -146,8 +146,8 @@ void EngineRegistry::registerDefaults() {
         Vec3 size = j.value("size", Vec3(1));
         Vec3 sd = j.value("sphereData", Vec3(1));
 
-        // if (typeStr == "Obj")
-        //   comp.mesh = Mesh::loadFromObj(path);
+        if (typeStr == "Obj")
+          comp.mesh = Mesh::loadFromObj(path);
         if (typeStr == "Box")
           comp.mesh = Mesh::createBox(size[0], size[1], size[2]);
         else if (typeStr == "Sprite")
@@ -168,8 +168,8 @@ void EngineRegistry::registerDefaults() {
                 {"specular", comp.specular},
                 {"shininess", comp.shininess},
                 {"useTexture", comp.useTexture},
-                {"texture", comp.texture ? comp.texture->path : ""}
-        ,{"doubleSided", comp.doubleSided}};
+                {"texture", comp.texture ? comp.texture->path : ""},
+                {"doubleSided", comp.doubleSided}};
       },
       [](World &world, Entity e, const json &j) {
         MaterialComponent comp;
@@ -202,9 +202,9 @@ void EngineRegistry::registerDefaults() {
       [](World &world, Entity e, const json &j) {
         Sprite2DComponent comp;
         comp.color = j.at("color").get<Vec3>();
-      comp.flipX = j.at("flipX").get<bool>();
-            comp.flipY = j.at("flipY").get<bool>();
-      comp.size = j.at("size").get<Vec3>();
+        comp.flipX = j.at("flipX").get<bool>();
+        comp.flipY = j.at("flipY").get<bool>();
+        comp.size = j.at("size").get<Vec3>();
 
         comp.useTexture = j.at("useTexture").get<bool>();
         std::string path = j.at("texture").get<std::string>();
@@ -334,13 +334,12 @@ void EngineRegistry::registerDefaults() {
       },
       [](World &world, Entity e, const json &j) {
         BillboardComponent c;
-        c.type =
-            static_cast<BillboardComponent::BillboardType>(j.at("type").get<int>());
+        c.type = static_cast<BillboardComponent::BillboardType>(
+            j.at("type").get<int>());
 
         world.registerComponent<BillboardComponent>();
-        world.addComponent<BillboardComponent>(e, c); 
+        world.addComponent<BillboardComponent>(e, c);
       });
-
 
   rg.registerSerializer<VariableComponent>(
       "VariableComponent",
