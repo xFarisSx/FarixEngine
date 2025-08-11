@@ -146,9 +146,9 @@ void EngineRegistry::registerDefaults() {
         Vec3 size = j.value("size", Vec3(1));
         Vec3 sd = j.value("sphereData", Vec3(1));
 
-        if (typeStr == "Obj")
-          comp.mesh = Mesh::loadFromObj(path);
-        else if (typeStr == "Box")
+        // if (typeStr == "Obj")
+        //   comp.mesh = Mesh::loadFromObj(path);
+        if (typeStr == "Box")
           comp.mesh = Mesh::createBox(size[0], size[1], size[2]);
         else if (typeStr == "Sprite")
           comp.mesh = Mesh::createQuad(Vec3(size[0], size[1], size[2]));

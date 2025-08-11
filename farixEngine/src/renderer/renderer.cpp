@@ -1,4 +1,4 @@
-
+// NOT USED ANYMORE || EXPERIMENTAL SOFTWARE RENDERER
 #include "farixEngine/renderer/renderer.hpp"
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/components/components.hpp"
@@ -177,9 +177,9 @@ Renderer::fetchTransformedVertices(const MeshData &mesh,
                                    const TriangleData &tri, const Mat4 &model,
                                    const RenderContext &ctx) const {
 
-  Vec4 v0 = project(Vec4(mesh.positions[tri.i0], 1), model, ctx);
-  Vec4 v1 = project(Vec4(mesh.positions[tri.i1], 1), model, ctx);
-  Vec4 v2 = project(Vec4(mesh.positions[tri.i2], 1), model, ctx);
+  Vec4 v0 = project(Vec4(mesh.vertices[tri.i0].position, 1), model, ctx);
+  Vec4 v1 = project(Vec4(mesh.vertices[tri.i1].position, 1), model, ctx);
+  Vec4 v2 = project(Vec4(mesh.vertices[tri.i2].position, 1), model, ctx);
   return {v0, v1, v2};
 }
 Vec4 Renderer::toCameraSpace(const Vec3 &pos, const Mat4 &model,
@@ -215,33 +215,35 @@ bool Renderer::isTriangleVisible(std::array<Vec4, 3> &projected,
   return normal.dot(viewDir) < 0.2f;
 }
 
-std::array<Vec3, 3> Renderer::fetchUVs(const MeshData &mesh,
+std::array<Vec2, 3> Renderer::fetchUVs(const MeshData &mesh,
                                        const TriangleData &tri,
                                        const MaterialData &material) const {
 
-  if (material.useTexture && !mesh.uvs.empty()) {
-    return {mesh.uvs[tri.uv0], mesh.uvs[tri.uv1], mesh.uvs[tri.uv2]};
+  if (material.useTexture && !mesh.vertices.empty()) {
+    return {mesh.vertices[tri.i0].uv, mesh.vertices[tri.i1].uv,
+            mesh.vertices[tri.i2].uv};
   }
-  return {Vec3(), Vec3(), Vec3()};
+  return {Vec2(), Vec2(), Vec2()};
 }
 
 std::array<Vec3, 3> Renderer::fetchNs(const MeshData &mesh,
                                       const TriangleData &tri,
                                       const MaterialData &material) const {
 
-  return {mesh.normals[tri.n0], mesh.normals[tri.n1], mesh.normals[tri.n2]};
+  return {mesh.vertices[tri.i0].normal, mesh.vertices[tri.i1].normal,
+          mesh.vertices[tri.i2].normal};
 }
 std::array<Vec3, 3> Renderer::fetchPs(const MeshData &mesh,
                                       const TriangleData &tri,
                                       const MaterialData &material) const {
 
-  return {mesh.positions[tri.i0], mesh.positions[tri.i1],
-          mesh.positions[tri.i2]};
+  return {mesh.vertices[tri.i0].position, mesh.vertices[tri.i1].position,
+          mesh.vertices[tri.i2].position};
 }
 
 void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
                                  const std::array<Vec3, 3> &ps,
-                                 const std::array<Vec3, 3> &uvs,
+                                 const std::array<Vec2, 3> &uvs,
                                  const std::array<Vec3, 3> &ns,
                                  const RenderContext &ctx,
                                  const MaterialData &material) {
@@ -353,9 +355,21 @@ Vec4 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
 void Renderer::drawTriangle(const MeshData &mesh, const TriangleData &tri,
                             const Mat4 &model, const RenderContext &ctx,
                             const MaterialData &material) {
-  Vec4 v0_cam = toCameraSpace(mesh.positions[tri.i0], model, ctx.viewMatrix);
-  Vec4 v1_cam = toCameraSpace(mesh.positions[tri.i1], model, ctx.viewMatrix);
-  Vec4 v2_cam = toCameraSpace(mesh.positions[tri.i2], model, ctx.viewMatrix);
+
+  if (tri.i0 >= mesh.vertices.size() || tri.i1 >= mesh.vertices.size() ||
+      tri.i2 >= mesh.vertices.size()) {
+    std::cerr << "Invalid triangle indices: " << tri.i0 << ", " << tri.i1
+              << ", " << tri.i2
+              << " but vertices count: " << mesh.vertices.size() << "\n";
+    return;
+  }
+
+  Vec4 v0_cam =
+      toCameraSpace(mesh.vertices[tri.i0].position, model, ctx.viewMatrix);
+  Vec4 v1_cam =
+      toCameraSpace(mesh.vertices[tri.i1].position, model, ctx.viewMatrix);
+  Vec4 v2_cam =
+      toCameraSpace(mesh.vertices[tri.i2].position, model, ctx.viewMatrix);
 
   if (v0_cam.z > 0 && v1_cam.z > 0 && v2_cam.z > 0)
     return;
@@ -395,7 +409,7 @@ void Renderer::drawTriangle(const MeshData &mesh, const TriangleData &tri,
     std::array<Vec4, 3> vertices = {v0_screen, v1_screen, v2_screen};
     if (!isTriangleVisible(vertices, material, ctx))
       return;
-    std::array<Vec3, 3> nuvs = {tri[0].uv, tri[1].uv, tri[2].uv};
+    std::array<Vec2, 3> nuvs = {tri[0].uv, tri[1].uv, tri[2].uv};
     std::array<Vec3, 3> nns = {tri[0].normal, tri[1].normal, tri[2].normal};
     std::array<Vec3, 3> nps = {tri[0].position, tri[1].position,
                                tri[2].position};
@@ -442,7 +456,8 @@ Renderer::clipTriangleAgainstNearPlane(const ClippableVertex &v0,
 
 void Renderer::renderMesh(const MeshData &mesh, const Mat4 &model,
                           const MaterialData &material) {
-  for (const TriangleData &tri : mesh.indices) {
+  for (uint32_t i = 0; i < mesh.indices.size(); i += 3) {
+    TriangleData tri{mesh.indices[i], mesh.indices[i+1], mesh.indices[i+2]};
     drawTriangle(mesh, tri, model, currentContext, material);
   }
 }
@@ -467,17 +482,19 @@ void Renderer::renderSprite(const SpriteData &sprite, const Mat4 &model) {
 MeshData Renderer::quadMesh2D() {
   static MeshData quad;
 
-  if (quad.positions.empty()) {
-    float hw = 0.5f, hh = 0.5f;
+  if (quad.vertices.empty()) {
 
-    quad.positions = {Vec3(-hw, -hh, 0), Vec3(hw, -hh, 0), Vec3(hw, hh, 0),
-                      Vec3(-hw, hh, 0)};
+    float w = 0.5f;
+    float h = 0.5f;
 
-    quad.uvs = {Vec3(0, 0, 0), Vec3(1, 0, 0), Vec3(1, 1, 0), Vec3(0, 1, 0)};
+    quad.vertices = {
+        {Vec3(-w, -h, 0), Vec3(0, 0, 1), Vec2(0, 0)},
+        {Vec3(w, -h, 0), Vec3(0, 0, 1), Vec2(1, 0)},
+        {Vec3(w, h, 0), Vec3(0, 0, 1), Vec2(1, 1)},
+        {Vec3(-w, h, 0), Vec3(0, 0, 1), Vec2(0, 1)},
+    };
 
-    quad.normals = {Vec3(0, 0, 1)};
-
-    quad.indices = {{0, 1, 2, 0, 1, 2, 0, 0, 0}, {0, 2, 3, 0, 2, 3, 0, 0, 0}};
+    quad.indices = {0, 1, 2, 0, 2, 3};
   }
 
   return quad;

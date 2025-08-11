@@ -45,7 +45,7 @@ public:
   bool isTriangleVisible(std::array<Vec4, 3> &projected,
                          const MaterialData &material,
                          const RenderContext &ctx) const;
-  std::array<Vec3, 3> fetchUVs(const MeshData &mesh, const TriangleData &tri,
+  std::array<Vec2, 3> fetchUVs(const MeshData &mesh, const TriangleData &tri,
                                const MaterialData &material) const;
   std::array<Vec3, 3> fetchNs(const MeshData &mesh, const TriangleData &tri,
                               const MaterialData &material) const;
@@ -57,7 +57,7 @@ public:
 
   void rasterizeTriangle(const std::array<Vec4, 3> &projected,
                          const std::array<Vec3, 3> &ps,
-                         const std::array<Vec3, 3> &uvs,
+                         const std::array<Vec2, 3> &uvs,
                          const std::array<Vec3, 3> &ns,
                          const RenderContext &ctx,
                          const MaterialData &material);

@@ -15,7 +15,7 @@ struct Vec3 {
   Vec3 operator*(float s) const;
   Vec3 operator/(float s) const;
 
-
+  bool operator==(const Vec3&v)const;
   float &operator[](int col);
   const float &operator[](int index) const;
 

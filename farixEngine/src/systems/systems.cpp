@@ -150,14 +150,19 @@ void RenderSystem::onUpdate(World &world, float dt) {
         continue;
 
       renderer::MeshData meshData;
-      meshData.positions = meshC.mesh->vertices;
-      meshData.normals = meshC.mesh->normals;
-      meshData.uvs = meshC.mesh->textureMap;
-      for (auto &tri : meshC.mesh->triangles) {
-        meshData.indices.push_back(
-            renderer::TriangleData{tri.i0, tri.i1, tri.i2, tri.uv0, tri.uv1,
-                                   tri.uv2, tri.n0, tri.n1, tri.n2});
+      meshData.vertices.reserve(meshC.mesh->vertices.size());
+
+      for (const auto& v : meshC.mesh->vertices) {
+        renderer::VertexData vd;
+          vd.position = v.position;
+          vd.normal = v.normal;
+          vd.uv = v.uv;
+          meshData.vertices.push_back(vd);
       }
+
+      for (auto &tri : meshC.mesh->indices) {
+        meshData.indices.push_back(tri);
+      } 
 
       renderer::MaterialData matData;
       matData.baseColor = matC.baseColor;

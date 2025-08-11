@@ -59,7 +59,9 @@ Vec3 Vec4::toVec3() {
   Vec4 Vec4::operator/(float s) const{
     return Vec4(x / s, y / s, z / s, w/s);
 }
-
+bool Vec4::operator==(const Vec4&v)const{
+  return (x == v.x && y== v.y && z==v.z && w==v.w);
+}
   Vec3 Vec4::xyz(){
   return Vec3(x, y, z);
 }
