@@ -1,7 +1,7 @@
 # Farix Engine (WIP)
 
 A lightweight C++17 game engine using SDL2.  
-Features ECS, 3D software rendering, OBJ mesh loading, textures, scripting, scene management, and more.
+Features ECS, 3D-2.5D-2D rendering, OBJ mesh loading, textures, scripting, scene management, and more.
 
 ---
 
@@ -52,6 +52,7 @@ sudo make uninstall   # removes installed files
 - Event system (keyboard, collision, custom events...)
 - Scripting system (`onStart()` / `onUpdate()` / `onKeyPressed()` / `onCollision()`, etc.)
 - GameObject and GameWorld wrappers for convenient entity & component access
+- Centralized asset manager
 - Hierarchy system with parenting and global transforms
 - Easy extension with user-defined components, systems, and scripts
 - Scene management and hot reload support
@@ -174,6 +175,7 @@ g++ -std=c++17 -Wall -I/usr/local/include/farixEngine main.cpp -L/usr/local/lib 
 ## To Do / Planned
 
 - Convert software renderer to OpenGL backend
+- Rendering enhancements
 - Audio system enhancements
 - Complete physics system with broadphase, narrowphase, collision response
-- Centralized AssetManager for textures, meshes, sounds, fonts, materials
+- Scale the engine to include various types and formats of assets like glTF etc.
