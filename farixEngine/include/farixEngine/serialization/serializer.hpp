@@ -1,6 +1,7 @@
 #pragma once
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec3.hpp"
+#include "farixEngine/math/vec4.hpp"
 #include "farixEngine/scene/scene.hpp"
 #include "farixEngine/thirdparty/nlohmann/json.hpp"
 #include <string>

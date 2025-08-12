@@ -117,7 +117,7 @@ Vec3 RenderSystem::calculateAnchoredPosition(const RectComponent &rect,
   }
 
   return offset + pos;
-} 
+}
 void RenderSystem::onUpdate(World &world, float dt) {
   renderer::Renderer *renderer = EngineServices::get().getContext()->renderer;
 
@@ -135,6 +135,7 @@ void RenderSystem::onUpdate(World &world, float dt) {
   renderer::RenderContext ctx =
       createRenderContext(world, camera, cameraGlobal, cameraPosition);
   renderer->beginFrame(ctx);
+  auto &am = EngineServices::get().getAssetManager();
 
   for (Entity entity : world.getEntities()) {
     if (world.hasComponent<GlobalTransform>(entity) &&
@@ -146,23 +147,26 @@ void RenderSystem::onUpdate(World &world, float dt) {
       auto &meshC = world.getComponent<MeshComponent>(entity);
       auto &matC = world.getComponent<MaterialComponent>(entity);
 
-      if (!meshC.mesh)
+      if (meshC.mesh.empty())
         continue;
+      auto meshAsset = am.get<Mesh>(meshC.mesh);
 
       renderer::MeshData meshData;
-      meshData.vertices.reserve(meshC.mesh->vertices.size());
+      meshData.vertices.reserve(meshAsset->vertices.size());
 
-      for (const auto& v : meshC.mesh->vertices) {
+      for (const auto &v : meshAsset->vertices) {
         renderer::VertexData vd;
-          vd.position = v.position;
-          vd.normal = v.normal;
-          vd.uv = v.uv;
-          meshData.vertices.push_back(vd);
+        vd.position = v.position;
+        vd.normal = v.normal;
+        vd.uv = v.uv;
+        meshData.vertices.push_back(vd);
       }
 
-      for (auto &tri : meshC.mesh->indices) {
+      for (auto &tri : meshAsset->indices) {
         meshData.indices.push_back(tri);
-      } 
+      }
+
+      auto texAsset = am.get<Texture>(matC.texture);
 
       renderer::MaterialData matData;
       matData.baseColor = matC.baseColor;
@@ -171,7 +175,7 @@ void RenderSystem::onUpdate(World &world, float dt) {
       matData.specular = matC.specular;
       matData.shininess = matC.shininess;
       matData.useTexture = matC.useTexture;
-      matData.texture = matC.texture.get();
+      matData.texture = texAsset.get();
       matData.doubleSided = matC.doubleSided;
 
       renderer->renderMesh(meshData, model, matData);
@@ -182,9 +186,10 @@ void RenderSystem::onUpdate(World &world, float dt) {
       const Mat4 &model =
           world.getComponent<GlobalTransform>(entity).worldMatrix;
       const auto &sprite = world.getComponent<Sprite2DComponent>(entity);
+      auto texAsset = am.get<Texture>(sprite.texture);
 
       renderer::SpriteData spriteData;
-      spriteData.texture = sprite.texture.get();
+      spriteData.texture = texAsset.get();
       spriteData.size = sprite.size;
       spriteData.useTexture = sprite.useTexture;
       spriteData.color = sprite.color;
@@ -198,7 +203,10 @@ void RenderSystem::onUpdate(World &world, float dt) {
                         renderer->getScreenSize()[1]);
 
   auto uiEntities = world.view<RectComponent, UIComponent>();
-  std::sort(uiEntities.begin(),uiEntities.end(), [&world](Entity a, Entity b){ return world.getComponent<RectComponent>(a).position.z< world.getComponent<RectComponent>(b).position.z; });
+  std::sort(uiEntities.begin(), uiEntities.end(), [&world](Entity a, Entity b) {
+    return world.getComponent<RectComponent>(a).position.z <
+           world.getComponent<RectComponent>(b).position.z;
+  });
   for (Entity entity : uiEntities) {
 
     const auto &uiCom = world.getComponent<UIComponent>(entity);
@@ -206,15 +214,16 @@ void RenderSystem::onUpdate(World &world, float dt) {
     const auto &rectPos = calculateAnchoredPosition(
         uiRect, uiCom.anchor, renderer->getScreenSize()[0],
         renderer->getScreenSize()[1]);
-    Mat4 model = Mat4::translate(Vec3(rectPos.x, rectPos.y, 0)) * Mat4::rotateZ(uiRect.rotation) *
+    Mat4 model = Mat4::translate(Vec3(rectPos.x, rectPos.y, 0)) *
+                 Mat4::rotateZ(uiRect.rotation) *
                  Mat4::scale(Vec3{uiRect.size.x, -uiRect.size.y, 1.0f});
-
 
     if (world.hasComponent<UIImageComponent>(entity)) {
       const auto &uiImage = world.getComponent<UIImageComponent>(entity);
+      auto texAsset = am.get<Texture>(uiImage.texture);
 
       renderer::SpriteData spriteData;
-      spriteData.texture = uiImage.texture.get();
+      spriteData.texture = texAsset.get();
       spriteData.size = Vec3(1.f);
       spriteData.useTexture = uiImage.useTexture;
       spriteData.color = uiImage.color;
@@ -225,8 +234,9 @@ void RenderSystem::onUpdate(World &world, float dt) {
     }
     if (world.hasComponent<UITextComponent>(entity)) {
       auto &uiText = world.getComponent<UITextComponent>(entity);
+      auto fontAsset = am.get<Font>(uiText.font);
 
-      renderer->drawText(uiText.font.get(), uiText.text, uiRect.position,
+      renderer->drawText(fontAsset.get(), uiText.text, uiRect.position,
                          uiText.fontSize, uiText.color);
     }
   }

@@ -24,6 +24,8 @@ public:
   bool isValid() const;
   World *world() const;
 
+  template <typename T> GameObject &addOrReplaceComponent(const T &component);
+    template <typename T> T &getOrAddComponent();
   template <typename T> GameObject &addComponent(const T &component);
   template <typename T> GameObject &addComponent();
   template <typename T, typename... Args,
@@ -37,7 +39,10 @@ public:
   template <typename T> bool hasComponent();
   template <typename T> void removeComponent();
 
-  void setMesh(const std::shared_ptr<Mesh> &mesh);
+  void setMeshFromFile(const std::string &path, std::string name = "");
+  void setMeshByID(const std::string &id);
+  void setMesh(const std::shared_ptr<Mesh> &mesh, const std::string &name = "");
+
   void setMaterial(const MaterialComponent &material);
   void addScript(const std::shared_ptr<Script> &script);
 
@@ -59,10 +64,20 @@ public:
   template <typename... Tags> bool hasTags(Tags &&...tags);
 
   void removeScriptByName(const std::string &scriptName);
-
+ 
   void destroyObject();
 };
 
+template <typename T> T &GameObject::getOrAddComponent(){
+  if (world()->hasComponent<T>(entity)) return world()->getComponent<T>(entity);
+  return world()->addComponent<T>(entity);
+}
+template <typename T>
+GameObject &GameObject::addOrReplaceComponent(const T &component) {
+   world()->addComponent<T>(entity, component);
+  return *this;
+
+}
 template <typename T> GameObject &GameObject::addComponent(const T &component) {
   world()->addComponent<T>(entity, component);
   return *this;

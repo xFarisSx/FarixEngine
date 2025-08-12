@@ -1,4 +1,5 @@
 #include "farixEngine/assets/texture.hpp"
+#include "farixEngine/utils/uuid.hpp"
 #include <string>
 #include <memory>
 #include <SDL2/SDL.h>
@@ -6,18 +7,24 @@
 #include <algorithm>
 
 namespace farixEngine{
-  
-  std::shared_ptr<Texture> Texture::loadFromBmp(const std::string &filename){
+  std::shared_ptr<Texture> Texture::load(const std::string&filename){
+  return loadFromBmp(filename);
+}
+
+
+  std::shared_ptr<Texture> Texture::loadFromBmp(const std::string &filename,  std::string eid){
     auto texture = std::make_shared<Texture>();
   
     texture->path = filename;
+  texture->id = eid.empty() ? utils::generateUUID() : eid;
+
 
     SDL_Surface *loadedSurface = SDL_LoadBMP(filename.c_str());
     if (!loadedSurface) {
       std::cerr << "Failed to load BMP: " << SDL_GetError() << std::endl;
       exit(1);
     }
-
+ 
     SDL_Surface *formattedSurface =
         SDL_ConvertSurfaceFormat(loadedSurface, SDL_PIXELFORMAT_ARGB8888, 0);
     SDL_FreeSurface(loadedSurface);

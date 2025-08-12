@@ -18,18 +18,36 @@ GameObject::GameObject(GameWorld *gw, Entity existing)
 }
 
 Entity GameObject::getEntity() const { return entity; }
+void GameObject::setMeshFromFile(const std::string& path, std::string name) {
+    auto& am = EngineServices::get().getAssetManager();
 
-void GameObject::setMesh(const std::shared_ptr<Mesh> &mesh) {
-  if (!isValid())
-    return;
+    auto mesh = am.get<Mesh>(path);
+    if (!mesh) {
+        mesh = Mesh::loadFromObj(path);
+        am.add<Mesh>(mesh, name);
+    }
 
-  MeshComponent m;
-  m.mesh = mesh;
-  if (world()->hasComponent<MeshComponent>(entity)) {
-    world()->getComponent<MeshComponent>(entity) = m;
-  } else {
-    world()->addComponent<MeshComponent>(entity, m);
-  }
+    MeshComponent m;
+    m.mesh = mesh->id; 
+    addOrReplaceComponent<MeshComponent>(m);
+}
+
+void GameObject::setMeshByID(const std::string& id) {
+    auto& am = EngineServices::get().getAssetManager();
+    if (!am.has<Mesh>(id)) 
+        return; 
+    MeshComponent m;
+    m.mesh = id;
+    addOrReplaceComponent<MeshComponent>(m);
+}
+
+void GameObject::setMesh(const std::shared_ptr<Mesh>& mesh, const std::string& name) {
+    auto& am = EngineServices::get().getAssetManager();
+    am.add<Mesh>(mesh,  name);
+
+    MeshComponent m;
+    m.mesh = mesh->id;
+    addOrReplaceComponent<MeshComponent>(m);
 }
 World *GameObject::world() const {
   assert(gameWorld && "GameObject::world() called on invalid GameObject");

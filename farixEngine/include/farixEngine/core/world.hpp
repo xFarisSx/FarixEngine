@@ -123,7 +123,7 @@ std::vector<World::Entity> World::getEntitiesByTags(Tags... tags) const {
 
 template <typename... Tags> void World::addTags(Entity entity, Tags &&...tags) {
   (addTag(entity, std::forward<Tags>(tags)), ...);
-}
+} 
 
 template <typename... Tags>
 void World::removeTags(Entity entity, Tags &&...tags) {

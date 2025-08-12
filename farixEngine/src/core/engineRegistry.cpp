@@ -133,27 +133,22 @@ void EngineRegistry::registerDefaults() {
       "MeshComponent",
       [](World &world, Entity e) -> json {
         const auto &comp = world.getComponent<MeshComponent>(e);
-        return {{"mesh", comp.mesh ? comp.mesh->path : ""},
-                {"type", comp.mesh ? comp.mesh->type : "None"},
-                {"size", comp.mesh ? comp.mesh->size : Vec3(1)},
-                {"sphereData",
-                 comp.mesh ? comp.mesh->sphereData : Vec3{1, 16, 32}}};
+        auto &am = EngineServices::get().getAssetManager();
+        auto meshP = am.get<Mesh>(comp.mesh);
+        return {{"mesh", meshP ? meshP->path : ""},
+                {"uuid", meshP ? meshP->id : ""},
+                {"name", meshP ? am.findNameById(meshP->id) : ""},
+                {"type", meshP ? meshP->type : "None"},
+                {"size", meshP ? meshP->size : Vec3(1)},
+                {"sphereData", meshP ? meshP->sphereData : Vec3{1, 16, 32}}};
       },
       [](World &world, Entity e, const json &j) {
         MeshComponent comp;
         std::string path = j.value("mesh", "");
-        std::string typeStr = j.value("type", "None");
-        Vec3 size = j.value("size", Vec3(1));
-        Vec3 sd = j.value("sphereData", Vec3(1));
+        std::string uuid = j.value("uuid", "");
 
-        if (typeStr == "Obj")
-          comp.mesh = Mesh::loadFromObj(path);
-        if (typeStr == "Box")
-          comp.mesh = Mesh::createBox(size[0], size[1], size[2]);
-        else if (typeStr == "Sprite")
-          comp.mesh = Mesh::createQuad(Vec3(size[0], size[1], size[2]));
-        else if (typeStr == "Sphere")
-          comp.mesh = Mesh::createSphere(sd[0], sd[1], sd[2]);
+        comp.mesh = uuid;
+
         world.registerComponent<MeshComponent>();
 
         world.addComponent<MeshComponent>(e, comp);
@@ -163,26 +158,27 @@ void EngineRegistry::registerDefaults() {
       "MaterialComponent",
       [](World &world, Entity e) -> json {
         const auto &comp = world.getComponent<MaterialComponent>(e);
-        return {{"baseColor", comp.baseColor},
-                {"ambient", comp.ambient},
-                {"specular", comp.specular},
-                {"shininess", comp.shininess},
-                {"useTexture", comp.useTexture},
-                {"texture", comp.texture ? comp.texture->path : ""},
-                {"doubleSided", comp.doubleSided}};
+        auto &am = EngineServices::get().getAssetManager();
+        auto texP = am.get<Texture>(comp.texture);
+        return {
+            {"baseColor", comp.baseColor},    {"ambient", comp.ambient},
+            {"specular", comp.specular},      {"shininess", comp.shininess},
+            {"useTexture", comp.useTexture},  {"texture", texP ? texP->id : ""},
+            {"doubleSided", comp.doubleSided}};
       },
       [](World &world, Entity e, const json &j) {
         MaterialComponent comp;
-        comp.baseColor = j.at("baseColor").get<Vec3>();
+        comp.baseColor = j.at("baseColor").get<Vec4>();
         comp.ambient = j.at("ambient").get<float>();
         comp.specular = j.at("specular").get<float>();
         comp.shininess = j.at("shininess").get<float>();
         comp.useTexture = j.at("useTexture").get<bool>();
         comp.doubleSided = j.at("doubleSided").get<bool>();
         std::string path = j.at("texture").get<std::string>();
-        if (!path.empty()) {
-          comp.texture = Texture::loadFromBmp(path);
-        }
+        std::string uuid = j.at("texture").get<std::string>();
+
+        comp.texture = uuid;
+
         world.registerComponent<MaterialComponent>();
 
         world.addComponent<MaterialComponent>(e, comp);
@@ -192,25 +188,27 @@ void EngineRegistry::registerDefaults() {
       "Sprite2DComponent",
       [](World &world, Entity e) -> json {
         const auto &comp = world.getComponent<Sprite2DComponent>(e);
-        return {{"color", comp.color},
-                {"flipX", comp.flipX},
-                {"flipY", comp.flipY},
-                {"size", comp.size},
-                {"useTexture", comp.useTexture},
-                {"texture", comp.texture ? comp.texture->path : ""}};
+        auto &am = EngineServices::get().getAssetManager();
+        auto texP = am.get<Texture>(comp.texture);
+
+        return {
+            {"color", comp.color},           {"flipX", comp.flipX},
+            {"flipY", comp.flipY},           {"size", comp.size},
+            {"useTexture", comp.useTexture}, {"texture", texP ? texP->id : ""}};
       },
       [](World &world, Entity e, const json &j) {
         Sprite2DComponent comp;
-        comp.color = j.at("color").get<Vec3>();
+        comp.color = j.at("color").get<Vec4>();
         comp.flipX = j.at("flipX").get<bool>();
         comp.flipY = j.at("flipY").get<bool>();
         comp.size = j.at("size").get<Vec3>();
 
         comp.useTexture = j.at("useTexture").get<bool>();
         std::string path = j.at("texture").get<std::string>();
-        if (!path.empty()) {
-          comp.texture = Texture::loadFromBmp(path);
-        }
+        std::string uuid = j.at("texture").get<std::string>();
+
+        comp.texture = uuid;
+
         world.registerComponent<Sprite2DComponent>();
 
         world.addComponent<Sprite2DComponent>(e, comp);

@@ -15,7 +15,7 @@ GameObject &GameWorld::createGameObject() {
   return obj;
 }
 
-GameObject &GameWorld::createSprite3D(std::shared_ptr<Texture> texture,
+GameObject &GameWorld::createSprite3D(AssetID texture,
                                       Vec3 size) {
   GameObject &obj = createGameObject();
 
@@ -27,11 +27,11 @@ GameObject &GameWorld::createSprite3D(std::shared_ptr<Texture> texture,
   obj.setMaterial(mat);
 
   return obj;
-}
+} 
 
-GameObject &GameWorld::createSprite2D(std::shared_ptr<Texture> texture,
+GameObject &GameWorld::createSprite2D(AssetID texture,
                                       Vec3 size) {
-  GameObject &obj = createGameObject();
+  GameObject &obj = createGameObject(); 
   Sprite2DComponent sprite;
 
   sprite.useTexture = true;

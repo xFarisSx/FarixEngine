@@ -18,16 +18,16 @@ class GameWorld {
   std::unordered_map<Entity, GameObject> gameObjects;
   void setOwningScene(Scene *scene) { owningScene = scene; }
 
-public:
+public: 
   Scene *getOwningScene() const { return owningScene; }
   GameWorld(World *world);
 
   ~GameWorld();
 
   GameObject &createGameObject();
-  GameObject &createSprite3D(std::shared_ptr<Texture> texture,
+  GameObject &createSprite3D(AssetID texture,
                              Vec3 size = {1, 1, 0});
-  GameObject &createSprite2D(std::shared_ptr<Texture> texture,
+  GameObject &createSprite2D(AssetID texture,
                              Vec3 size = {1, 1, 0});
   GameObject &registerExistingEntity(Entity e);
   GameObject &getGameObject(Entity entity);

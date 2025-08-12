@@ -53,10 +53,13 @@ void setupScene3D(GameWorld &gameWorld) {
 }
 
 void setupScene2D(GameWorld &gameWorld) {
+  auto &am = EngineServices::get().getAssetManager();
+
   // Ball
   // auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
   auto &ball = gameWorld.createSprite2D(
-      Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(0.4f, 0.4f, 0));
+      am.load<Texture>("Textcat", "assets/textures/textcat.bmp"),
+      Vec3(0.4f, 0.4f, 0));
   ball.setName("Ball");
   ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
   ball.addScript(std::make_shared<BallScript>());
@@ -64,8 +67,8 @@ void setupScene2D(GameWorld &gameWorld) {
 
   // Player Paddle
   // auto &paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
-  auto &paddle1 = gameWorld.createSprite2D(
-      Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(2.0f, 0.2f, 0));
+  auto &paddle1 = gameWorld.createSprite2D(am.get<Texture>("Textcat")->id,
+                                           Vec3(2.0f, 0.2f, 0));
   paddle1.setName("Player");
   paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
   paddle1.addTag("Paddle");
@@ -77,8 +80,8 @@ void setupScene2D(GameWorld &gameWorld) {
   // paddle2.removeScriptByName("PlayerPaddleScript");
   // paddle2.addScript(std::make_shared<OpponentPaddleScript>());
   // paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
-  auto &paddle2 = gameWorld.createSprite2D(
-      Texture::loadFromBmp("assets/textures/textcat.bmp"), Vec3(2.0f, 0.2f, 1));
+  auto &paddle2 = gameWorld.createSprite2D(am.get<Texture>("Textcat")->id,
+                                           Vec3(2.0f, 0.2f, 1));
   paddle2.setName("Opponent");
   paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
   paddle2.addTag("Paddle");
@@ -98,7 +101,7 @@ void setupScene2D(GameWorld &gameWorld) {
   // Prefab::save(ball, "prefabs/ball.json");
 }
 
-void setupUI(GameWorld &gameWorld, std::shared_ptr<Font> font) {
+void setupUI(GameWorld &gameWorld, AssetID font) {
   auto &scoreUI = gameWorld.createGameObject();
   scoreUI.addComponent<ScoreComponent>();
   scoreUI.setName("ScoreUI");
@@ -127,13 +130,14 @@ void setupUI(GameWorld &gameWorld, std::shared_ptr<Font> font) {
   uiImage2.color = Vec4(0, 0, 0.8, 1);
   panelUI2.addComponent<UIImageComponent>(uiImage2);
 
-  panelUI2.addComponent<RectComponent>({Vec3(155, 30, -1), Vec3(310, 60, 0), 0});
+  panelUI2.addComponent<RectComponent>(
+      {Vec3(155, 30, -1), Vec3(310, 60, 0), 0});
   panelUI2.addComponent<UIComponent>();
-
 }
 
 void Game::onStart() {
   auto &engine = EngineServices::get().getEngineRegistry();
+  auto &am = EngineServices::get().getAssetManager();
   engine.getScriptRegistry().registerScript<BallScript>("BallScript");
   engine.getScriptRegistry().registerScript<PlayerPaddleScript>(
       "PlayerPaddleScript");
@@ -156,19 +160,22 @@ void Game::onStart() {
         blink.timer = j.value("timer", 0.0f);
         blink.interval = j.value("interval", 0.5f);
         blink.visible = j.value("visible", true);
+
+        world.registerComponent<BlinkComponent>();
+
         world.addComponent(e, blink);
       });
 
   SceneManager &sceneManager = getSceneManager();
-
+  //
   auto &scene = sceneManager.createScene("pong");
+  // auto &scene = sceneManager.loadSceneFromFile("scenes/pong.json");
   scene.gameWorld().registerComponent<BlinkComponent>();
   scene.gameWorld().registerComponent<ScoreComponent>();
 
-  //
   setupScene3D(*sceneManager.currentGameWorld());
   // setupScene2D(*sceneManager.currentGameWorld());
-  auto font = Font::loadFont("assets/fonts/font.ttf", 32);
+  auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
   setupUI(*sceneManager.currentGameWorld(), font);
 
   sceneManager.currentGameWorld()->addSystem(std::make_shared<BlinkSystem>());

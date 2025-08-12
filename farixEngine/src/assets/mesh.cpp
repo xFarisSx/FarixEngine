@@ -10,13 +10,13 @@
 
 namespace farixEngine {
 
-std::shared_ptr<Mesh> Mesh::createQuad(Vec3 size) {
+std::shared_ptr<Mesh> Mesh::createQuad(Vec3 size, std::string eid) {
   auto mesh = std::make_shared<Mesh>();
   mesh->type = "Sprite";
   mesh->size = {size[0], size[1], 0};
-  mesh->id = utils::generateUUID();
+mesh->id = eid.empty() ? utils::generateUUID() : eid;
 
-  float w = size[0] / 2.0f;
+  float w = size[0] / 2.0f; 
   float h = size[1] / 2.0f;
 
   mesh->vertices = {
@@ -32,11 +32,11 @@ std::shared_ptr<Mesh> Mesh::createQuad(Vec3 size) {
 }
 
 std::shared_ptr<Mesh> Mesh::createSphere(float radius, int latSegments,
-                                         int lonSegments) {
+                                         int lonSegments, std::string eid) {
   auto mesh = std::make_shared<Mesh>();
   mesh->type = "Sphere";
   mesh->sphereData = {radius, (float)latSegments, (float)lonSegments};
-  mesh->id = utils::generateUUID();
+mesh->id = eid.empty() ? utils::generateUUID() : eid;
   for (int lat = 0; lat <= latSegments; ++lat) {
     float theta = lat * M_PI / latSegments;
     float sinTheta = sin(theta);
@@ -73,11 +73,11 @@ std::shared_ptr<Mesh> Mesh::createSphere(float radius, int latSegments,
   return mesh;
 }
 
-std::shared_ptr<Mesh> Mesh::createBox(float width, float height, float depth) {
+std::shared_ptr<Mesh> Mesh::createBox(float width, float height, float depth, std::string eid) {
   auto mesh = std::make_shared<Mesh>();
   mesh->type = "Box";
   mesh->size = {width, height, depth};
-  mesh->id = utils::generateUUID();
+  mesh->id = eid.empty() ? utils::generateUUID() : eid;
   float w = width / 2.0f;
   float h = height / 2.0f;
   float d = depth / 2.0f;
@@ -134,8 +134,12 @@ std::shared_ptr<Mesh> Mesh::createBox(float width, float height, float depth) {
 
   return mesh;
 }
-//
-std::shared_ptr<Mesh> Mesh::loadFromObj(const std::string &filename) {
+
+std::shared_ptr<Mesh> Mesh::load(const std::string&filename){
+  return loadFromObj(filename);
+}
+
+std::shared_ptr<Mesh> Mesh::loadFromObj(const std::string &filename, std::string eid) {
   auto parseIndexGroup = [](const std::string &group, uint32_t &v, uint32_t &vt,
                             uint32_t &vn) {
     size_t firstSlash = group.find('/');
@@ -168,6 +172,7 @@ std::shared_ptr<Mesh> Mesh::loadFromObj(const std::string &filename) {
   auto mesh = std::make_shared<Mesh>();
   mesh->path = filename;
   mesh->type = "Obj";
+  mesh->id = eid.empty() ? utils::generateUUID() : eid;
 
   std::ifstream file(filename);
   if (!file.is_open()) {

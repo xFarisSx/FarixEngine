@@ -6,7 +6,7 @@ LDFLAGS = -L/usr/local/lib -lfarixEngine -lSDL2_ttf `sdl2-config --libs`
 
 # Source files and output binary
 SRC = main.cpp game/game.cpp
-BIN = ~/CppProjectBuild/game
+BIN = ~/Builds/CppProjectBuild/game
 
 # Default target
 all: $(BIN)

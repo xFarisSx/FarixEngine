@@ -1,7 +1,7 @@
 #pragma once
+#include "farixEngine/assets/font.hpp"
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/assets/texture.hpp"
-#include "farixEngine/assets/font.hpp"
 
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec3.hpp"
@@ -10,7 +10,8 @@
 #include <memory>
 #include <unordered_map>
 namespace farixEngine {
-
+using UUID = std::string;
+using AssetID = std::string;
 struct Timer {
   float current = 0.0f;
   float max = 1.0f;
@@ -71,7 +72,7 @@ struct CameraControllerComponent {
 
 struct MeshComponent {
 
-  std::shared_ptr<Mesh> mesh;
+  AssetID mesh;
 };
 
 struct BillboardComponent {
@@ -88,13 +89,13 @@ struct MaterialComponent {
   float specular = 0.5f;
   float shininess = 32.0f;
   float diffuse = 1.0f;
-  std::shared_ptr<Texture> texture;
+  AssetID texture;
 
   bool useTexture = false;
   bool doubleSided = true;
 };
 
-struct ScriptComponent {
+struct ScriptComponent { 
   std::vector<ScriptPtr> scripts;
 };
 
@@ -158,7 +159,7 @@ struct TimersComponent {
 };
 
 struct Sprite2DComponent {
-  std::shared_ptr<Texture> texture;
+  AssetID texture;
   Vec4 color = Vec4(1.0f);
   Vec3 size = Vec3(1.f, 1.f, 0);
   bool flipX = false;
@@ -178,7 +179,7 @@ struct UIComponent {
     BottomCenter,
     LeftCenter,
     RightCenter
-  };
+  }; 
   Anchor anchor = Anchor::TopLeft;
   bool interactable = false;
   bool blockRaycast = true;
@@ -191,15 +192,15 @@ struct RectComponent {
 };
 
 struct UIImageComponent {
-  std::shared_ptr<Texture> texture;
+  AssetID texture;
   Vec4 color = Vec4(1.0f);
-  bool useTexture= false;
+  bool useTexture = false;
 };
 struct UITextComponent {
   std::string text;
   Vec4 color = Vec4(1.0f);
   float fontSize = 16.0f;
-  std::shared_ptr<Font> font; 
+  AssetID font;
 };
 
 struct UIButtonComponent {

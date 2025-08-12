@@ -1,5 +1,6 @@
 #pragma once
 
+#include "farixEngine/assets/assetManager.hpp"
 #include "farixEngine/ecs/componentSerializerRegistry.hpp"
 #include "farixEngine/ecs/systemRegistry.hpp"
 #include "farixEngine/script/scriptRegistry.hpp"

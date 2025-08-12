@@ -13,11 +13,13 @@ public:
 
     EngineRegistry& getEngineRegistry();
     EventDispatcher& getEventDispatcher();
+    AssetManager& getAssetManager();
     EngineContext* getContext(); 
   void setContext(EngineContext* context); 
 
 private:
     EngineRegistry engineRegistry;
+    AssetManager assetManager;
       EngineContext* engineContext = nullptr;
 
     EngineServices() = default;
