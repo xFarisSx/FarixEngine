@@ -175,8 +175,8 @@ void Game::onStart() {
 
   // setupScene3D(*sceneManager.currentGameWorld());
   // setupScene2D(*sceneManager.currentGameWorld());
-  auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
-  setupUI(*sceneManager.currentGameWorld(), font);
+  // auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
+  // setupUI(*sceneManager.currentGameWorld(), font);
 
   sceneManager.currentGameWorld()->addSystem(std::make_shared<BlinkSystem>());
   sceneManager.currentGameWorld()->addSystem(std::make_shared<ScoreSystem>());
