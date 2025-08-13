@@ -57,36 +57,19 @@ void Serializer::saveScene(Scene *scene, const std::string &filepath) {
   sceneJson["assets"]["meshes"] = json::array();
   am.forEachAsset<Mesh>(
       [&](const std::string &uuid, std::shared_ptr<Mesh> mesh) {
-        json meshJson;
-        meshJson["uuid"] = uuid;
-        meshJson["name"] = am.findNameById(uuid).value_or("");
-        meshJson["path"] = mesh->path;
-        meshJson["type"] = mesh->type;
-        meshJson["size"] = mesh->size;
-        meshJson["sphereData"] = mesh->sphereData;
-
-        sceneJson["assets"]["meshes"].push_back(meshJson);
+        sceneJson["assets"]["meshes"].push_back(serializeAsset<Mesh>(mesh, am));
       });
 
   sceneJson["assets"]["textures"] = json::array();
   am.forEachAsset<Texture>(
       [&](const std::string &uuid, std::shared_ptr<Texture> tex) {
-        json texJson;
-        texJson["uuid"] = uuid;
-        texJson["name"] = am.findNameById(uuid).value_or("");
-        texJson["path"] = tex->path;
-        sceneJson["assets"]["textures"].push_back(texJson);
+        sceneJson["assets"]["textures"].push_back(serializeAsset<Texture>(tex, am));
       });
 
   sceneJson["assets"]["fonts"] = json::array();
   am.forEachAsset<Font>(
       [&](const std::string &uuid, std::shared_ptr<Font> font) {
-        json fontJson;
-        fontJson["uuid"] = uuid;
-        fontJson["name"] = am.findNameById(uuid).value_or("");
-        fontJson["path"] = font->path;
-        fontJson["ptsize"] = font->ptsize;
-        sceneJson["assets"]["fonts"].push_back(fontJson);
+        sceneJson["assets"]["fonts"].push_back(serializeAsset<Font>(font,am));
       });
 
   std::ofstream out(filepath);
@@ -170,50 +153,205 @@ void Serializer::loadScene(Scene *scene, const std::string &filepath) {
 
   if (jsonData.contains("assets") && jsonData["assets"].contains("meshes")) {
     for (auto &meshJson : jsonData["assets"]["meshes"]) {
-      std::string uuid = meshJson["uuid"];
-      std::string name = meshJson.value("name", "");
-      std::string path = meshJson.value("path", "");
-      std::string type = meshJson.value("type", "");
-      Vec3 size = meshJson.value("size", Vec3(1.f));
-      Vec3 sphereData = meshJson.value("sphereData", Vec3{1.0, 16.0, 32.0});
-
-      std::shared_ptr<Mesh> mesh;
-      if (type == "Obj")
-        mesh = Mesh::loadFromObj(path, uuid);
-      else if (type == "Box")
-        mesh = Mesh::createBox(size[0], size[1], size[2], uuid);
-      else if (type == "Sphere")
-        mesh = Mesh::createSphere(sphereData[0], sphereData[1], sphereData[2],
-                                  uuid);
-      else if (type == "Sprite")
-        mesh = Mesh::createQuad(size[0], uuid);
-
-      am.add(mesh, name);
+      deserializeAsset<Mesh>(meshJson, am);
     }
   }
 
   if (jsonData.contains("assets") && jsonData["assets"].contains("textures")) {
     for (auto &texJson : jsonData["assets"]["textures"]) {
-      std::string uuid = texJson["uuid"];
-      std::string name = texJson.value("name", "");
-      std::string path = texJson.value("path", "");
-
-      auto tex = Texture::loadFromBmp(path, uuid);
-      am.add(tex, name);
+      deserializeAsset<Texture>(texJson, am);
     }
   }
 
   if (jsonData.contains("assets") && jsonData["assets"].contains("fonts")) {
     for (auto &fontJson : jsonData["assets"]["fonts"]) {
-      std::string uuid = fontJson["uuid"];
-      std::string name = fontJson.value("name", "");
-      std::string path = fontJson.value("path", "");
-      int ptsize = fontJson.value("ptsize", 24);
-
-      auto font = Font::loadFont(path, ptsize, uuid);
-      am.add(font, name);
+      deserializeAsset<Font>(fontJson, am);
     }
   }
+}
+
+void serializeEntityRecursive(World &world, Entity e, json &out,
+                              std::vector<AssetID> &assetIds) {
+  out["id"] = static_cast<uint32_t>(e);
+  json componentsJson;
+
+  for (const auto &[componentName, serializer] : EngineServices::get()
+                                                     .getEngineRegistry()
+                                                     .getSerializerRegistry()
+                                                     .getAll()) {
+    if (serializer.has(world, e)) {
+      json serialized = serializer.to_json(world, e);
+
+      componentsJson[componentName] = serialized;
+      if (serialized.contains("uuid")) {
+        // assetIds.push_back(serialized["uuid"].get<UUID>());
+      } else if (serialized.contains("mesh")) {
+        assetIds.push_back(serialized["mesh"].get<UUID>());
+      } else if (serialized.contains("texture")) {
+        assetIds.push_back(serialized["texture"].get<UUID>());
+      } else if (serialized.contains("font")) {
+        assetIds.push_back(serialized["font"].get<UUID>());
+      }
+    }
+  }
+
+  out["components"] = componentsJson;
+
+  if (world.hasComponent<Metadata>(e)) {
+    const auto &meta = world.getComponent<Metadata>(e);
+    if (!meta.prefab.empty()) {
+      out["prefab"] = meta.prefab;
+    }
+  }
+
+  if (world.hasComponent<ChildrenComponent>(e)) {
+    const auto &children = world.getComponent<ChildrenComponent>(e).children;
+    out["children"] = json::array();
+    for (Entity child : children) {
+      json childJson;
+      serializeEntityRecursive(world, child, childJson, assetIds);
+      out["children"].push_back(childJson);
+    }
+  }
+}
+
+void Serializer::savePrefab(GameObject &obj, const std::string &path) {
+  World &world = *obj.getGameWorld()->getInternalWorld();
+  Entity root = obj.getEntity();
+  json rootJson;
+  std::vector<AssetID> assetIds;
+  auto &am = EngineServices::get().getAssetManager();
+  serializeEntityRecursive(world, root, rootJson, assetIds);
+
+  rootJson["assets"] = json::object();
+  rootJson["assets"]["meshes"] = json::array();
+  rootJson["assets"]["textures"] = json::array();
+  rootJson["assets"]["fonts"] = json::array();
+  json &assetsJson = rootJson["assets"];
+  json &meshesJson = assetsJson["meshes"];
+  json &texturesJson = assetsJson["textures"];
+  json &fontsJson = assetsJson["fonts"];
+  for (AssetID uuid : assetIds) {
+
+    auto asset = am.getRaw(uuid);
+
+    if (auto mesh = std::dynamic_pointer_cast<Mesh>(asset)) {
+      meshesJson.push_back(serializeAsset<Mesh>(mesh, am));
+    } else if (auto tex = std::dynamic_pointer_cast<Texture>(asset)) {
+      texturesJson.push_back(serializeAsset<Texture>(tex, am));
+    } else if (auto font = std::dynamic_pointer_cast<Font>(asset)) {
+      fontsJson.push_back(serializeAsset<Font>(font, am));
+    }
+  }
+
+  std::ofstream out(path);
+  if (!out.is_open()) {
+    std::cerr << "Failed to save prefab to " << path << "\n";
+    return;
+  }
+
+  out << rootJson.dump(2);
+  out.close();
+}
+
+Entity deserializeEntityRecursive(GameWorld &gworld, World &world,
+                                  const json &entityJson) {
+  Entity e = world.createEntity();
+  gworld.registerExistingEntity(e);
+  if (entityJson.contains("components")) {
+    const auto &componentsJson = entityJson["components"];
+    for (const auto &[componentName, componentData] : componentsJson.items()) {
+      const auto &deserializer = EngineServices::get()
+                                     .getEngineRegistry()
+                                     .getSerializerRegistry()
+                                     .getSerializer(componentName);
+      deserializer.from_json(world, e, componentData);
+    }
+  }
+
+  if (entityJson.contains("components") &&
+      entityJson["components"].contains("Metadata")) {
+    auto &meta = world.addComponent<Metadata>(e);
+    const auto &metaJson = entityJson["components"]["Metadata"];
+
+    meta.name = metaJson.value("name", "Entity");
+
+    if (metaJson.contains("tags") && metaJson["tags"].is_array()) {
+      meta.tags.clear();
+      for (const auto &tag : metaJson["tags"]) {
+        if (tag.is_string()) {
+          meta.tags.push_back(tag.get<std::string>());
+        }
+      }
+    } else {
+    }
+
+    if (entityJson.contains("prefab") && entityJson["prefab"].is_string()) {
+      meta.prefab = entityJson["prefab"].get<std::string>();
+    } else if (metaJson.contains("prefab") && metaJson["prefab"].is_string()) {
+      meta.prefab = metaJson["prefab"].get<std::string>();
+    }
+  }
+
+  if (entityJson.contains("children")) {
+    auto &children = world.addComponent<ChildrenComponent>(e);
+    for (const auto &childJson : entityJson["children"]) {
+      Entity child = deserializeEntityRecursive(gworld, world, childJson);
+      children.children.push_back(child);
+
+      if (!world.hasComponent<ParentComponent>(child)) {
+        auto &parent = world.addComponent<ParentComponent>(child);
+        parent.parent = e;
+      }
+    }
+  }
+
+  return e;
+}
+
+GameObject &Serializer::loadPrefab(GameWorld &gworld, const std::string &path) {
+  std::ifstream in(path);
+  json prefabJson;
+  in >> prefabJson;
+  World &world = *gworld.getInternalWorld();
+  GameObject &root = gworld.registerExistingEntity(
+      deserializeEntityRecursive(gworld, world, prefabJson));
+
+  for (auto &obj : gworld.getAllGameObjects()) {
+    if (!obj->hasComponent<ScriptComponent>())
+      continue;
+    auto &scriptComp = obj->getComponent<ScriptComponent>();
+
+    for (auto &script : scriptComp.scripts) {
+      if (script) {
+        script->onCreate(obj, gworld.getOwningScene());
+      }
+    }
+  }
+
+  auto &am = EngineServices::get().getAssetManager();
+
+  if (prefabJson.contains("assets") &&
+      prefabJson["assets"].contains("meshes")) {
+    for (auto &meshJson : prefabJson["assets"]["meshes"]) {
+      deserializeAsset<Mesh>(meshJson,am);
+    }
+  }
+
+  if (prefabJson.contains("assets") &&
+      prefabJson["assets"].contains("textures")) {
+    for (auto &texJson : prefabJson["assets"]["textures"]) {
+      deserializeAsset<Texture>(texJson, am);
+    }
+  }
+
+  if (prefabJson.contains("assets") && prefabJson["assets"].contains("fonts")) {
+    for (auto &fontJson : prefabJson["assets"]["fonts"]) {
+      deserializeAsset<Font>(fontJson, am);
+    }
+  }
+
+  return root;
 }
 
 } // namespace farixEngine

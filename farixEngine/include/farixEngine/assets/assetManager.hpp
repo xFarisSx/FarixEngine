@@ -11,8 +11,8 @@ namespace farixEngine {
 
 class Asset {
 public:
-  std::string id="";
-  std::string name="";
+  std::string id = "";
+  std::string name = "";
 
   virtual ~Asset() = default;
 };
@@ -28,14 +28,13 @@ public:
   AssetID add(std::shared_ptr<T> asset, const std::string &name = "") {
     UUID id = asset->id;
     getAssetMap<T>()[id] = asset;
+    allAssetsRaw[id] = asset;
     if (!name.empty()) {
       nameToUUIDMap[name] = id;
       uuidToNameMap[id] = name;
     }
     return id;
   }
- 
-
 
   template <typename T, typename... Args>
   AssetID load(const std::string &name, Args &&...args) {
@@ -72,9 +71,32 @@ public:
 
     return nullptr;
   }
+  std::shared_ptr<Asset> getRaw(const UUID &idOrName) {
+    UUID id = idOrName;
+    auto itName = nameToUUIDMap.find(idOrName);
+    if (itName != nameToUUIDMap.end()) {
+      id = itName->second;
+    }
+    auto it = allAssetsRaw.find(id);
+    if (it != allAssetsRaw.end())
+      return it->second;
+    return nullptr;
+  }
 
   template <typename T> bool has(const std::string &idOrName) const {
     const auto &assets = getAssetMap<T>();
+    if (assets.find(idOrName) != assets.end()) {
+      return true;
+    }
+    if (nameToUUIDMap.find(idOrName) != nameToUUIDMap.end()) {
+      auto id = nameToUUIDMap.at(idOrName);
+      return assets.find(id) != assets.end();
+    }
+    return false;
+  }
+
+  bool has(const std::string &idOrName) const {
+    const auto &assets = allAssetsRaw;
     if (assets.find(idOrName) != assets.end()) {
       return true;
     }
@@ -103,6 +125,11 @@ public:
       func(uuid, asset);
     }
   }
+  template <typename Func> void forEachRawAsset(Func func) {
+    for (auto &[uuid, asset] : allAssetsRaw) {
+      func(uuid, asset);
+    }
+  }
 
 private:
   template <typename T> AssetMap<T> &getAssetMap() {
@@ -116,6 +143,7 @@ private:
 
   std::unordered_map<std::string, std::string> nameToUUIDMap;
   std::unordered_map<std::string, std::string> uuidToNameMap;
+  std::unordered_map<AssetID, std::shared_ptr<Asset>> allAssetsRaw;
 };
 
 } // namespace farixEngine

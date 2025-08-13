@@ -1,4 +1,15 @@
 {
+  "assets": {
+    "fonts": [],
+    "meshes": [],
+    "textures": [
+      {
+        "name": "Textcat",
+        "path": "assets/textures/textcat.bmp",
+        "uuid": "85e552f1-5008-434e-8e78-771c9d1bbfa8"
+      }
+    ]
+  },
   "components": {
     "BlinkComponent": {
       "interval": 0.5,
@@ -33,43 +44,33 @@
         ]
       ]
     },
-    "MaterialComponent": {
-      "ambient": 0.10000000149011612,
-      "baseColor": {
-        "x": 1.0,
-        "y": 1.0,
-        "z": 1.0
-      },
-      "doubleSided": true,
-      "shininess": 32.0,
-      "specular": 0.5,
-      "texture": "assets/textures/textcat.bmp",
-      "useTexture": true
-    },
-    "MeshComponent": {
-      "mesh": "",
-      "size": {
-        "x": 0.4000000059604645,
-        "y": 0.4000000059604645,
-        "z": 0.0
-      },
-      "sphereData": {
-        "x": 1.0,
-        "y": 16.0,
-        "z": 32.0
-      },
-      "type": "Sprite"
-    },
     "Metadata": {
       "name": "Ball",
       "prefab": "",
       "tags": [],
-      "uuid": "de7bb5aa-e2a5-4b58-8ca5-77bc3ccb9861"
+      "uuid": "9e8f45e9-3468-4a1d-a0d5-e5479a2b0111"
     },
     "ScriptComponent": {
       "scripts": [
         "BallScript"
       ]
+    },
+    "Sprite2DComponent": {
+      "color": {
+        "w": 0.0,
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "flipX": false,
+      "flipY": false,
+      "size": {
+        "x": 0.4000000059604645,
+        "y": 0.4000000059604645,
+        "z": 0.0
+      },
+      "texture": "85e552f1-5008-434e-8e78-771c9d1bbfa8",
+      "useTexture": true
     },
     "TransformComponent": {
       "position": {
