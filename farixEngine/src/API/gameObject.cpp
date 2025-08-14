@@ -59,6 +59,7 @@ void GameObject::setMaterial(const MaterialComponent &material) {
   if (!isValid())
     return;
 
+
   if (world()->hasComponent<MaterialComponent>(entity)) {
     world()->getComponent<MaterialComponent>(entity) = material;
   } else {

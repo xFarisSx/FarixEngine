@@ -1,6 +1,7 @@
 {
   "assets": {
     "fonts": [],
+    "materials": [],
     "meshes": [],
     "textures": [
       {
@@ -48,7 +49,7 @@
       "name": "Ball",
       "prefab": "",
       "tags": [],
-      "uuid": "9e8f45e9-3468-4a1d-a0d5-e5479a2b0111"
+      "uuid": "6808a44b-a012-45a3-9383-35553de2302d"
     },
     "ScriptComponent": {
       "scripts": [
@@ -90,5 +91,5 @@
       }
     }
   },
-  "id": 1
+  "id": 5
 }

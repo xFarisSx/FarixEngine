@@ -1,6 +1,7 @@
 {
   "assets": {
     "fonts": [],
+    "materials": [],
     "meshes": [],
     "textures": [
       {
@@ -45,7 +46,7 @@
       "tags": [
         "Paddle"
       ],
-      "uuid": "59207787-4ac4-47a5-b3ca-c4da3b7b4f70"
+      "uuid": "9cec3d0e-f383-437c-946b-a3294d42fd2b"
     },
     "ScriptComponent": {
       "scripts": [
@@ -87,5 +88,5 @@
       }
     }
   },
-  "id": 2
+  "id": 6
 }

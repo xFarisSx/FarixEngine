@@ -16,12 +16,11 @@ public:
 
   virtual ~Asset() = default;
 };
-
+using UUID = std::string;
+using AssetID = std::string;
 class AssetManager {
   template <typename T>
   using AssetMap = std::unordered_map<std::string, std::shared_ptr<T>>;
-  using UUID = std::string;
-  using AssetID = std::string;
 
 public:
   template <typename T>

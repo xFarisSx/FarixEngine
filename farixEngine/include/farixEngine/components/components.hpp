@@ -2,6 +2,7 @@
 #include "farixEngine/assets/font.hpp"
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/assets/texture.hpp"
+#include "farixEngine/assets/material.hpp"
 
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec3.hpp"
@@ -83,19 +84,28 @@ struct BillboardComponent {
   };
   BillboardType type = BillboardType::BillboardY;
 };
-struct MaterialComponent {
-  Vec4 baseColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
-  float ambient = 0.1f;
-  float specular = 0.5f;
-  float shininess = 32.0f;
-  float diffuse = 1.0f;
-  AssetID texture;
+struct MaterialOverrides {
+  std::optional<Vec4> baseColor;
+  std::optional<float> ambient;
+  std::optional<float> specular;
+  std::optional<float> shininess;
+  std::optional<float> diffuse;
+  std::optional<AssetID> texture;
 
-  bool useTexture = false;
-  bool doubleSided = true;
+  std::optional<bool> useTexture;
+  std::optional<bool> doubleSided;
 };
 
-struct ScriptComponent { 
+struct MaterialComponent {
+  UUID material;
+  bool overrideParams = true;
+  MaterialOverrides overrides;
+
+
+  MaterialComponent(UUID id = "") ;
+};
+
+struct ScriptComponent {
   std::vector<ScriptPtr> scripts;
 };
 
@@ -179,7 +189,7 @@ struct UIComponent {
     BottomCenter,
     LeftCenter,
     RightCenter
-  }; 
+  };
   Anchor anchor = Anchor::TopLeft;
   bool interactable = false;
   bool blockRaycast = true;

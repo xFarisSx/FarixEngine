@@ -19,7 +19,7 @@
 #include "farixEngine/utils/uuid.hpp"
 
 namespace farixEngine {
-using Entity = uint32_t; 
+using Entity = uint32_t;  
 class Engine {
 public:
   Engine();

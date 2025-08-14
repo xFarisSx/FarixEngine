@@ -52,6 +52,45 @@ inline void from_json(const nlohmann::json &j, Mat4 &m) {
   }
 }
 
+inline void to_json(nlohmann::json &j, const MaterialOverrides &v) {
+  j = nlohmann::json::object();
+  if (v.baseColor)
+    j["baseColor"] = *v.baseColor;
+  if (v.ambient)
+    j["ambient"] = *v.ambient;
+  if (v.specular)
+    j["specular"] = *v.specular;
+  if (v.shininess)
+    j["shininess"] = *v.shininess;
+  if (v.diffuse)
+    j["diffuse"] = *v.diffuse;
+  if (v.texture)
+    j["texture"] = *v.texture;
+  if (v.useTexture)
+    j["useTexture"] = *v.useTexture;
+  if (v.doubleSided)
+    j["doubleSided"] = *v.doubleSided;
+}
+
+inline void from_json(const nlohmann::json &j, MaterialOverrides &v) {
+  if (j.contains("baseColor"))
+    v.baseColor = j.at("baseColor").get<Vec4>();
+  if (j.contains("ambient"))
+    v.ambient = j.at("ambient").get<float>();
+  if (j.contains("specular"))
+    v.specular = j.at("specular").get<float>();
+  if (j.contains("shininess"))
+    v.shininess = j.at("shininess").get<float>();
+  if (j.contains("doubleSided"))
+    v.doubleSided = j.at("doubleSided").get<bool>();
+  if (j.contains("diffuse"))
+    v.diffuse = j.at("diffuse").get<float>();
+  if (j.contains("texture"))
+    v.texture = j.at("texture").get<AssetID>();
+  if (j.contains("useTexture"))
+    v.useTexture = j.at("useTexture").get<bool>();
+}
+
 class World;
 
 class Serializer {
@@ -82,6 +121,20 @@ json Serializer::serializeAsset(std::shared_ptr<T> asset,
     j["uuid"] = asset->id;
     j["name"] = assetManager.findNameById(asset->id).value_or("");
     j["path"] = asset->path;
+  } else if constexpr (std::is_same_v<T, Material>) {
+    j["uuid"] = asset->id;
+    j["name"] = assetManager.findNameById(asset->id).value_or("");
+
+    j["baseColor"] = asset->baseColor;
+    j["ambient"] = asset->ambient;
+    j["specular"] = asset->specular;
+    j["shininess"] = asset->shininess;
+    j["diffuse"] = asset->diffuse;
+    j["texture"] = asset->texture;
+
+    j["useTexture"] = asset->useTexture;
+    j["doubleSided"] = asset->doubleSided;
+
   } else if constexpr (std::is_same_v<T, Font>) {
     j["uuid"] = asset->id;
     j["name"] = assetManager.findNameById(asset->id).value_or("");
@@ -127,6 +180,21 @@ std::shared_ptr<T> Serializer::deserializeAsset(const json &j,
 
     std::string path = j.value("path", "");
     asset = Texture::loadFromBmp(path, uuid);
+    am.add(asset, name);
+
+  } else if constexpr (std::is_same_v<T, Material>) {
+
+    asset = std::make_shared<Material>(uuid);
+    asset->baseColor = j["baseColor"];
+    asset->ambient = j["ambient"];
+    asset->specular = j["specular"];
+    asset->shininess = j["shininess"];
+    asset->diffuse = j["diffuse"];
+    asset->texture = j["texture"];
+
+    asset->useTexture = j["useTexture"];
+    asset->doubleSided = j["doubleSided"];
+
     am.add(asset, name);
 
   } else if constexpr (std::is_same_v<T, Font>) {

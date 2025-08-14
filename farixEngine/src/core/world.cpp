@@ -53,6 +53,14 @@ void World::updateSystems(float dt) { systemManager.updateAll(*this, dt); }
 void World::startSystems() { systemManager.startAll(*this); }
 
 void World::addSystem(std::shared_ptr<System> system) {
+  std::type_index newType(typeid(*system));
+
+  for (auto &s : getSystems()) {
+    if (std::type_index(typeid(*s)) == newType) {
+
+      return;
+    }
+  }
   systemManager.addSystem(std::move(system));
 }
 void World::clearSystems() { systemManager.clearSystems(); }
@@ -204,7 +212,7 @@ void World::registerDefaults() {
   registerComponent<RectComponent>();
   registerComponent<UIImageComponent>();
   registerComponent<UITextComponent>();
-
+  registerComponent<UIButtonComponent>();
 }
 
 } // namespace farixEngine

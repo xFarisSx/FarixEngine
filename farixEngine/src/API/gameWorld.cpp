@@ -1,7 +1,9 @@
 
 
 #include "farixEngine/API/gameWorld.hpp"
+#include "farixEngine/assets/material.hpp"
 #include "farixEngine/core/engineContext.hpp"
+#include "farixEngine/core/engineServices.hpp"
 
 namespace farixEngine {
 
@@ -15,23 +17,24 @@ GameObject &GameWorld::createGameObject() {
   return obj;
 }
 
-GameObject &GameWorld::createSprite3D(AssetID texture,
-                                      Vec3 size) {
+GameObject &GameWorld::createSprite3D(AssetID texture, Vec3 size) {
   GameObject &obj = createGameObject();
 
   obj.setMesh(Mesh::createQuad(size));
 
   MaterialComponent mat;
-  mat.useTexture = true;
-  mat.texture = texture;
+  auto &am = EngineServices::get().getAssetManager();
+  auto material = am.get<Material>(mat.material);
+
+  material->texture = texture;
+  
   obj.setMaterial(mat);
 
   return obj;
-} 
+}
 
-GameObject &GameWorld::createSprite2D(AssetID texture,
-                                      Vec3 size) {
-  GameObject &obj = createGameObject(); 
+GameObject &GameWorld::createSprite2D(AssetID texture, Vec3 size) {
+  GameObject &obj = createGameObject();
   Sprite2DComponent sprite;
 
   sprite.useTexture = true;

@@ -118,6 +118,93 @@ Vec3 RenderSystem::calculateAnchoredPosition(const RectComponent &rect,
 
   return offset + pos;
 }
+
+renderer::MeshData RenderSystem::loadMeshFromAsset(AssetID mesh) {
+  auto &am = EngineServices::get().getAssetManager();
+  renderer::MeshData meshData;
+  auto meshAsset = am.get<Mesh>(mesh);
+
+  meshData.vertices.reserve(meshAsset->vertices.size());
+
+  for (const auto &v : meshAsset->vertices) {
+    renderer::VertexData vd;
+    vd.position = v.position;
+    vd.normal = v.normal;
+    vd.uv = v.uv;
+    meshData.vertices.push_back(vd);
+  }
+
+  for (auto &tri : meshAsset->indices) {
+    meshData.indices.push_back(tri);
+  }
+  return meshData;
+}
+
+renderer::MeshData &RenderSystem::createOrGetMesh(AssetID id) {
+  auto it = meshCache.find(id);
+  if (it != meshCache.end())
+    return it->second;
+
+  auto [newIt, inserted] = meshCache.emplace(id, renderer::MeshData{});
+  auto &meshData = newIt->second;
+
+  auto &am = EngineServices::get().getAssetManager();
+  auto meshAsset = am.get<Mesh>(id);
+
+  meshData.vertices.reserve(meshAsset->vertices.size());
+  meshData.indices.reserve(meshAsset->indices.size());
+
+  for (const auto &v : meshAsset->vertices) {
+    meshData.vertices.push_back({v.position, v.normal, v.uv});
+  }
+
+  meshData.indices.insert(meshData.indices.end(), meshAsset->indices.begin(),
+                          meshAsset->indices.end());
+
+  return meshData;
+}
+renderer::MaterialData &RenderSystem::createOrGetMaterial(AssetID id) {
+  auto it = materialCache.find(id);
+  if (it != materialCache.end())
+    return it->second;
+
+  auto [newIt, inserted] = materialCache.emplace(id, renderer::MaterialData{});
+  auto &matData = newIt->second;
+
+  auto &am = EngineServices::get().getAssetManager();
+
+  auto matAsset = am.get<Material>(id);
+
+  auto texAsset = am.get<Texture>(matAsset->texture);
+
+  matData.baseColor = matAsset->baseColor;
+  matData.ambient = matAsset->ambient;
+  matData.diffuse = matAsset->diffuse;
+  matData.specular = matAsset->specular;
+  matData.shininess = matAsset->shininess;
+  matData.useTexture = matAsset->useTexture;
+  matData.texture = texAsset.get();
+  matData.doubleSided = matAsset->doubleSided;
+
+  return matData;
+}
+
+void RenderSystem::applyMaterialOverrides(renderer::MaterialData &matData,
+                                          MaterialOverrides &overrides) {
+
+  auto &am = EngineServices::get().getAssetManager();
+
+  matData.baseColor = overrides.baseColor.value_or(matData.baseColor);
+  matData.ambient = overrides.ambient.value_or(matData.ambient);
+  matData.specular = overrides.specular.value_or(matData.specular);
+  matData.shininess = overrides.shininess.value_or(matData.shininess);
+  matData.diffuse = overrides.diffuse.value_or(matData.diffuse);
+  matData.useTexture = overrides.useTexture.value_or(matData.useTexture);
+  matData.doubleSided = overrides.doubleSided.value_or(matData.doubleSided);
+
+  if (overrides.texture)
+    matData.texture = am.get<Texture>(*overrides.texture).get();
+}
 void RenderSystem::onUpdate(World &world, float dt) {
   renderer::Renderer *renderer = EngineServices::get().getContext()->renderer;
 
@@ -149,34 +236,14 @@ void RenderSystem::onUpdate(World &world, float dt) {
 
       if (meshC.mesh.empty())
         continue;
-      auto meshAsset = am.get<Mesh>(meshC.mesh);
+      if (matC.material.empty())
+        continue;
 
-      renderer::MeshData meshData;
-      meshData.vertices.reserve(meshAsset->vertices.size());
+      renderer::MeshData &meshData = createOrGetMesh(meshC.mesh);
+      renderer::MaterialData matData = createOrGetMaterial(matC.material);
 
-      for (const auto &v : meshAsset->vertices) {
-        renderer::VertexData vd;
-        vd.position = v.position;
-        vd.normal = v.normal;
-        vd.uv = v.uv;
-        meshData.vertices.push_back(vd);
-      }
-
-      for (auto &tri : meshAsset->indices) {
-        meshData.indices.push_back(tri);
-      }
-
-      auto texAsset = am.get<Texture>(matC.texture);
-
-      renderer::MaterialData matData;
-      matData.baseColor = matC.baseColor;
-      matData.ambient = matC.ambient;
-      matData.diffuse = matC.diffuse;
-      matData.specular = matC.specular;
-      matData.shininess = matC.shininess;
-      matData.useTexture = matC.useTexture;
-      matData.texture = texAsset.get();
-      matData.doubleSided = matC.doubleSided;
+      if (matC.overrideParams)
+        applyMaterialOverrides(matData, matC.overrides);
 
       renderer->renderMesh(meshData, model, matData);
     }

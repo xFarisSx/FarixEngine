@@ -144,9 +144,9 @@ public:
         if (world.hasComponent<MaterialComponent>(entity)) {
           auto &mat = world.getComponent<MaterialComponent>(entity);
           if (blink.visible) {
-            mat.baseColor = Vec4(1, 1, 1, 1);
+            mat.overrides.baseColor = Vec4(1, 1, 1, 1);
           } else {
-            mat.baseColor = Vec4(1, 0, 0, 0.6f);
+            mat.overrides.baseColor = Vec4(1, 0, 0, 0.6f);
           }
         }
       }

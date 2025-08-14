@@ -4,6 +4,7 @@
 #include <memory>
 
 void setupScene3D(GameWorld &gameWorld) {
+  auto &am = EngineServices::get().getAssetManager();
   // Ball
   auto &ball = gameWorld.createGameObject();
   ball.setName("Ball");
@@ -13,6 +14,11 @@ void setupScene3D(GameWorld &gameWorld) {
   ball.addScript(std::make_shared<BallScript>());
   ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
   // auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
+  auto &ball2 = gameWorld.createGameObject();
+  ball2.setName("Ball2");
+  ball2.setMesh(Mesh::createSphere(0.2f, 8, 16));
+  ball2.setMaterial(
+      MaterialComponent{am.add<Material>(std::make_shared<Material>())});
 
   // Player Paddle
   auto &paddle1 = gameWorld.createGameObject();
@@ -168,15 +174,15 @@ void Game::onStart() {
 
   SceneManager &sceneManager = getSceneManager();
   //
-  // auto &scene = sceneManager.createScene("pong");
-  auto &scene = sceneManager.loadSceneFromFile("scenes/pong.json");
+  auto &scene = sceneManager.createScene("pong");
+  // auto &scene = sceneManager.loadSceneFromFile("scenes/pong.json");
   scene.gameWorld().registerComponent<BlinkComponent>();
   scene.gameWorld().registerComponent<ScoreComponent>();
 
-  // setupScene3D(*sceneManager.currentGameWorld());
+  setupScene3D(*sceneManager.currentGameWorld());
   // setupScene2D(*sceneManager.currentGameWorld());
-  // auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
-  // setupUI(*sceneManager.currentGameWorld(), font);
+  auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
+  setupUI(*sceneManager.currentGameWorld(), font);
 
   sceneManager.currentGameWorld()->addSystem(std::make_shared<BlinkSystem>());
   sceneManager.currentGameWorld()->addSystem(std::make_shared<ScoreSystem>());

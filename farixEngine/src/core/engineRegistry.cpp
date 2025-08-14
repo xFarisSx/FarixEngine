@@ -159,25 +159,16 @@ void EngineRegistry::registerDefaults() {
       [](World &world, Entity e) -> json {
         const auto &comp = world.getComponent<MaterialComponent>(e);
         auto &am = EngineServices::get().getAssetManager();
-        auto texP = am.get<Texture>(comp.texture);
-        return {
-            {"baseColor", comp.baseColor},    {"ambient", comp.ambient},
-            {"specular", comp.specular},      {"shininess", comp.shininess},
-            {"useTexture", comp.useTexture},  {"texture", texP ? texP->id : ""},
-            {"doubleSided", comp.doubleSided}};
+        auto matP = am.get<Material>(comp.material);
+        auto texP = am.get<Texture>(matP->texture);
+        return {{"material", comp.material},
+                {"materialOverrides", comp.overrides},
+                {"overrideParams", comp.overrideParams}};
       },
       [](World &world, Entity e, const json &j) {
-        MaterialComponent comp;
-        comp.baseColor = j.at("baseColor").get<Vec4>();
-        comp.ambient = j.at("ambient").get<float>();
-        comp.specular = j.at("specular").get<float>();
-        comp.shininess = j.at("shininess").get<float>();
-        comp.useTexture = j.at("useTexture").get<bool>();
-        comp.doubleSided = j.at("doubleSided").get<bool>();
-        std::string path = j.at("texture").get<std::string>();
-        std::string uuid = j.at("texture").get<std::string>();
-
-        comp.texture = uuid;
+        MaterialComponent comp{j.value("material", "")};
+        comp.overrideParams = j.value("overrideParams", false);
+        comp.overrides = j.value("materialOverrides", MaterialOverrides{});
 
         world.registerComponent<MaterialComponent>();
 
@@ -458,6 +449,96 @@ void EngineRegistry::registerDefaults() {
         world.registerComponent<TimersComponent>();
         world.addComponent<TimersComponent>(e, comp);
       });
-}
 
+  rg.registerSerializer<UIComponent>(
+      "UIComponent",
+      [](World &world, Entity e) -> json {
+        const auto &comp = world.getComponent<UIComponent>(e);
+        return {
+            {"anchor", comp.anchor},
+            {"interactable", comp.interactable},
+            {"blockRaycast", comp.blockRaycast},
+        };
+      },
+      [](World &world, Entity e, const json &j) {
+        UIComponent comp;
+        UIComponent::Anchor anchor = j.at("anchor").get<UIComponent::Anchor>();
+        comp.anchor = anchor;
+        comp.interactable = j.at("interactable").get<bool>();
+        comp.blockRaycast = j.at("blockRaycast").get<bool>();
+
+        world.registerComponent<UIComponent>();
+        world.addComponent<UIComponent>(e, comp);
+      });
+
+  rg.registerSerializer<RectComponent>(
+      "RectComponent",
+      [](World &world, Entity e) -> json {
+        const auto &comp = world.getComponent<RectComponent>(e);
+        return {{"position", comp.position},
+                {"rotation", comp.rotation},
+                {"size", comp.size}};
+      },
+      [](World &world, Entity e, const json &j) {
+        RectComponent comp;
+        comp.position = j.at("position").get<Vec3>();
+        comp.rotation = j.at("rotation").get<float>();
+        comp.size = j.at("size").get<Vec3>();
+        world.registerComponent<RectComponent>();
+
+        world.addComponent<RectComponent>(e, comp);
+      });
+
+  rg.registerSerializer<UIImageComponent>(
+      "UIImageComponent",
+      [](World &world, Entity e) -> json {
+        const auto &comp = world.getComponent<UIImageComponent>(e);
+        return {{"texture", comp.texture},
+                {"color", comp.color},
+                {"useTexture", comp.useTexture}};
+      },
+      [](World &world, Entity e, const json &j) {
+        UIImageComponent comp;
+        comp.texture = j.at("texture").get<UUID>();
+        comp.color = j.at("color").get<Vec4>();
+        comp.useTexture = j.at("useTexture").get<bool>();
+        world.registerComponent<UIImageComponent>();
+
+        world.addComponent<UIImageComponent>(e, comp);
+      });
+
+  rg.registerSerializer<UITextComponent>(
+      "UITextComponent",
+      [](World &world, Entity e) -> json {
+        const auto &comp = world.getComponent<UITextComponent>(e);
+        return {{"text", comp.text},
+                {"color", comp.color},
+                {"fontSize", comp.fontSize},
+                {"font", comp.font}};
+      },
+      [](World &world, Entity e, const json &j) {
+        UITextComponent comp;
+        comp.text = j.at("text").get<std::string>();
+        comp.color = j.at("color").get<Vec4>();
+        comp.fontSize = j.at("fontSize").get<float>();
+        comp.font = j.at("font").get<AssetID>();
+        world.registerComponent<UITextComponent>();
+
+        world.addComponent<UITextComponent>(e, comp);
+      });
+
+  rg.registerSerializer<UIButtonComponent>(
+      "UIButtonComponent",
+      [](World &world, Entity e) -> json {
+        const auto &comp = world.getComponent<UIButtonComponent>(e);
+        return {};
+      },
+      [](World &world, Entity e, const json &j) {
+        UIButtonComponent comp;
+
+        world.registerComponent<UIButtonComponent>();
+
+        world.addComponent<UIButtonComponent>(e, comp);
+      });
+}
 } // namespace farixEngine
