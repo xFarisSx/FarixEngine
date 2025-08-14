@@ -14,11 +14,6 @@ void setupScene3D(GameWorld &gameWorld) {
   ball.addScript(std::make_shared<BallScript>());
   ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
   // auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
-  auto &ball2 = gameWorld.createGameObject();
-  ball2.setName("Ball2");
-  ball2.setMesh(Mesh::createSphere(0.2f, 8, 16));
-  ball2.setMaterial(
-      MaterialComponent{am.add<Material>(std::make_shared<Material>())});
 
   // Player Paddle
   auto &paddle1 = gameWorld.createGameObject();
@@ -54,8 +49,8 @@ void setupScene3D(GameWorld &gameWorld) {
   gameWorld.setCamera(camera);
 
   //
-  // Prefab::save(paddle1, "prefabs/paddle.json");
-  // Prefab::save(ball, "prefabs/ball.json");
+  Prefab::save(paddle1, "prefabs/paddle.json");
+  Prefab::save(ball, "prefabs/ball.json");
 }
 
 void setupScene2D(GameWorld &gameWorld) {
@@ -141,14 +136,13 @@ void setupUI(GameWorld &gameWorld, AssetID font) {
   panelUI2.addComponent<UIComponent>();
 }
 
-void Game::onStart() {
-  auto &engine = EngineServices::get().getEngineRegistry();
-  auto &am = EngineServices::get().getAssetManager();
+void registerEngineStuff(EngineRegistry &engine) {
   engine.getScriptRegistry().registerScript<BallScript>("BallScript");
   engine.getScriptRegistry().registerScript<PlayerPaddleScript>(
       "PlayerPaddleScript");
   engine.getScriptRegistry().registerScript<OpponentPaddleScript>(
       "OpponentPaddleScript");
+
   engine.getSystemRegistry().registerSystem<BlinkSystem>("BlinkSystem");
   engine.getSystemRegistry().registerSystem<ScoreSystem>("ScoreSystem");
 
@@ -171,21 +165,33 @@ void Game::onStart() {
 
         world.addComponent(e, blink);
       });
+}
+
+void registerAndAddWorldSpecificStuff(GameWorld &gameWorld) {
+  gameWorld.registerComponent<BlinkComponent>();
+  gameWorld.registerComponent<ScoreComponent>();
+  gameWorld.addSystem(std::make_shared<BlinkSystem>());
+  gameWorld.addSystem(std::make_shared<ScoreSystem>());
+}
+
+void Game::onStart() {
+  auto &engine = EngineServices::get().getEngineRegistry();
+  auto &am = EngineServices::get().getAssetManager();
+  registerEngineStuff(engine);
 
   SceneManager &sceneManager = getSceneManager();
-  //
+  
   auto &scene = sceneManager.createScene("pong");
   // auto &scene = sceneManager.loadSceneFromFile("scenes/pong.json");
-  scene.gameWorld().registerComponent<BlinkComponent>();
-  scene.gameWorld().registerComponent<ScoreComponent>();
+
+  registerAndAddWorldSpecificStuff(scene.gameWorld());
 
   setupScene3D(*sceneManager.currentGameWorld());
   // setupScene2D(*sceneManager.currentGameWorld());
   auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
   setupUI(*sceneManager.currentGameWorld(), font);
 
-  sceneManager.currentGameWorld()->addSystem(std::make_shared<BlinkSystem>());
-  sceneManager.currentGameWorld()->addSystem(std::make_shared<ScoreSystem>());
+
 
   sceneManager.saveCurrentScene("scenes/");
 }

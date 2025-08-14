@@ -1,25 +1,15 @@
 {
-  "activeCamera": 5,
+  "activeCamera": 4,
   "assets": {
-    "fonts": [],
-    "materials": [
+    "fonts": [
       {
-        "ambient": 0.10000000149011612,
-        "baseColor": {
-          "w": 1.0,
-          "x": 1.0,
-          "y": 1.0,
-          "z": 1.0
-        },
-        "diffuse": 1.0,
-        "doubleSided": true,
-        "name": "",
-        "shininess": 32.0,
-        "specular": 0.5,
-        "texture": "",
-        "useTexture": false,
-        "uuid": "3ce7b34c-5bf1-4af9-94d8-e05c2ca9b2d6"
-      },
+        "name": "Default",
+        "path": "assets/fonts/font.ttf",
+        "ptsize": 32,
+        "uuid": "c4c93b61-f13e-4f24-9147-e01309369f34"
+      }
+    ],
+    "materials": [
       {
         "ambient": 0.10000000149011612,
         "baseColor": {
@@ -53,23 +43,7 @@
           "z": 32.0
         },
         "type": "Box",
-        "uuid": "71851a2e-4c53-4a0e-8149-01f605122eae"
-      },
-      {
-        "name": "",
-        "path": "",
-        "size": {
-          "x": 1.0,
-          "y": 1.0,
-          "z": 1.0
-        },
-        "sphereData": {
-          "x": 0.20000000298023224,
-          "y": 8.0,
-          "z": 16.0
-        },
-        "type": "Sphere",
-        "uuid": "a364a4cc-9f84-4abf-8eef-b28b63776085"
+        "uuid": "f0343d7a-9a11-41bd-9f69-3f3e7bd469ee"
       },
       {
         "name": "",
@@ -85,7 +59,7 @@
           "z": 32.0
         },
         "type": "Box",
-        "uuid": "458da187-06cb-489d-9114-e217ea16f4ec"
+        "uuid": "6fb1e8f8-4721-4145-b337-59778c940117"
       },
       {
         "name": "",
@@ -101,7 +75,7 @@
           "z": 16.0
         },
         "type": "Sphere",
-        "uuid": "2de95626-e4cb-4261-9da6-05e652fa190b"
+        "uuid": "159324cd-fe5f-455a-b09c-2289e4c618f8"
       }
     ],
     "textures": []
@@ -161,13 +135,13 @@
             "z": 16.0
           },
           "type": "Sphere",
-          "uuid": "2de95626-e4cb-4261-9da6-05e652fa190b"
+          "uuid": "159324cd-fe5f-455a-b09c-2289e4c618f8"
         },
         "Metadata": {
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "0d0810cd-00af-4ac9-bb65-4def69f37644"
+          "uuid": "085098c7-695c-43cc-9218-416233ee9937"
         },
         "ScriptComponent": {
           "scripts": [
@@ -225,7 +199,7 @@
           ]
         },
         "MaterialComponent": {
-          "material": "3ce7b34c-5bf1-4af9-94d8-e05c2ca9b2d6",
+          "material": "default-material",
           "materialOverrides": {},
           "overrideParams": true
         },
@@ -233,28 +207,35 @@
           "mesh": "",
           "name": null,
           "size": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
+            "x": 2.0,
+            "y": 0.20000000298023224,
+            "z": 0.5
           },
           "sphereData": {
-            "x": 0.20000000298023224,
-            "y": 8.0,
-            "z": 16.0
+            "x": 1.0,
+            "y": 16.0,
+            "z": 32.0
           },
-          "type": "Sphere",
-          "uuid": "a364a4cc-9f84-4abf-8eef-b28b63776085"
+          "type": "Box",
+          "uuid": "6fb1e8f8-4721-4145-b337-59778c940117"
         },
         "Metadata": {
-          "name": "Ball2",
+          "name": "Player",
           "prefab": "",
-          "tags": [],
-          "uuid": "f0017c05-b48a-48aa-a2ba-d8d1dbd388ca"
+          "tags": [
+            "Paddle"
+          ],
+          "uuid": "37599180-f607-4bb7-8f42-9f3cd97217fe"
+        },
+        "ScriptComponent": {
+          "scripts": [
+            "PlayerPaddleScript"
+          ]
         },
         "TransformComponent": {
           "position": {
             "x": 0.0,
-            "y": 0.0,
+            "y": 5.0,
             "z": 0.0
           },
           "rotation": {
@@ -320,91 +301,7 @@
             "z": 32.0
           },
           "type": "Box",
-          "uuid": "458da187-06cb-489d-9114-e217ea16f4ec"
-        },
-        "Metadata": {
-          "name": "Player",
-          "prefab": "",
-          "tags": [
-            "Paddle"
-          ],
-          "uuid": "c7206d9e-f08f-44b3-95f0-777ed8115317"
-        },
-        "ScriptComponent": {
-          "scripts": [
-            "PlayerPaddleScript"
-          ]
-        },
-        "TransformComponent": {
-          "position": {
-            "x": 0.0,
-            "y": 5.0,
-            "z": 0.0
-          },
-          "rotation": {
-            "x": 0.0,
-            "y": 0.0,
-            "z": 0.0
-          },
-          "scale": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          }
-        }
-      },
-      "id": 3
-    },
-    {
-      "components": {
-        "GlobalTransform": {
-          "worldMatrix": [
-            [
-              1.0,
-              0.0,
-              0.0,
-              0.0
-            ],
-            [
-              0.0,
-              1.0,
-              0.0,
-              0.0
-            ],
-            [
-              0.0,
-              0.0,
-              1.0,
-              0.0
-            ],
-            [
-              0.0,
-              0.0,
-              0.0,
-              1.0
-            ]
-          ]
-        },
-        "MaterialComponent": {
-          "material": "default-material",
-          "materialOverrides": {},
-          "overrideParams": true
-        },
-        "MeshComponent": {
-          "mesh": "",
-          "name": null,
-          "size": {
-            "x": 2.0,
-            "y": 0.20000000298023224,
-            "z": 0.5
-          },
-          "sphereData": {
-            "x": 1.0,
-            "y": 16.0,
-            "z": 32.0
-          },
-          "type": "Box",
-          "uuid": "71851a2e-4c53-4a0e-8149-01f605122eae"
+          "uuid": "f0343d7a-9a11-41bd-9f69-3f3e7bd469ee"
         },
         "Metadata": {
           "name": "Opponent",
@@ -412,7 +309,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "114576c2-5046-4fe0-ae2a-a83c43270f54"
+          "uuid": "ff81d08f-afc5-470a-80e8-6fe722204e6c"
         },
         "ScriptComponent": {
           "scripts": [
@@ -437,7 +334,7 @@
           }
         }
       },
-      "id": 4
+      "id": 3
     },
     {
       "components": {
@@ -486,7 +383,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "1c29d567-53fa-45ed-9eb9-9dbbff0d0c68"
+          "uuid": "35067e7e-ec08-4de5-a853-f25967ddcc43"
         },
         "TransformComponent": {
           "position": {
@@ -506,7 +403,260 @@
           }
         }
       },
+      "id": 4
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "Metadata": {
+          "name": "ScoreUI",
+          "prefab": "",
+          "tags": [],
+          "uuid": "fe3b69f1-3df5-43fd-a383-ce53cc172f3b"
+        },
+        "RectComponent": {
+          "position": {
+            "x": 10.0,
+            "y": 10.0,
+            "z": 0.0
+          },
+          "rotation": 0.0,
+          "size": {
+            "x": 100.0,
+            "y": 100.0,
+            "z": 0.0
+          }
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "UIComponent": {
+          "anchor": 0,
+          "blockRaycast": true,
+          "interactable": false
+        },
+        "UITextComponent": {
+          "color": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "font": "c4c93b61-f13e-4f24-9147-e01309369f34",
+          "fontSize": 24.0,
+          "text": "Player: 0  Opponent: 0"
+        }
+      },
       "id": 5
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "Metadata": {
+          "name": "GameObject",
+          "prefab": "",
+          "tags": [],
+          "uuid": "26c7b1ca-dc16-48c1-89b6-60e6720d32a8"
+        },
+        "RectComponent": {
+          "position": {
+            "x": 155.0,
+            "y": 30.0,
+            "z": 0.0
+          },
+          "rotation": 0.0,
+          "size": {
+            "x": 300.0,
+            "y": 50.0,
+            "z": 0.0
+          }
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "UIComponent": {
+          "anchor": 0,
+          "blockRaycast": true,
+          "interactable": false
+        },
+        "UIImageComponent": {
+          "color": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.6000000238418579,
+            "z": 0.0
+          },
+          "texture": "",
+          "useTexture": false
+        }
+      },
+      "id": 6
+    },
+    {
+      "components": {
+        "GlobalTransform": {
+          "worldMatrix": [
+            [
+              1.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              0.0,
+              1.0
+            ]
+          ]
+        },
+        "Metadata": {
+          "name": "GameObject",
+          "prefab": "",
+          "tags": [],
+          "uuid": "70325df4-610b-40b6-a34b-730e29a5c72e"
+        },
+        "RectComponent": {
+          "position": {
+            "x": 155.0,
+            "y": 30.0,
+            "z": -1.0
+          },
+          "rotation": 0.0,
+          "size": {
+            "x": 310.0,
+            "y": 60.0,
+            "z": 0.0
+          }
+        },
+        "TransformComponent": {
+          "position": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "rotation": {
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.0
+          },
+          "scale": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          }
+        },
+        "UIComponent": {
+          "anchor": 0,
+          "blockRaycast": true,
+          "interactable": false
+        },
+        "UIImageComponent": {
+          "color": {
+            "w": 1.0,
+            "x": 0.0,
+            "y": 0.0,
+            "z": 0.800000011920929
+          },
+          "texture": "",
+          "useTexture": false
+        }
+      },
+      "id": 7
     }
   ],
   "name": "pong",
