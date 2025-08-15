@@ -38,7 +38,7 @@ public:
     if (transform->position.x >= 5 || transform->position.x <= -5)
       velocity.x *= -1;
 
-    // Fake paddle bounce
+    // paddle bounce
     auto *world = getGameWorld();
     for (auto &paddle : world->getGameObjectsByTags("Paddle")) {
       auto &paddleTransform = paddle->getComponent<TransformComponent>();
@@ -53,7 +53,7 @@ public:
       }
     }
 
-    // Check if ball passed player
+    // Check if ball passed players
     if (transform->position.y > 6.0f) {
       // std::cout << "Game Over, Down won\n";
       // velocity = Vec3(0); // stop
@@ -92,7 +92,7 @@ public:
     if (ctx->controller->isKeyPressed(Key::D))
       transform->position.x += speed * dt;
 
-    // Clamp position
+
     transform->position.x = std::clamp(transform->position.x, -4.5f, 4.5f);
   }
 };
@@ -116,15 +116,15 @@ public:
     if (ctx->controller->isKeyPressed(Key::Right))
       transform->position.x += speed * dt;
 
-    // Clamp position so it stays in bounds
+
     transform->position.x = std::clamp(transform->position.x, -4.5f, 4.5f);
   }
 };
 
-//// Example user defined component and system
+//// Example of user defined component and system
 struct BlinkComponent {
   float timer = 0.0f;
-  float interval = 0.2f; // seconds between blinks
+  float interval = 0.2f; 
   bool visible = true;
 };
 class BlinkSystem : public System {
@@ -176,7 +176,7 @@ public:
 
   void onUpdate(World &world, float dt) override {
 
-    // Update UITextComponent(s) with score text
+    // Update UITextComponent
     for (auto &uiEntity : world.view<UITextComponent>()) {
       auto &uiText = world.getComponent<UITextComponent>(uiEntity);
       uiText.text = "Player: " + std::to_string(playerScore) +

@@ -29,15 +29,15 @@ public:
   void beginFrame(bool &running);
   void endFrame();
   void shutdown();
-
-  renderer::Renderer *getRenderer() const { return renderer; }
+ 
+  renderer::IRenderer *getRenderer() const { return renderer; }
   Controller *getController() const { return controller; }
   SceneManager *getSceneManager() const {return sceneManager;}
   InputManager *getInputManager() { return &inputManager; }
   EngineContext *getContext() const { return context; }
 
 private:
-  renderer::Renderer *renderer;
+  renderer::IRenderer *renderer;
   Controller *controller = nullptr;
   SceneManager* sceneManager = nullptr;
   InputManager inputManager;

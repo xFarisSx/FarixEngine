@@ -1,0 +1,3 @@
+#pragma once
+
+#define FARIX_ASSET_DIR "@CMAKE_INSTALL_DATADIR@/farixEngine/assets"

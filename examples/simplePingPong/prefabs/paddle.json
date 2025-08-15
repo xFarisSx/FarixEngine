@@ -71,7 +71,7 @@
         "z": 32.0
       },
       "type": "Box",
-      "uuid": "6fb1e8f8-4721-4145-b337-59778c940117"
+      "uuid": "82797e32-461b-43ec-b812-b179dd5b5347"
     },
     "Metadata": {
       "name": "Player",
@@ -79,7 +79,7 @@
       "tags": [
         "Paddle"
       ],
-      "uuid": "37599180-f607-4bb7-8f42-9f3cd97217fe"
+      "uuid": "625b320c-8f67-4759-8771-b6244a9a6002"
     },
     "ScriptComponent": {
       "scripts": [

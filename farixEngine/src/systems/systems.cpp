@@ -9,8 +9,10 @@
 #include "farixEngine/math/general.hpp"
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/physics/collisionHelpers.hpp"
-#include "farixEngine/renderer/helpers.hpp"
+#include "farixEngine/renderer/renderData.hpp"
 #include "farixEngine/renderer/renderer.hpp"
+#include "farixEngine/renderer/opengl/openglRenderer.hpp"
+#include "farixEngine/renderer/software/softwareRenderer.hpp"
 #include "farixEngine/scene/scene.hpp"
 #include "farixEngine/scene/sceneManager.hpp"
 #include "farixEngine/script/script.hpp"
@@ -145,6 +147,7 @@ renderer::MeshData &RenderSystem::createOrGetMesh(AssetID id) {
   if (it != meshCache.end())
     return it->second;
 
+
   auto [newIt, inserted] = meshCache.emplace(id, renderer::MeshData{});
   auto &meshData = newIt->second;
 
@@ -167,6 +170,7 @@ renderer::MaterialData &RenderSystem::createOrGetMaterial(AssetID id) {
   auto it = materialCache.find(id);
   if (it != materialCache.end())
     return it->second;
+
 
   auto [newIt, inserted] = materialCache.emplace(id, renderer::MaterialData{});
   auto &matData = newIt->second;
@@ -206,7 +210,7 @@ void RenderSystem::applyMaterialOverrides(renderer::MaterialData &matData,
     matData.texture = am.get<Texture>(*overrides.texture).get();
 }
 void RenderSystem::onUpdate(World &world, float dt) {
-  renderer::Renderer *renderer = EngineServices::get().getContext()->renderer;
+  renderer::IRenderer *renderer = EngineServices::get().getContext()->renderer;
 
   Entity cameraEntity = world.getCamera();
   if (!cameraEntity || cameraEntity <= 0)

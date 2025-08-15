@@ -76,13 +76,13 @@
         "z": 16.0
       },
       "type": "Sphere",
-      "uuid": "159324cd-fe5f-455a-b09c-2289e4c618f8"
+      "uuid": "a1ac6f4a-3d3b-44cf-b4b9-f25619265797"
     },
     "Metadata": {
       "name": "Ball",
       "prefab": "",
       "tags": [],
-      "uuid": "085098c7-695c-43cc-9218-416233ee9937"
+      "uuid": "4fe0bcc0-4f32-49f2-aa88-1803af516b62"
     },
     "ScriptComponent": {
       "scripts": [

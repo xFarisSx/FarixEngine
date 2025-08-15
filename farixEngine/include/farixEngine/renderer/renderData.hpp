@@ -45,7 +45,7 @@ struct VertexData {
   Vec2 uv;
 };
 
-struct TriangleData {
+struct TriangleData { 
   uint32_t i0 = 0;
   uint32_t i1 = 0;
   uint32_t i2 = 0;
@@ -55,6 +55,41 @@ struct MeshData {
   std::vector<VertexData> vertices;
   std::vector<uint32_t> indices;
 };
+
+struct ClippableVertex {
+  Vec4 cposition;
+  Vec3 normal;
+  Vec2 uv;
+  Vec3 position;
+
+  ClippableVertex lerp(const ClippableVertex &other, float t) const {
+    return {cposition + (other.cposition - cposition) * t,
+            normal + (other.normal - normal) * t, uv + (other.uv - uv) * t,
+
+            position + (other.position - position) * t};
+  }
+};
+struct UITextDrawCommand {
+  Font *font;
+  std::string text;
+  Vec3 pos;
+  float size;
+  Vec4 color;
+};
+
+struct SpriteData {
+  Texture *texture;
+  Vec4 color = Vec4(1.0f);
+  Vec3 size = Vec3(1.f, 1.f, 0);
+  bool flipX = false;
+  bool flipY = false;
+  Vec3 uvMin = Vec3(0.0f, 0.0f, 0);
+  Vec3 uvMax = Vec3(1.0f, 1.0f, 0);
+
+  bool useTexture = false;
+};
+
+
 
 // struct MeshGPU {
 //   uint32_t vao = 0;
@@ -114,37 +149,5 @@ struct MeshData {
 //   }
 // };
 
-struct ClippableVertex {
-  Vec4 cposition;
-  Vec3 normal;
-  Vec2 uv;
-  Vec3 position;
-
-  ClippableVertex lerp(const ClippableVertex &other, float t) const {
-    return {cposition + (other.cposition - cposition) * t,
-            normal + (other.normal - normal) * t, uv + (other.uv - uv) * t,
-
-            position + (other.position - position) * t};
-  }
-};
-struct UITextDrawCommand {
-  Font *font;
-  std::string text;
-  Vec3 pos;
-  float size;
-  Vec4 color;
-};
-
-struct SpriteData {
-  Texture *texture;
-  Vec4 color = Vec4(1.0f);
-  Vec3 size = Vec3(1.f, 1.f, 0);
-  bool flipX = false;
-  bool flipY = false;
-  Vec3 uvMin = Vec3(0.0f, 0.0f, 0);
-  Vec3 uvMax = Vec3(1.0f, 1.0f, 0);
-
-  bool useTexture = false;
-};
 
 } // namespace farixEngine::renderer

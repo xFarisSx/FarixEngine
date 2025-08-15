@@ -6,7 +6,7 @@ class SceneManager;
 
 struct EngineContext {
   Controller *controller = nullptr;
-  renderer::Renderer *renderer = nullptr;
+  renderer::IRenderer *renderer = nullptr;
   SceneManager *sceneManager = nullptr;
 };
 } // namespace farixEngine

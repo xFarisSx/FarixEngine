@@ -2,7 +2,7 @@
 #include "farixEngine/components/components.hpp"
 #include "farixEngine/ecs/system.hpp"
 #include "farixEngine/input/controller.hpp"
-#include "farixEngine/renderer/helpers.hpp"
+#include "farixEngine/renderer/renderData.hpp"
 #include "farixEngine/renderer/renderer.hpp"
 #include <memory>
 

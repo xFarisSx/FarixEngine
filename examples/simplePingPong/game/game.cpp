@@ -1,6 +1,7 @@
 
 #include "game.hpp"
 #include "components/components.hpp"
+#include <cmath>
 #include <memory>
 
 void setupScene3D(GameWorld &gameWorld) {
@@ -44,6 +45,7 @@ void setupScene3D(GameWorld &gameWorld) {
   camera.getComponent<TransformComponent>().position = Vec3(0, 0, 7);
   camera.addComponent<CameraComponent>().getComponent<CameraComponent>().mode =
       CameraProjectionMode::Perspective;
+
   camera.getComponent<CameraComponent>().setOrthoZoom(7);
 
   gameWorld.setCamera(camera);
@@ -180,7 +182,7 @@ void Game::onStart() {
   registerEngineStuff(engine);
 
   SceneManager &sceneManager = getSceneManager();
-  
+
   auto &scene = sceneManager.createScene("pong");
   // auto &scene = sceneManager.loadSceneFromFile("scenes/pong.json");
 
@@ -190,8 +192,6 @@ void Game::onStart() {
   // setupScene2D(*sceneManager.currentGameWorld());
   auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
   setupUI(*sceneManager.currentGameWorld(), font);
-
-
 
   sceneManager.saveCurrentScene("scenes/");
 }

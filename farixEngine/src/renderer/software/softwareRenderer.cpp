@@ -1,5 +1,5 @@
 // NOT USED ANYMORE || EXPERIMENTAL SOFTWARE RENDERER
-#include "farixEngine/renderer/renderer.hpp"
+#include "farixEngine/renderer/software/softwareRenderer.hpp"
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/components/components.hpp"
 #include "farixEngine/core/world.hpp"
@@ -17,9 +17,13 @@
 
 namespace farixEngine::renderer {
 
-Renderer::Renderer(int width, int height, const char *title)
-    : screenWidth(width), screenHeight(height) {
+SoftwareRenderer::SoftwareRenderer(int width, int height, const char *title)
+    : IRenderer(width, height, title) {
 
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER) != 0) {
+    std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+    exit(1);
+  }
   window =
       SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                        width, height, SDL_WINDOW_SHOWN);
@@ -47,22 +51,22 @@ Renderer::Renderer(int width, int height, const char *title)
   zBuffer.resize(screenWidth * screenHeight);
 }
 
-Renderer::~Renderer() {
+SoftwareRenderer::~SoftwareRenderer() {
   delete[] framebuffer;
   SDL_DestroyTexture(sdlTexture);
   SDL_DestroyRenderer(sdlRenderer);
   SDL_DestroyWindow(window);
 }
 
-void Renderer::beginFrame(const RenderContext &context) {
+void SoftwareRenderer::beginFrame(const RenderContext &context) {
   currentContext = context;
   clear(context.clearColor);
 }
-void Renderer::setContext(const RenderContext &context) {
+void SoftwareRenderer::setContext(const RenderContext &context) {
   currentContext = context;
 }
 
-RenderContext Renderer::makeUIContext(int screenW, int screenH) {
+RenderContext SoftwareRenderer::makeUIContext(int screenW, int screenH) {
   RenderContext ctx;
   ctx.viewMatrix = Mat4::identity();
   ctx.projectionMatrix = Mat4::ortho(0, screenW, screenH, 0, 0, 1);
@@ -73,14 +77,14 @@ RenderContext Renderer::makeUIContext(int screenW, int screenH) {
   return ctx;
 }
 
-void Renderer::beginUIPass(int screenW, int screenH) {
+void SoftwareRenderer::beginUIPass(int screenW, int screenH) {
   RenderContext uiCtx = makeUIContext(screenW, screenH);
   currentContext = uiCtx;
 }
 
-void Renderer::endFrame() { present(); }
+void SoftwareRenderer::endFrame() { present(); }
 
-void Renderer::clear(uint32_t color) {
+void SoftwareRenderer::clear(uint32_t color) {
   if (!framebuffer) {
     std::cerr << "Error: framebuffer is null!" << std::endl;
     return;
@@ -94,7 +98,7 @@ void Renderer::clear(uint32_t color) {
   std::fill(zBuffer.begin(), zBuffer.end(), std::numeric_limits<float>::max());
 }
 
-void Renderer::present() {
+void SoftwareRenderer::present() {
   SDL_UpdateTexture(sdlTexture, nullptr, framebuffer,
                     screenWidth * sizeof(uint32_t));
   SDL_RenderClear(sdlRenderer);
@@ -103,7 +107,7 @@ void Renderer::present() {
   SDL_RenderPresent(sdlRenderer);
 }
 
-Vec4 Renderer::unpackColor(uint32_t color) {
+Vec4 SoftwareRenderer::unpackColor(uint32_t color) {
   uint8_t a = (color >> 24) & 0xFF;
   uint8_t r = (color >> 16) & 0xFF;
   uint8_t g = (color >> 8) & 0xFF;
@@ -111,7 +115,7 @@ Vec4 Renderer::unpackColor(uint32_t color) {
   return Vec4(r, g, b, a) / 255.0f;
 }
 
-uint32_t Renderer::packColor(const Vec4 &color) {
+uint32_t SoftwareRenderer::packColor(const Vec4 &color) {
   uint8_t a = static_cast<uint8_t>(std::clamp(color.w, 0.f, 1.f) * 255.f);
   uint8_t r = static_cast<uint8_t>(std::clamp(color.x, 0.f, 1.f) * 255.f);
   uint8_t g = static_cast<uint8_t>(std::clamp(color.y, 0.f, 1.f) * 255.f);
@@ -119,8 +123,8 @@ uint32_t Renderer::packColor(const Vec4 &color) {
   return (a << 24) | (r << 16) | (g << 8) | b;
 }
 
-Vec4 Renderer::project(const Vec4 &point, const Mat4 &model,
-                       const RenderContext &ctx) const {
+Vec4 SoftwareRenderer::project(const Vec4 &point, const Mat4 &model,
+                               const RenderContext &ctx) const {
   Vec4 projected4 = ctx.projectionMatrix * ctx.viewMatrix * model * point;
   if (projected4.w <= 0.0f)
     return Vec4(-1, -1, -1, -1);
@@ -129,7 +133,7 @@ Vec4 Renderer::project(const Vec4 &point, const Mat4 &model,
               projected4.w);
 }
 
-void Renderer::drawPixel(int x, int y, float z, uint32_t color) {
+void SoftwareRenderer::drawPixel(int x, int y, float z, uint32_t color) {
   if (x >= 0 && x < screenWidth && y >= 0 && y < screenHeight) {
     int index = y * screenWidth + x;
     if (currentContext.enableZBuffer && z >= zBuffer[index])
@@ -151,19 +155,19 @@ void Renderer::drawPixel(int x, int y, float z, uint32_t color) {
   }
 }
 
-Vec3 Renderer::reflect(const Vec3 &L, const Vec3 &N) {
+Vec3 SoftwareRenderer::reflect(const Vec3 &L, const Vec3 &N) {
   return L - N * (2.0f * L.dot(N));
 }
 
-float Renderer::edgeFunction(const Vec4 &a, const Vec4 &b,
-                             const Vec4 &c) const {
+float SoftwareRenderer::edgeFunction(const Vec4 &a, const Vec4 &b,
+                                     const Vec4 &c) const {
   Vec4 v1 = b - a;
   Vec4 v2 = c - a;
   return v1.x * v2.y - v1.y * v2.x;
 }
 
-bool Renderer::isTriangleValid(const Vec4 &p0, const Vec4 &p1,
-                               const Vec4 &p2) const {
+bool SoftwareRenderer::isTriangleValid(const Vec4 &p0, const Vec4 &p1,
+                                       const Vec4 &p2) const {
   auto isValid = [](const Vec4 &v) {
     return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
   };
@@ -172,24 +176,25 @@ bool Renderer::isTriangleValid(const Vec4 &p0, const Vec4 &p1,
          p1.w > 0 && p2.w > 0;
 }
 
-std::array<Vec4, 3>
-Renderer::fetchTransformedVertices(const MeshData &mesh,
-                                   const TriangleData &tri, const Mat4 &model,
-                                   const RenderContext &ctx) const {
+std::array<Vec4, 3> SoftwareRenderer::fetchTransformedVertices(
+    const MeshData &mesh, const TriangleData &tri, const Mat4 &model,
+    const RenderContext &ctx) const {
 
   Vec4 v0 = project(Vec4(mesh.vertices[tri.i0].position, 1), model, ctx);
   Vec4 v1 = project(Vec4(mesh.vertices[tri.i1].position, 1), model, ctx);
   Vec4 v2 = project(Vec4(mesh.vertices[tri.i2].position, 1), model, ctx);
   return {v0, v1, v2};
 }
-Vec4 Renderer::toCameraSpace(const Vec3 &pos, const Mat4 &model,
-                             const Mat4 &view) {
+Vec4 SoftwareRenderer::toCameraSpace(const Vec3 &pos, const Mat4 &model,
+                                     const Mat4 &view) {
   return view * model * Vec4(pos, 1.0f);
 }
-Vec4 Renderer::projectToClipSpace(const Vec4 &posCamera, const Mat4 &proj) {
+Vec4 SoftwareRenderer::projectToClipSpace(const Vec4 &posCamera,
+                                          const Mat4 &proj) {
   return proj * posCamera;
 }
-Vec4 Renderer::ndcToScreen(Vec4 &posClip, int screenWidth, int screenHeight) {
+Vec4 SoftwareRenderer::ndcToScreen(Vec4 &posClip, int screenWidth,
+                                   int screenHeight) {
   Vec3 ndc = posClip.xyz() / posClip.w;
   float x = (ndc.x + 1.0f) * 0.5f * screenWidth;
   float y = (1.0f - ndc.y) * 0.5f * screenHeight;
@@ -197,9 +202,9 @@ Vec4 Renderer::ndcToScreen(Vec4 &posClip, int screenWidth, int screenHeight) {
   return Vec4(x, y, z, posClip.w);
 }
 
-bool Renderer::isTriangleVisible(std::array<Vec4, 3> &projected,
-                                 const MaterialData &material,
-                                 const RenderContext &ctx) const {
+bool SoftwareRenderer::isTriangleVisible(std::array<Vec4, 3> &projected,
+                                         const MaterialData &material,
+                                         const RenderContext &ctx) const {
 
   if (!isTriangleValid(projected[0], projected[1], projected[2]))
     return false;
@@ -215,9 +220,9 @@ bool Renderer::isTriangleVisible(std::array<Vec4, 3> &projected,
   return normal.dot(viewDir) < 0.2f;
 }
 
-std::array<Vec2, 3> Renderer::fetchUVs(const MeshData &mesh,
-                                       const TriangleData &tri,
-                                       const MaterialData &material) const {
+std::array<Vec2, 3>
+SoftwareRenderer::fetchUVs(const MeshData &mesh, const TriangleData &tri,
+                           const MaterialData &material) const {
 
   if (material.useTexture && !mesh.vertices.empty()) {
     return {mesh.vertices[tri.i0].uv, mesh.vertices[tri.i1].uv,
@@ -226,27 +231,27 @@ std::array<Vec2, 3> Renderer::fetchUVs(const MeshData &mesh,
   return {Vec2(), Vec2(), Vec2()};
 }
 
-std::array<Vec3, 3> Renderer::fetchNs(const MeshData &mesh,
-                                      const TriangleData &tri,
-                                      const MaterialData &material) const {
+std::array<Vec3, 3>
+SoftwareRenderer::fetchNs(const MeshData &mesh, const TriangleData &tri,
+                          const MaterialData &material) const {
 
   return {mesh.vertices[tri.i0].normal, mesh.vertices[tri.i1].normal,
           mesh.vertices[tri.i2].normal};
 }
-std::array<Vec3, 3> Renderer::fetchPs(const MeshData &mesh,
-                                      const TriangleData &tri,
-                                      const MaterialData &material) const {
+std::array<Vec3, 3>
+SoftwareRenderer::fetchPs(const MeshData &mesh, const TriangleData &tri,
+                          const MaterialData &material) const {
 
   return {mesh.vertices[tri.i0].position, mesh.vertices[tri.i1].position,
           mesh.vertices[tri.i2].position};
 }
 
-void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
-                                 const std::array<Vec3, 3> &ps,
-                                 const std::array<Vec2, 3> &uvs,
-                                 const std::array<Vec3, 3> &ns,
-                                 const RenderContext &ctx,
-                                 const MaterialData &material) {
+void SoftwareRenderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
+                                         const std::array<Vec3, 3> &ps,
+                                         const std::array<Vec2, 3> &uvs,
+                                         const std::array<Vec3, 3> &ns,
+                                         const RenderContext &ctx,
+                                         const MaterialData &material) {
 
   float minX = std::min({projected[0].x, projected[1].x, projected[2].x});
   float maxX = std::max({projected[0].x, projected[1].x, projected[2].x});
@@ -308,8 +313,9 @@ void Renderer::rasterizeTriangle(const std::array<Vec4, 3> &projected,
   }
 }
 
-bool Renderer::isTriangleVisibleInFrustum(const Vec4 &v0, const Vec4 &v1,
-                                          const Vec4 &v2) {
+bool SoftwareRenderer::isTriangleVisibleInFrustum(const Vec4 &v0,
+                                                  const Vec4 &v1,
+                                                  const Vec4 &v2) {
 
   auto inside = [](const Vec4 &v) {
     return v.x >= -v.w && v.x <= v.w && v.y >= -v.w && v.y <= v.w && v.z >= 0 &&
@@ -318,9 +324,10 @@ bool Renderer::isTriangleVisibleInFrustum(const Vec4 &v0, const Vec4 &v1,
 
   return inside(v0) || inside(v1) || inside(v2);
 }
-Vec4 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
-                             const Vec3 &normal, const RenderContext &ctx,
-                             const MaterialData &material) {
+Vec4 SoftwareRenderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
+                                     const Vec3 &normal,
+                                     const RenderContext &ctx,
+                                     const MaterialData &material) {
 
   Vec4 finalColor = material.baseColor;
 
@@ -352,9 +359,10 @@ Vec4 Renderer::shadeFragment(const Vec3 &worldPos, const Vec3 &uv,
   return finalColor;
 }
 
-void Renderer::drawTriangle(const MeshData &mesh, const TriangleData &tri,
-                            const Mat4 &model, const RenderContext &ctx,
-                            const MaterialData &material) {
+void SoftwareRenderer::drawTriangle(const MeshData &mesh,
+                                    const TriangleData &tri, const Mat4 &model,
+                                    const RenderContext &ctx,
+                                    const MaterialData &material) {
 
   if (tri.i0 >= mesh.vertices.size() || tri.i1 >= mesh.vertices.size() ||
       tri.i2 >= mesh.vertices.size()) {
@@ -419,9 +427,9 @@ void Renderer::drawTriangle(const MeshData &mesh, const TriangleData &tri,
 }
 
 std::vector<std::vector<ClippableVertex>>
-Renderer::clipTriangleAgainstNearPlane(const ClippableVertex &v0,
-                                       const ClippableVertex &v1,
-                                       const ClippableVertex &v2) {
+SoftwareRenderer::clipTriangleAgainstNearPlane(const ClippableVertex &v0,
+                                               const ClippableVertex &v1,
+                                               const ClippableVertex &v2) {
   auto inside = [](const Vec4 &v) { return v.z >= 0.0f && v.z <= v.w; };
 
   auto intersect = [](const ClippableVertex &a, const ClippableVertex &b) {
@@ -454,15 +462,16 @@ Renderer::clipTriangleAgainstNearPlane(const ClippableVertex &v0,
   return {};
 }
 
-void Renderer::renderMesh(const MeshData &mesh, const Mat4 &model,
-                          const MaterialData &material) {
+void SoftwareRenderer::renderMesh(const MeshData &mesh, const Mat4 &model,
+                                  const MaterialData &material) {
   for (uint32_t i = 0; i < mesh.indices.size(); i += 3) {
-    TriangleData tri{mesh.indices[i], mesh.indices[i+1], mesh.indices[i+2]};
+    TriangleData tri{mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2]};
     drawTriangle(mesh, tri, model, currentContext, material);
   }
 }
 
-void Renderer::renderSprite(const SpriteData &sprite, const Mat4 &model) {
+void SoftwareRenderer::renderSprite(const SpriteData &sprite,
+                                    const Mat4 &model) {
 
   MeshData quadMesh = quadMesh2D();
   MaterialData mat;
@@ -479,7 +488,7 @@ void Renderer::renderSprite(const SpriteData &sprite, const Mat4 &model) {
   renderMesh(quadMesh, finalMat, mat);
 }
 
-MeshData Renderer::quadMesh2D() {
+MeshData SoftwareRenderer::quadMesh2D() {
   static MeshData quad;
 
   if (quad.vertices.empty()) {
@@ -500,15 +509,15 @@ MeshData Renderer::quadMesh2D() {
   return quad;
 }
 
-void Renderer::drawText(Font *font, const std::string &text, Vec3 pos,
-                        float size, Vec4 color) {
+void SoftwareRenderer::drawText(Font *font, const std::string &text, Vec3 pos,
+                                float size, Vec4 color) {
   if (!font || !font->sdlFont || text.empty())
     return;
 
   textDrawQueue.push_back({font, text, pos, size, color});
 }
 
-void Renderer::flushTextDraws() {
+void SoftwareRenderer::flushTextDraws() {
   for (const auto &cmd : textDrawQueue) {
     SDL_Color sdlColor = {static_cast<Uint8>(cmd.color.x * 255),
                           static_cast<Uint8>(cmd.color.y * 255),
@@ -577,7 +586,7 @@ void Renderer::flushTextDraws() {
 //     }
 // }
 
-std::array<int, 2> Renderer::getScreenSize() {
+std::array<int, 2> SoftwareRenderer::getScreenSize() {
   return {screenWidth, screenHeight};
 }
 } // namespace farixEngine::renderer

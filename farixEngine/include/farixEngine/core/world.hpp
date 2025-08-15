@@ -25,7 +25,7 @@ using ScriptPtr = std::shared_ptr<Script>;
 
 class World {
 public:
-  World();
+  World(); 
   World(const World &) = delete;
   World &operator=(const World &) = delete;
 

@@ -1,6 +1,8 @@
 #include "farixEngine/core/engine.hpp"
 #include "farixEngine/core/engineContext.hpp"
 #include "farixEngine/core/engineServices.hpp"
+#include "farixEngine/renderer/opengl/openglRenderer.hpp"
+#include "farixEngine/renderer/software/softwareRenderer.hpp"
 #include <farixEngine/scene/sceneManager.hpp>
 #include <iostream>
 namespace farixEngine {
@@ -10,14 +12,9 @@ Engine::Engine() {}
 Engine::~Engine() { shutdown(); }
 
 void Engine::init(int width, int height, const char *title) {
-  if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-    std::cerr << "SDL_Init Error: " << SDL_GetError() << "\n";
-    exit(1);
-  }
-
   context = new EngineContext();
 
-  renderer = new renderer::Renderer(width, height, title);
+  renderer = new renderer::SoftwareRenderer(width, height, title);
   controller = new Controller();
   sceneManager = new SceneManager();
   inputManager = InputManager();
