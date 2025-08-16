@@ -1,10 +1,10 @@
 #pragma once
 
-#include "farixEngine/renderer/renderData.hpp"
 #include "farixEngine/renderer/opengl/shader.hpp"
+#include "farixEngine/renderer/renderData.hpp"
 #include "farixEngine/renderer/renderer.hpp"
-#include <SDL2/SDL.h>
 #include "farixEngine/thirdparty/glad/glad.h"
+#include <SDL2/SDL.h>
 
 namespace farixEngine::renderer {
 
@@ -14,30 +14,30 @@ public:
 
   ~OpenGLRenderer() override;
 
-  void beginFrame(const RenderContext &context) override;
-  void setContext(const RenderContext &context) override;
-  void beginUIPass(int screenW, int screenH) override;
-  RenderContext makeUIContext(int screenW, int screenH) override;
+  void beginFrame() override;
+  void beginPass(RenderContext &context) override;
+  void setContext( RenderContext &context) override;
+  void endPass() override;
   void endFrame() override;
 
-  void clear(uint32_t color = 0xFF000000) override;
+  void clear(uint32_t color = 0xFF006699) override;
   void present() override;
 
-  void renderMesh(const MeshData &mesh, const Mat4 &model,
+  void submitMesh(const MeshData &mesh, const Mat4 &model,
                   const MaterialData &material) override;
 
-  void renderSprite(const SpriteData &sprite, const Mat4 &model) override;
+  void submitSprite(const SpriteData &sprite, const Mat4 &model) override;
 
-  void drawText(Font *font, const std::string &str, Vec3 pos, float size,
-                Vec4 color) override;
+  void submitText(Font *font, const std::string &str, Vec3 pos, float size,
+                  Vec4 color) override;
+
+  void renderMesh(const MeshCommand &meshCommand) override;
+  void renderText(const UITextDrawCommand &textCommand) override;
 
   std::array<int, 2> getScreenSize() override;
 
-
 private:
-  Shader defaultShaderProgram ;
+  Shader defaultShaderProgram;
 };
-
-
 
 } // namespace farixEngine::renderer

@@ -6,6 +6,7 @@
 #include "farixEngine/math/general.hpp"
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec4.hpp"
+#include "farixEngine/renderer/renderData.hpp"
 #include <SDL2/SDL.h>
 #include <SDL_ttf.h>
 #include <algorithm>
@@ -58,31 +59,54 @@ SoftwareRenderer::~SoftwareRenderer() {
   SDL_DestroyWindow(window);
 }
 
-void SoftwareRenderer::beginFrame(const RenderContext &context) {
-  currentContext = context;
-  clear(context.clearColor);
-}
-void SoftwareRenderer::setContext(const RenderContext &context) {
-  currentContext = context;
-}
-
-RenderContext SoftwareRenderer::makeUIContext(int screenW, int screenH) {
-  RenderContext ctx;
-  ctx.viewMatrix = Mat4::identity();
-  ctx.projectionMatrix = Mat4::ortho(0, screenW, screenH, 0, 0, 1);
-  ctx.enableZBuffer = false;
-  ctx.enableLighting = false;
-  ctx.is2DPass = true;
-  ctx.cameraPosition = Vec3(0);
-  return ctx;
+void SoftwareRenderer::beginFrame() {
+  clear();
+  passes.clear();
+  activePass = nullptr;
+  currentContext = nullptr;
 }
 
-void SoftwareRenderer::beginUIPass(int screenW, int screenH) {
-  RenderContext uiCtx = makeUIContext(screenW, screenH);
-  currentContext = uiCtx;
+void SoftwareRenderer::beginPass(RenderContext &renderContext) {
+
+  RenderPass rp;
+  rp.context = renderContext;
+  passes.push_back(rp);
+  activePass = &passes[passes.size() - 1];
+  currentContext = &renderContext;
+}
+void SoftwareRenderer::endPass() {
+  activePass = nullptr;
+  currentContext = nullptr;
 }
 
-void SoftwareRenderer::endFrame() { present(); }
+// RenderContext SoftwareRenderer::makeUIContext(int screenW, int screenH) {
+//   RenderContext ctx;
+//   ctx.viewMatrix = Mat4::identity();
+//   ctx.projectionMatrix = Mat4::ortho(0, screenW, screenH, 0, 0, 1);
+//   ctx.enableZBuffer = false;
+//   ctx.enableLighting = false;
+//   ctx.is2DPass = true;
+//   ctx.cameraPosition = Vec3(0);
+//   return ctx;
+// }
+
+void SoftwareRenderer::setContext(RenderContext &context) {
+  currentContext = &context;
+}
+
+void SoftwareRenderer::endFrame() {
+  for (auto &pass : passes) {
+    setContext(pass.context);
+    for (auto &mesh : pass.meshCommands) {
+      renderMesh(mesh);
+    }
+    // for (auto &text : pass.textCommands) {
+    //   renderText(text);
+    // }
+  }
+
+  present();
+}
 
 void SoftwareRenderer::clear(uint32_t color) {
   if (!framebuffer) {
@@ -136,7 +160,7 @@ Vec4 SoftwareRenderer::project(const Vec4 &point, const Mat4 &model,
 void SoftwareRenderer::drawPixel(int x, int y, float z, uint32_t color) {
   if (x >= 0 && x < screenWidth && y >= 0 && y < screenHeight) {
     int index = y * screenWidth + x;
-    if (currentContext.enableZBuffer && z >= zBuffer[index])
+    if (currentContext->enableZBuffer && z >= zBuffer[index])
       return;
     zBuffer[index] = z;
 
@@ -466,11 +490,24 @@ void SoftwareRenderer::renderMesh(const MeshData &mesh, const Mat4 &model,
                                   const MaterialData &material) {
   for (uint32_t i = 0; i < mesh.indices.size(); i += 3) {
     TriangleData tri{mesh.indices[i], mesh.indices[i + 1], mesh.indices[i + 2]};
-    drawTriangle(mesh, tri, model, currentContext, material);
+    drawTriangle(mesh, tri, model, *currentContext, material);
   }
 }
+void SoftwareRenderer::renderMesh(const MeshCommand &meshCommand) {
+  renderMesh(meshCommand.meshData, meshCommand.modelMatrix,
+             meshCommand.matData);
+}
 
-void SoftwareRenderer::renderSprite(const SpriteData &sprite,
+void SoftwareRenderer::submitMesh(const MeshData &mesh, const Mat4 &model,
+                                  const MaterialData &material) {
+  if (!activePass) {
+    throw std::runtime_error("submitMesh called without active pass!");
+  }
+  MeshCommand meshCommand{mesh, material, model};
+  activePass->meshCommands.push_back(meshCommand);
+}
+
+void SoftwareRenderer::submitSprite(const SpriteData &sprite,
                                     const Mat4 &model) {
 
   MeshData quadMesh = quadMesh2D();
@@ -485,7 +522,8 @@ void SoftwareRenderer::renderSprite(const SpriteData &sprite,
   Mat4 scaleMat = Mat4::scale(Vec3(sprite.size[0], sprite.size[1], 1.0f));
   Mat4 finalMat = model * scaleMat;
 
-  renderMesh(quadMesh, finalMat, mat);
+  MeshCommand meshCommand{quadMesh, mat, finalMat};
+  activePass->meshCommands.push_back(meshCommand);
 }
 
 MeshData SoftwareRenderer::quadMesh2D() {
@@ -509,52 +547,56 @@ MeshData SoftwareRenderer::quadMesh2D() {
   return quad;
 }
 
-void SoftwareRenderer::drawText(Font *font, const std::string &text, Vec3 pos,
-                                float size, Vec4 color) {
+void SoftwareRenderer::submitText(Font *font, const std::string &text, Vec3 pos,
+                                  float size, Vec4 color) {
   if (!font || !font->sdlFont || text.empty())
     return;
 
-  textDrawQueue.push_back({font, text, pos, size, color});
+  activePass->textCommands.push_back({font, text, pos, size, color});
+}
+
+void SoftwareRenderer::renderText(const UITextDrawCommand &cmd) {
+  SDL_Color sdlColor = {static_cast<Uint8>(cmd.color.x * 255),
+                        static_cast<Uint8>(cmd.color.y * 255),
+                        static_cast<Uint8>(cmd.color.z * 255),
+                        static_cast<Uint8>(cmd.color.w * 255)};
+
+  SDL_Surface *textSurface =
+      TTF_RenderUTF8_Blended(cmd.font->sdlFont, cmd.text.c_str(), sdlColor);
+  if (!textSurface) {
+    std::cerr << "Failed to render text surface: " << TTF_GetError()
+              << std::endl;
+    return;
+  }
+
+  SDL_Texture *textTexture =
+      SDL_CreateTextureFromSurface(sdlRenderer, textSurface);
+  SDL_FreeSurface(textSurface);
+  if (!textTexture) {
+    std::cerr << "Failed to create texture from text surface: "
+              << SDL_GetError() << std::endl;
+    return;
+  }
+
+  int texW = 0, texH = 0;
+  SDL_QueryTexture(textTexture, nullptr, nullptr, &texW, &texH);
+
+  SDL_Rect dstRect;
+  dstRect.x = static_cast<int>(cmd.pos.x);
+  dstRect.y = static_cast<int>(cmd.pos.y);
+  dstRect.w = texW;
+  dstRect.h = texH;
+
+  SDL_RenderCopy(sdlRenderer, textTexture, nullptr, &dstRect);
+  SDL_DestroyTexture(textTexture);
 }
 
 void SoftwareRenderer::flushTextDraws() {
-  for (const auto &cmd : textDrawQueue) {
-    SDL_Color sdlColor = {static_cast<Uint8>(cmd.color.x * 255),
-                          static_cast<Uint8>(cmd.color.y * 255),
-                          static_cast<Uint8>(cmd.color.z * 255),
-                          static_cast<Uint8>(cmd.color.w * 255)};
-
-    SDL_Surface *textSurface =
-        TTF_RenderUTF8_Blended(cmd.font->sdlFont, cmd.text.c_str(), sdlColor);
-    if (!textSurface) {
-      std::cerr << "Failed to render text surface: " << TTF_GetError()
-                << std::endl;
-      continue;
+  for (auto &pass : passes) {
+    for (const auto &cmd : pass.textCommands) {
+      renderText(cmd);
     }
-
-    SDL_Texture *textTexture =
-        SDL_CreateTextureFromSurface(sdlRenderer, textSurface);
-    SDL_FreeSurface(textSurface);
-    if (!textTexture) {
-      std::cerr << "Failed to create texture from text surface: "
-                << SDL_GetError() << std::endl;
-      continue;
-    }
-
-    int texW = 0, texH = 0;
-    SDL_QueryTexture(textTexture, nullptr, nullptr, &texW, &texH);
-
-    SDL_Rect dstRect;
-    dstRect.x = static_cast<int>(cmd.pos.x);
-    dstRect.y = static_cast<int>(cmd.pos.y);
-    dstRect.w = texW;
-    dstRect.h = texH;
-
-    SDL_RenderCopy(sdlRenderer, textTexture, nullptr, &dstRect);
-    SDL_DestroyTexture(textTexture);
   }
-
-  textDrawQueue.clear();
 }
 
 // void Renderer::drawText(Font* font, const std::string& str, Vec3 pos, float

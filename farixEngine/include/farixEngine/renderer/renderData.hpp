@@ -45,7 +45,7 @@ struct VertexData {
   Vec2 uv;
 };
 
-struct TriangleData { 
+struct TriangleData {
   uint32_t i0 = 0;
   uint32_t i1 = 0;
   uint32_t i2 = 0;
@@ -54,6 +54,25 @@ struct TriangleData {
 struct MeshData {
   std::vector<VertexData> vertices;
   std::vector<uint32_t> indices;
+};
+
+struct MeshCommand {
+  MeshData meshData;
+  MaterialData matData;
+  Mat4 modelMatrix;
+};
+struct UITextDrawCommand {
+  Font *font;
+  std::string text;
+  Vec3 pos;
+  float size;
+  Vec4 color;
+};
+
+struct RenderPass {
+  RenderContext context;
+  std::vector<MeshCommand> meshCommands;
+  std::vector<UITextDrawCommand> textCommands;
 };
 
 struct ClippableVertex {
@@ -69,14 +88,6 @@ struct ClippableVertex {
             position + (other.position - position) * t};
   }
 };
-struct UITextDrawCommand {
-  Font *font;
-  std::string text;
-  Vec3 pos;
-  float size;
-  Vec4 color;
-};
-
 struct SpriteData {
   Texture *texture;
   Vec4 color = Vec4(1.0f);
@@ -88,8 +99,6 @@ struct SpriteData {
 
   bool useTexture = false;
 };
-
-
 
 // struct MeshGPU {
 //   uint32_t vao = 0;
@@ -109,7 +118,8 @@ struct SpriteData {
 //     glBindVertexArray(vao);
 //
 //     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//     glBufferData(GL_ARRAY_BUFFER, meshData.vertices.size() * sizeof(VertexData),
+//     glBufferData(GL_ARRAY_BUFFER, meshData.vertices.size() *
+//     sizeof(VertexData),
 //                  meshData.vertices.data(), GL_STATIC_DRAW);
 //
 //     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
@@ -148,6 +158,5 @@ struct SpriteData {
 //     indexCount = 0;
 //   }
 // };
-
 
 } // namespace farixEngine::renderer

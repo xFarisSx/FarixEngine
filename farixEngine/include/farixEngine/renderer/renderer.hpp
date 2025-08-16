@@ -20,22 +20,25 @@ public:
 
   virtual ~IRenderer() = default;
 
-  virtual void beginFrame(const RenderContext &context) = 0;
-  virtual void setContext(const RenderContext &context) = 0;
-  virtual void beginUIPass(int screenW, int screenH) = 0;
-  virtual RenderContext makeUIContext(int screenW, int screenH) = 0;
+  virtual void beginFrame() = 0;
+  virtual void beginPass(RenderContext &context) = 0;
+  virtual void setContext(RenderContext &context) = 0;
+  virtual void endPass() = 0;
   virtual void endFrame() = 0;
 
-  virtual void clear(uint32_t color = 0xFF000000) = 0;
+  virtual void clear(uint32_t color = 0xFF87CEEB) = 0;
   virtual void present() = 0;
 
-  virtual void renderMesh(const MeshData &mesh, const Mat4 &model,
+  virtual void submitMesh(const MeshData &mesh, const Mat4 &model,
                           const MaterialData &material) = 0;
 
-  virtual void renderSprite(const SpriteData &sprite, const Mat4 &model) = 0;
+  virtual void submitSprite(const SpriteData &sprite, const Mat4 &model) = 0;
 
-  virtual void drawText(Font *font, const std::string &str, Vec3 pos,
-                        float size, Vec4 color) = 0;
+  virtual void submitText(Font *font, const std::string &str, Vec3 pos,
+                          float size, Vec4 color) = 0;
+
+  virtual void renderMesh(const MeshCommand &meshCommand) = 0;
+  virtual void renderText(const UITextDrawCommand &textCommand) = 0;
 
   virtual std::array<int, 2> getScreenSize() = 0;
 
@@ -45,8 +48,9 @@ protected:
   int screenWidth = 0;
   int screenHeight = 0;
 
-  RenderContext currentContext;
-  std::vector<UITextDrawCommand> textDrawQueue;
+  std::vector<RenderPass> passes;
+  RenderPass *activePass = nullptr;
+  RenderContext *currentContext = nullptr;
 
   Vec3 lightDir = Vec3(0, 0, -1);
 };

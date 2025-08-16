@@ -9,9 +9,9 @@
 #include "farixEngine/math/general.hpp"
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/physics/collisionHelpers.hpp"
+#include "farixEngine/renderer/opengl/openglRenderer.hpp"
 #include "farixEngine/renderer/renderData.hpp"
 #include "farixEngine/renderer/renderer.hpp"
-#include "farixEngine/renderer/opengl/openglRenderer.hpp"
 #include "farixEngine/renderer/software/softwareRenderer.hpp"
 #include "farixEngine/scene/scene.hpp"
 #include "farixEngine/scene/sceneManager.hpp"
@@ -147,7 +147,6 @@ renderer::MeshData &RenderSystem::createOrGetMesh(AssetID id) {
   if (it != meshCache.end())
     return it->second;
 
-
   auto [newIt, inserted] = meshCache.emplace(id, renderer::MeshData{});
   auto &meshData = newIt->second;
 
@@ -170,7 +169,6 @@ renderer::MaterialData &RenderSystem::createOrGetMaterial(AssetID id) {
   auto it = materialCache.find(id);
   if (it != materialCache.end())
     return it->second;
-
 
   auto [newIt, inserted] = materialCache.emplace(id, renderer::MaterialData{});
   auto &matData = newIt->second;
@@ -209,24 +207,26 @@ void RenderSystem::applyMaterialOverrides(renderer::MaterialData &matData,
   if (overrides.texture)
     matData.texture = am.get<Texture>(*overrides.texture).get();
 }
+
 void RenderSystem::onUpdate(World &world, float dt) {
   renderer::IRenderer *renderer = EngineServices::get().getContext()->renderer;
+  auto &am = EngineServices::get().getAssetManager();
 
   Entity cameraEntity = world.getCamera();
   if (!cameraEntity || cameraEntity <= 0)
     return;
 
   const auto &camera = world.getComponent<CameraComponent>(cameraEntity);
-  const auto &cameraTransform =
-      world.getComponent<TransformComponent>(cameraEntity);
   const auto &cameraGlobal =
       world.getComponent<GlobalTransform>(cameraEntity).worldMatrix;
   Vec3 cameraPosition = math::transformFromMatrix(cameraGlobal).position;
 
-  renderer::RenderContext ctx =
+  renderer::RenderContext mainCtx =
       createRenderContext(world, camera, cameraGlobal, cameraPosition);
-  renderer->beginFrame(ctx);
-  auto &am = EngineServices::get().getAssetManager();
+
+  renderer->beginFrame();
+
+  renderer->beginPass(mainCtx);
 
   for (Entity entity : world.getEntities()) {
     if (world.hasComponent<GlobalTransform>(entity) &&
@@ -238,9 +238,7 @@ void RenderSystem::onUpdate(World &world, float dt) {
       auto &meshC = world.getComponent<MeshComponent>(entity);
       auto &matC = world.getComponent<MaterialComponent>(entity);
 
-      if (meshC.mesh.empty())
-        continue;
-      if (matC.material.empty())
+      if (meshC.mesh.empty() || matC.material.empty())
         continue;
 
       renderer::MeshData &meshData = createOrGetMesh(meshC.mesh);
@@ -249,11 +247,12 @@ void RenderSystem::onUpdate(World &world, float dt) {
       if (matC.overrideParams)
         applyMaterialOverrides(matData, matC.overrides);
 
-      renderer->renderMesh(meshData, model, matData);
+      renderer->submitMesh(meshData, model, matData);
     }
 
     if (world.hasComponent<GlobalTransform>(entity) &&
         world.hasComponent<Sprite2DComponent>(entity)) {
+
       const Mat4 &model =
           world.getComponent<GlobalTransform>(entity).worldMatrix;
       const auto &sprite = world.getComponent<Sprite2DComponent>(entity);
@@ -267,19 +266,30 @@ void RenderSystem::onUpdate(World &world, float dt) {
       spriteData.flipX = sprite.flipX;
       spriteData.flipY = sprite.flipY;
 
-      renderer->renderSprite(spriteData, model);
+      renderer->submitSprite(spriteData, model);
     }
   }
-  renderer->beginUIPass(renderer->getScreenSize()[0],
-                        renderer->getScreenSize()[1]);
+
+  renderer->endPass();
+
+  renderer::RenderContext uiCtx;
+
+  uiCtx.viewMatrix = Mat4::identity();
+  uiCtx.projectionMatrix = Mat4::ortho(0, renderer->getScreenSize()[0], renderer->getScreenSize()[1], 0, 0, 1);
+  uiCtx.enableZBuffer = false;
+  uiCtx.enableLighting = false;
+  uiCtx.is2DPass = true;
+  uiCtx.cameraPosition = Vec3(0);
+
+  renderer->beginPass(uiCtx);
 
   auto uiEntities = world.view<RectComponent, UIComponent>();
   std::sort(uiEntities.begin(), uiEntities.end(), [&world](Entity a, Entity b) {
     return world.getComponent<RectComponent>(a).position.z <
            world.getComponent<RectComponent>(b).position.z;
   });
-  for (Entity entity : uiEntities) {
 
+  for (Entity entity : uiEntities) {
     const auto &uiCom = world.getComponent<UIComponent>(entity);
     const auto &uiRect = world.getComponent<RectComponent>(entity);
     const auto &rectPos = calculateAnchoredPosition(
@@ -301,16 +311,19 @@ void RenderSystem::onUpdate(World &world, float dt) {
       spriteData.flipX = false;
       spriteData.flipY = false;
 
-      renderer->renderSprite(spriteData, model);
+      renderer->submitSprite(spriteData, model);
     }
+
     if (world.hasComponent<UITextComponent>(entity)) {
       auto &uiText = world.getComponent<UITextComponent>(entity);
       auto fontAsset = am.get<Font>(uiText.font);
 
-      renderer->drawText(fontAsset.get(), uiText.text, uiRect.position,
-                         uiText.fontSize, uiText.color);
+      renderer->submitText(fontAsset.get(), uiText.text, uiRect.position,
+                           uiText.fontSize, uiText.color);
     }
   }
+
+  renderer->endPass();
 
   renderer->endFrame();
 }

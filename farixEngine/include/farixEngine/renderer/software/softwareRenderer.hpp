@@ -19,13 +19,26 @@ public:
   SoftwareRenderer(int width, int height, const char *title);
   ~SoftwareRenderer() override;
 
-  void beginFrame(const RenderContext &context) override;
-  void setContext(const RenderContext &context) override;
-  void beginUIPass(int screenW, int screenH) override;
-  RenderContext makeUIContext(int screenW, int screenH) override;
+  void beginFrame() override;
+  void beginPass(RenderContext &context) override;
+
+  void endPass() override;
   void endFrame() override;
 
-  void clear(uint32_t color = 0xFF000000) override;
+  void submitMesh(const MeshData &mesh, const Mat4 &model,
+                  const MaterialData &material) override;
+
+  void submitSprite(const SpriteData &sprite, const Mat4 &model) override;
+
+  void submitText(Font *font, const std::string &str, Vec3 pos, float size,
+                  Vec4 color) override;
+
+  void renderMesh(const MeshCommand &meshCommand) override;
+  void renderText(const UITextDrawCommand &textCommand) override;
+
+  void setContext(RenderContext &context) override;
+
+  void clear(uint32_t color = 0xFF006699) override;
   void present() override;
 
   uint32_t packColor(const Vec4 &color);
@@ -79,12 +92,10 @@ public:
                     const MaterialData &material);
 
   void renderMesh(const MeshData &mesh, const Mat4 &model,
-                  const MaterialData &material) override;
+                  const MaterialData &material);
 
-  void renderSprite(const SpriteData &sprite, const Mat4 &model) override;
   MeshData quadMesh2D();
-  void drawText(Font *font, const std::string &str, Vec3 pos, float size,
-                Vec4 color) override;
+
   void flushTextDraws();
 
   std::array<int, 2> getScreenSize() override;

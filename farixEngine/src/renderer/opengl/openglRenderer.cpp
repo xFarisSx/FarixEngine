@@ -54,10 +54,11 @@ OpenGLRenderer::OpenGLRenderer(int width, int height, const char *title)
 
 OpenGLRenderer::~OpenGLRenderer() { SDL_DestroyWindow(window); }
 
-void OpenGLRenderer::beginFrame(const RenderContext &context) { clear(); }
-void OpenGLRenderer::setContext(const RenderContext &context) {}
-void OpenGLRenderer::beginUIPass(int screenW, int screenH) {}
-RenderContext OpenGLRenderer::makeUIContext(int screenW, int screenH) {}
+void OpenGLRenderer::beginFrame() { clear(); }
+void OpenGLRenderer::beginPass( RenderContext &context) {}
+void OpenGLRenderer::setContext( RenderContext &context) {}
+void OpenGLRenderer::endPass() {}
+
 void OpenGLRenderer::endFrame() { present(); }
 
 void OpenGLRenderer::clear(uint32_t color) {
@@ -67,14 +68,17 @@ void OpenGLRenderer::clear(uint32_t color) {
 }
 void OpenGLRenderer::present() { SDL_GL_SwapWindow(window); }
 
-void OpenGLRenderer::renderMesh(const MeshData &mesh, const Mat4 &model,
+void OpenGLRenderer::submitMesh(const MeshData &mesh, const Mat4 &model,
                                 const MaterialData &material) {}
 
-void OpenGLRenderer::renderSprite(const SpriteData &sprite, const Mat4 &model) {
+void OpenGLRenderer::submitSprite(const SpriteData &sprite, const Mat4 &model) {
 }
 
-void OpenGLRenderer::drawText(Font *font, const std::string &str, Vec3 pos,
-                              float size, Vec4 color) {}
+void OpenGLRenderer::submitText(Font *font, const std::string &str, Vec3 pos,
+                                float size, Vec4 color) {}
+
+void OpenGLRenderer::renderMesh(const MeshCommand &meshCommand) {}
+void OpenGLRenderer::renderText(const UITextDrawCommand &textCommand) {}
 
 std::array<int, 2> OpenGLRenderer::getScreenSize() {
   return {screenWidth, screenHeight};
