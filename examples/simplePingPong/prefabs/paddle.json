@@ -1,27 +1,15 @@
 {
   "assets": {
     "fonts": [],
-    "materials": [
-      {
-        "ambient": 0.10000000149011612,
-        "baseColor": {
-          "w": 1.0,
-          "x": 1.0,
-          "y": 1.0,
-          "z": 1.0
-        },
-        "diffuse": 1.0,
-        "doubleSided": true,
-        "name": "",
-        "shininess": 32.0,
-        "specular": 0.5,
-        "texture": "",
-        "useTexture": false,
-        "uuid": "default-material"
-      }
-    ],
+    "materials": [],
     "meshes": [],
-    "textures": []
+    "textures": [
+      {
+        "name": "Textcat",
+        "path": "assets/textures/textcat.bmp",
+        "uuid": "340f8764-67ec-477d-a21d-32996d9d9acb"
+      }
+    ]
   },
   "components": {
     "GlobalTransform": {
@@ -52,39 +40,35 @@
         ]
       ]
     },
-    "MaterialComponent": {
-      "material": "default-material",
-      "materialOverrides": {},
-      "overrideParams": true
-    },
-    "MeshComponent": {
-      "mesh": "",
-      "name": null,
-      "size": {
-        "x": 2.0,
-        "y": 0.20000000298023224,
-        "z": 0.5
-      },
-      "sphereData": {
-        "x": 1.0,
-        "y": 16.0,
-        "z": 32.0
-      },
-      "type": "Box",
-      "uuid": "a29b6b27-54ba-42f5-abae-fffac9ed5d53"
-    },
     "Metadata": {
       "name": "Player",
       "prefab": "",
       "tags": [
         "Paddle"
       ],
-      "uuid": "eac4ea4a-a437-4d73-a851-231e92e2c2e7"
+      "uuid": "c5875156-4a9a-4e46-868d-8da47828bd2f"
     },
     "ScriptComponent": {
       "scripts": [
         "PlayerPaddleScript"
       ]
+    },
+    "Sprite2DComponent": {
+      "color": {
+        "w": 1.0,
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "flipX": false,
+      "flipY": false,
+      "size": {
+        "x": 2.0,
+        "y": 0.20000000298023224,
+        "z": 0.0
+      },
+      "texture": "340f8764-67ec-477d-a21d-32996d9d9acb",
+      "useTexture": true
     },
     "TransformComponent": {
       "position": {

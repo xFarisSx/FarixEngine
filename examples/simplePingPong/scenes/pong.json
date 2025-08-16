@@ -6,79 +6,18 @@
         "name": "Default",
         "path": "assets/fonts/font.ttf",
         "ptsize": 32,
-        "uuid": "5919aa19-a2d7-4e07-8e7d-45e7dcdbad0c"
+        "uuid": "47bceced-7fec-4ea4-9b34-de22803e74cd"
       }
     ],
-    "materials": [
+    "materials": [],
+    "meshes": [],
+    "textures": [
       {
-        "ambient": 0.10000000149011612,
-        "baseColor": {
-          "w": 1.0,
-          "x": 1.0,
-          "y": 1.0,
-          "z": 1.0
-        },
-        "diffuse": 1.0,
-        "doubleSided": true,
-        "name": "",
-        "shininess": 32.0,
-        "specular": 0.5,
-        "texture": "",
-        "useTexture": false,
-        "uuid": "default-material"
+        "name": "Textcat",
+        "path": "assets/textures/textcat.bmp",
+        "uuid": "340f8764-67ec-477d-a21d-32996d9d9acb"
       }
-    ],
-    "meshes": [
-      {
-        "name": "",
-        "path": "",
-        "size": {
-          "x": 2.0,
-          "y": 0.20000000298023224,
-          "z": 0.5
-        },
-        "sphereData": {
-          "x": 1.0,
-          "y": 16.0,
-          "z": 32.0
-        },
-        "type": "Box",
-        "uuid": "8837df3e-b9e5-4246-80f1-5d199b12c7a4"
-      },
-      {
-        "name": "",
-        "path": "",
-        "size": {
-          "x": 2.0,
-          "y": 0.20000000298023224,
-          "z": 0.5
-        },
-        "sphereData": {
-          "x": 1.0,
-          "y": 16.0,
-          "z": 32.0
-        },
-        "type": "Box",
-        "uuid": "a29b6b27-54ba-42f5-abae-fffac9ed5d53"
-      },
-      {
-        "name": "",
-        "path": "",
-        "size": {
-          "x": 1.0,
-          "y": 1.0,
-          "z": 1.0
-        },
-        "sphereData": {
-          "x": 0.20000000298023224,
-          "y": 8.0,
-          "z": 16.0
-        },
-        "type": "Sphere",
-        "uuid": "d6b82656-2285-417e-a0cc-d5d7b96b359d"
-      }
-    ],
-    "textures": []
+    ]
   },
   "entities": [
     {
@@ -116,37 +55,33 @@
             ]
           ]
         },
-        "MaterialComponent": {
-          "material": "default-material",
-          "materialOverrides": {},
-          "overrideParams": true
-        },
-        "MeshComponent": {
-          "mesh": "",
-          "name": null,
-          "size": {
-            "x": 1.0,
-            "y": 1.0,
-            "z": 1.0
-          },
-          "sphereData": {
-            "x": 0.20000000298023224,
-            "y": 8.0,
-            "z": 16.0
-          },
-          "type": "Sphere",
-          "uuid": "d6b82656-2285-417e-a0cc-d5d7b96b359d"
-        },
         "Metadata": {
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "0c266642-36c5-4a8a-ba60-184306d2c89d"
+          "uuid": "f6f7c589-e1a4-4712-909d-db03a1702e5a"
         },
         "ScriptComponent": {
           "scripts": [
             "BallScript"
           ]
+        },
+        "Sprite2DComponent": {
+          "color": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "flipX": false,
+          "flipY": false,
+          "size": {
+            "x": 0.4000000059604645,
+            "y": 0.4000000059604645,
+            "z": 0.0
+          },
+          "texture": "340f8764-67ec-477d-a21d-32996d9d9acb",
+          "useTexture": true
         },
         "TransformComponent": {
           "position": {
@@ -198,39 +133,35 @@
             ]
           ]
         },
-        "MaterialComponent": {
-          "material": "default-material",
-          "materialOverrides": {},
-          "overrideParams": true
-        },
-        "MeshComponent": {
-          "mesh": "",
-          "name": null,
-          "size": {
-            "x": 2.0,
-            "y": 0.20000000298023224,
-            "z": 0.5
-          },
-          "sphereData": {
-            "x": 1.0,
-            "y": 16.0,
-            "z": 32.0
-          },
-          "type": "Box",
-          "uuid": "a29b6b27-54ba-42f5-abae-fffac9ed5d53"
-        },
         "Metadata": {
           "name": "Player",
           "prefab": "",
           "tags": [
             "Paddle"
           ],
-          "uuid": "eac4ea4a-a437-4d73-a851-231e92e2c2e7"
+          "uuid": "c5875156-4a9a-4e46-868d-8da47828bd2f"
         },
         "ScriptComponent": {
           "scripts": [
             "PlayerPaddleScript"
           ]
+        },
+        "Sprite2DComponent": {
+          "color": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "flipX": false,
+          "flipY": false,
+          "size": {
+            "x": 2.0,
+            "y": 0.20000000298023224,
+            "z": 0.0
+          },
+          "texture": "340f8764-67ec-477d-a21d-32996d9d9acb",
+          "useTexture": true
         },
         "TransformComponent": {
           "position": {
@@ -282,39 +213,35 @@
             ]
           ]
         },
-        "MaterialComponent": {
-          "material": "default-material",
-          "materialOverrides": {},
-          "overrideParams": true
-        },
-        "MeshComponent": {
-          "mesh": "",
-          "name": null,
-          "size": {
-            "x": 2.0,
-            "y": 0.20000000298023224,
-            "z": 0.5
-          },
-          "sphereData": {
-            "x": 1.0,
-            "y": 16.0,
-            "z": 32.0
-          },
-          "type": "Box",
-          "uuid": "8837df3e-b9e5-4246-80f1-5d199b12c7a4"
-        },
         "Metadata": {
           "name": "Opponent",
           "prefab": "",
           "tags": [
             "Paddle"
           ],
-          "uuid": "3b6dddb1-51fc-41e4-802d-a17dec812484"
+          "uuid": "1adb5494-60a8-48b2-a4b4-6e5f03ba8e39"
         },
         "ScriptComponent": {
           "scripts": [
             "OpponentPaddleScript"
           ]
+        },
+        "Sprite2DComponent": {
+          "color": {
+            "w": 1.0,
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+          },
+          "flipX": false,
+          "flipY": false,
+          "size": {
+            "x": 2.0,
+            "y": 0.20000000298023224,
+            "z": 1.0
+          },
+          "texture": "340f8764-67ec-477d-a21d-32996d9d9acb",
+          "useTexture": true
         },
         "TransformComponent": {
           "position": {
@@ -340,14 +267,14 @@
       "components": {
         "CameraComponent": {
           "aspectRatio": 1.7777777910232544,
-          "farPlane": 100.0,
+          "farPlane": 1000.0,
           "fov": 1.5707963705062866,
-          "mode": "Perspective",
-          "nearPlane": 1.0,
+          "mode": "Orthographic",
+          "nearPlane": 0.10000000149011612,
           "orthoBottom": -7.0,
-          "orthoFar": 100.0,
+          "orthoFar": 1000.0,
           "orthoLeft": -12.44444465637207,
-          "orthoNear": 0.0,
+          "orthoNear": 0.10000000149011612,
           "orthoRight": 12.44444465637207,
           "orthoTop": 7.0
         },
@@ -383,7 +310,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "0baa059b-66a3-45ff-b398-7e434ab593af"
+          "uuid": "fc375f71-9eac-4494-9e54-1b54ec63d7b9"
         },
         "TransformComponent": {
           "position": {
@@ -439,7 +366,7 @@
           "name": "ScoreUI",
           "prefab": "",
           "tags": [],
-          "uuid": "67b26214-8a5d-4c57-b845-03919ec9fa27"
+          "uuid": "7148f9d7-5e0b-46aa-9159-b08b110ba0aa"
         },
         "RectComponent": {
           "position": {
@@ -483,7 +410,7 @@
             "y": 1.0,
             "z": 1.0
           },
-          "font": "5919aa19-a2d7-4e07-8e7d-45e7dcdbad0c",
+          "font": "47bceced-7fec-4ea4-9b34-de22803e74cd",
           "fontSize": 24.0,
           "text": "Player: 0  Opponent: 0"
         }
@@ -524,7 +451,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "0f597b58-4201-42a1-be82-c72822b5e5b4"
+          "uuid": "05865d5e-6a21-4ab7-a166-e242de9f6e37"
         },
         "RectComponent": {
           "position": {
@@ -608,7 +535,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "ef6ea6ca-59b8-43c9-9b8a-232a369be138"
+          "uuid": "bba821eb-1083-4825-b848-78ded0e64b7c"
         },
         "RectComponent": {
           "position": {

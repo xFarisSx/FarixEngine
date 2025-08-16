@@ -7,6 +7,8 @@
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec4.hpp"
 #include "farixEngine/renderer/renderData.hpp"
+#include "farixEngine/renderer/renderer.hpp"
+#include "farixEngine/utils/uuid.hpp"
 #include <SDL2/SDL.h>
 #include <SDL_ttf.h>
 #include <algorithm>
@@ -131,22 +133,6 @@ void SoftwareRenderer::present() {
   SDL_RenderPresent(sdlRenderer);
 }
 
-Vec4 SoftwareRenderer::unpackColor(uint32_t color) {
-  uint8_t a = (color >> 24) & 0xFF;
-  uint8_t r = (color >> 16) & 0xFF;
-  uint8_t g = (color >> 8) & 0xFF;
-  uint8_t b = color & 0xFF;
-  return Vec4(r, g, b, a) / 255.0f;
-}
-
-uint32_t SoftwareRenderer::packColor(const Vec4 &color) {
-  uint8_t a = static_cast<uint8_t>(std::clamp(color.w, 0.f, 1.f) * 255.f);
-  uint8_t r = static_cast<uint8_t>(std::clamp(color.x, 0.f, 1.f) * 255.f);
-  uint8_t g = static_cast<uint8_t>(std::clamp(color.y, 0.f, 1.f) * 255.f);
-  uint8_t b = static_cast<uint8_t>(std::clamp(color.z, 0.f, 1.f) * 255.f);
-  return (a << 24) | (r << 16) | (g << 8) | b;
-}
-
 Vec4 SoftwareRenderer::project(const Vec4 &point, const Mat4 &model,
                                const RenderContext &ctx) const {
   Vec4 projected4 = ctx.projectionMatrix * ctx.viewMatrix * model * point;
@@ -195,8 +181,8 @@ bool SoftwareRenderer::isTriangleValid(const Vec4 &p0, const Vec4 &p1,
   auto isValid = [](const Vec4 &v) {
     return std::isfinite(v.x) && std::isfinite(v.y) && std::isfinite(v.z);
   };
-  return isValid(p0) && isValid(p1) && isValid(p2) && p0.z >= 0 && p0.z <= 1 &&
-         p1.z >= 0 && p1.z <= 1 && p2.z >= 0 && p2.z <= 1 && p0.w > 0 &&
+  return isValid(p0) && isValid(p1) && isValid(p2) && p0.z >= -1 && p0.z <= 1 &&
+         p1.z >= -1 && p1.z <= 1 && p2.z >= -1 && p2.z <= 1 && p0.w > 0 &&
          p1.w > 0 && p2.w > 0;
 }
 
@@ -342,8 +328,8 @@ bool SoftwareRenderer::isTriangleVisibleInFrustum(const Vec4 &v0,
                                                   const Vec4 &v2) {
 
   auto inside = [](const Vec4 &v) {
-    return v.x >= -v.w && v.x <= v.w && v.y >= -v.w && v.y <= v.w && v.z >= 0 &&
-           v.z <= v.w && v.w > 0;
+    return v.x >= -v.w && v.x <= v.w && v.y >= -v.w && v.y <= v.w &&
+           v.z >= -v.w && v.z <= v.w && v.w > 0;
   };
 
   return inside(v0) || inside(v1) || inside(v2);
@@ -417,7 +403,7 @@ void SoftwareRenderer::drawTriangle(const MeshData &mesh,
   auto ns = fetchNs(mesh, tri, material);
   auto ps = fetchPs(mesh, tri, material);
 
-  if (ctx.is2DPass) {
+  if (ctx.is2DPass || ctx.isOrthographic) {
     Vec4 v0_screen = ndcToScreen(v0_clip, screenWidth, screenHeight);
     Vec4 v1_screen = ndcToScreen(v1_clip, screenWidth, screenHeight);
     Vec4 v2_screen = ndcToScreen(v2_clip, screenWidth, screenHeight);
@@ -456,8 +442,9 @@ SoftwareRenderer::clipTriangleAgainstNearPlane(const ClippableVertex &v0,
                                                const ClippableVertex &v2) {
   auto inside = [](const Vec4 &v) { return v.z >= 0.0f && v.z <= v.w; };
 
-  auto intersect = [](const ClippableVertex &a, const ClippableVertex &b) {
-    float t = (0.0f - a.cposition.z) / (b.cposition.z - a.cposition.z);
+  auto intersect = [&](const ClippableVertex &a, const ClippableVertex &b) {
+    float t = (-currentContext->nearPlane - a.cposition.z) /
+              (b.cposition.z - a.cposition.z);
     return a.lerp(b, t);
   };
 
@@ -494,11 +481,12 @@ void SoftwareRenderer::renderMesh(const MeshData &mesh, const Mat4 &model,
   }
 }
 void SoftwareRenderer::renderMesh(const MeshCommand &meshCommand) {
-  renderMesh(meshCommand.meshData, meshCommand.modelMatrix,
+  renderMesh(*meshCommand.meshData, meshCommand.modelMatrix,
              meshCommand.matData);
 }
 
-void SoftwareRenderer::submitMesh(const MeshData &mesh, const Mat4 &model,
+void SoftwareRenderer::submitMesh(const std::shared_ptr<MeshData> mesh,
+                                  const Mat4 &model,
                                   const MaterialData &material) {
   if (!activePass) {
     throw std::runtime_error("submitMesh called without active pass!");
@@ -510,7 +498,7 @@ void SoftwareRenderer::submitMesh(const MeshData &mesh, const Mat4 &model,
 void SoftwareRenderer::submitSprite(const SpriteData &sprite,
                                     const Mat4 &model) {
 
-  MeshData quadMesh = quadMesh2D();
+  std::shared_ptr<MeshData> quadMesh = quadMesh2D();
   MaterialData mat;
   mat.useTexture = sprite.useTexture;
   mat.texture = sprite.texture;
@@ -524,27 +512,6 @@ void SoftwareRenderer::submitSprite(const SpriteData &sprite,
 
   MeshCommand meshCommand{quadMesh, mat, finalMat};
   activePass->meshCommands.push_back(meshCommand);
-}
-
-MeshData SoftwareRenderer::quadMesh2D() {
-  static MeshData quad;
-
-  if (quad.vertices.empty()) {
-
-    float w = 0.5f;
-    float h = 0.5f;
-
-    quad.vertices = {
-        {Vec3(-w, -h, 0), Vec3(0, 0, 1), Vec2(0, 0)},
-        {Vec3(w, -h, 0), Vec3(0, 0, 1), Vec2(1, 0)},
-        {Vec3(w, h, 0), Vec3(0, 0, 1), Vec2(1, 1)},
-        {Vec3(-w, h, 0), Vec3(0, 0, 1), Vec2(0, 1)},
-    };
-
-    quad.indices = {0, 1, 2, 0, 2, 3};
-  }
-
-  return quad;
 }
 
 void SoftwareRenderer::submitText(Font *font, const std::string &text, Vec3 pos,

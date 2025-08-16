@@ -25,7 +25,7 @@ public:
   void endPass() override;
   void endFrame() override;
 
-  void submitMesh(const MeshData &mesh, const Mat4 &model,
+  void submitMesh(const std::shared_ptr<MeshData> mesh, const Mat4 &model,
                   const MaterialData &material) override;
 
   void submitSprite(const SpriteData &sprite, const Mat4 &model) override;
@@ -38,11 +38,8 @@ public:
 
   void setContext(RenderContext &context) override;
 
-  void clear(uint32_t color = 0xFF006699) override;
+  void clear(uint32_t color = 0xFF87CEEB) override;
   void present() override;
-
-  uint32_t packColor(const Vec4 &color);
-  Vec4 unpackColor(uint32_t color);
 
   Vec4 project(const Vec4 &point, const Mat4 &model,
                const RenderContext &ctx) const;
@@ -93,8 +90,6 @@ public:
 
   void renderMesh(const MeshData &mesh, const Mat4 &model,
                   const MaterialData &material);
-
-  MeshData quadMesh2D();
 
   void flushTextDraws();
 

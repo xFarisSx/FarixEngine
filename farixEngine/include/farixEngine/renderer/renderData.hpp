@@ -1,9 +1,11 @@
 
 #pragma once
 
+#include "farixEngine/thirdparty/glad/glad.h"
 #include <SDL2/SDL.h>
 #include <cstdint>
 #include <limits>
+#include <memory>
 #include <vector>
 
 #include "farixEngine/assets/font.hpp"
@@ -12,6 +14,9 @@
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec3.hpp"
 #include "farixEngine/math/vec4.hpp"
+#include "farixEngine/renderer/opengl/EBO.hpp"
+#include "farixEngine/renderer/opengl/VAO.hpp"
+#include "farixEngine/renderer/opengl/VBO.hpp"
 
 namespace farixEngine::renderer {
 struct RenderContext {
@@ -22,11 +27,16 @@ struct RenderContext {
   bool is2DPass = false;
   bool enableZBuffer = true;
   bool enableLighting = true;
+  Vec4 lightColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  Vec3 lightPos = Vec3(0, 0, -5);
+  float nearPlane = 0.1f;
+  float farPlane = 100.0f;
 
   uint32_t clearColor = 0xFF87CEEB;
 };
 
 struct MaterialData {
+  std::string uuid = "";
   Vec4 baseColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
   float ambient = 0.1f;
   float diffuse = 0.9f;
@@ -34,8 +44,8 @@ struct MaterialData {
   float shininess = 32.0f;
   bool useTexture = false;
   bool doubleSided = true;
-  Vec3 uvMin = Vec3(0.0f, 0.0f, 0);
-  Vec3 uvMax = Vec3(1.0f, 1.0f, 0);
+  Vec2 uvMin = Vec2(0.0f, 0.0f);
+  Vec2 uvMax = Vec2(1.0f, 1.0f);
   Texture *texture = nullptr;
 };
 
@@ -52,21 +62,24 @@ struct TriangleData {
 };
 
 struct MeshData {
+  std::string uuid = "";
   std::vector<VertexData> vertices;
   std::vector<uint32_t> indices;
 };
 
 struct MeshCommand {
-  MeshData meshData;
+  std::shared_ptr<MeshData> meshData;
   MaterialData matData;
   Mat4 modelMatrix;
 };
 struct UITextDrawCommand {
+
   Font *font;
   std::string text;
   Vec3 pos;
   float size;
   Vec4 color;
+  std::string uuid = "";
 };
 
 struct RenderPass {
@@ -94,69 +107,39 @@ struct SpriteData {
   Vec3 size = Vec3(1.f, 1.f, 0);
   bool flipX = false;
   bool flipY = false;
-  Vec3 uvMin = Vec3(0.0f, 0.0f, 0);
-  Vec3 uvMax = Vec3(1.0f, 1.0f, 0);
+  Vec2 uvMin = Vec2(0.0f, 0.0f);
+  Vec2 uvMax = Vec2(1.0f, 1.0f);
 
   bool useTexture = false;
 };
 
-// struct MeshGPU {
-//   uint32_t vao = 0;
-//   uint32_t vbo = 0;
-//   uint32_t ebo = 0;
-//   size_t indexCount = 0;
-//   bool isUploaded = false;
-//
-//   void uploadToGPU(const MeshData &meshData) {
-//     if (isUploaded)
-//       return;
-//
-//     glGenVertexArrays(1, &vao);
-//     glGenBuffers(1, &vbo);
-//     glGenBuffers(1, &ebo);
-//
-//     glBindVertexArray(vao);
-//
-//     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//     glBufferData(GL_ARRAY_BUFFER, meshData.vertices.size() *
-//     sizeof(VertexData),
-//                  meshData.vertices.data(), GL_STATIC_DRAW);
-//
-//     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-//     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-//                  meshData.triangles.size() * sizeof(TriangleData),
-//                  meshData.triangles.data(), GL_STATIC_DRAW);
-//
-//     constexpr GLsizei stride = sizeof(VertexData);
-//
-//     glEnableVertexAttribArray(0);
-//     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride,
-//                           (void *)offsetof(VertexData, position));
-//
-//     glEnableVertexAttribArray(1);
-//     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride,
-//                           (void *)offsetof(VertexData, normal));
-//
-//     glEnableVertexAttribArray(2);
-//     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, stride,
-//                           (void *)offsetof(VertexData, uv));
-//
-//     glBindVertexArray(0);
-//
-//     isUploaded = true;
-//     indexCount = meshData.triangles.size() * 3;
-//   }
-//
-//   void release() {
-//     if (!isUploaded)
-//       return;
-//     glDeleteBuffers(1, &vbo);
-//     glDeleteBuffers(1, &ebo);
-//     glDeleteVertexArrays(1, &vao);
-//     vao = vbo = ebo = 0;
-//     isUploaded = false;
-//     indexCount = 0;
-//   }
-// };
+struct GPUMesh {
+  VAO vao;
+  VBO vbo;
+  EBO ebo;
+  size_t indexCount;
+
+  GPUMesh(MeshData &mesh) {
+    vao.Bind();
+
+    vbo = VBO((GLfloat *)mesh.vertices.data(),
+              mesh.vertices.size() * sizeof(VertexData));
+
+    ebo = EBO(mesh.indices.data(), mesh.indices.size() * sizeof(uint32_t));
+
+    vao.LinkAttrib(vbo, 0, 3, GL_FLOAT, sizeof(VertexData),
+                   (void *)offsetof(VertexData, position));
+    vao.LinkAttrib(vbo, 1, 3, GL_FLOAT, sizeof(VertexData),
+                   (void *)offsetof(VertexData, normal));
+    vao.LinkAttrib(vbo, 2, 2, GL_FLOAT, sizeof(VertexData),
+                   (void *)offsetof(VertexData, uv));
+
+    vao.Unbind();
+    vbo.Unbind();
+    ebo.Unbind();
+
+    indexCount = mesh.indices.size();
+  }
+};
 
 } // namespace farixEngine::renderer

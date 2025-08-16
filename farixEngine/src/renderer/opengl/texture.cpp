@@ -2,7 +2,7 @@
 namespace farixEngine::renderer {
 
 Texture::Texture(::farixEngine::Texture *texture, GLenum texType, GLuint slot,
-                 GLenum format, GLenum pixelType) {
+                 GLenum format, GLenum pixelType) { 
 
   type = texType;
   unit = slot;

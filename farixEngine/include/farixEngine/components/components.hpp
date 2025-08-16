@@ -1,8 +1,8 @@
 #pragma once
 #include "farixEngine/assets/font.hpp"
+#include "farixEngine/assets/material.hpp"
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/assets/texture.hpp"
-#include "farixEngine/assets/material.hpp"
 
 #include "farixEngine/math/mat4.hpp"
 #include "farixEngine/math/vec3.hpp"
@@ -47,15 +47,15 @@ struct CameraComponent {
 
   float fov = M_PI / 2;
   float aspectRatio = 16.0f / 9.0f;
-  float nearPlane = 1.0f;
-  float farPlane = 100.0f;
+  float nearPlane = 0.1f;
+  float farPlane = 1000.0f;
 
   float orthoLeft = -1.0f;
   float orthoRight = 1.0f;
   float orthoBottom = -1.0f;
   float orthoTop = 1.0f;
-  float orthoNear = 0;
-  float orthoFar = 100.0f;
+  float orthoNear = 0.1f;
+  float orthoFar = 1000.0f;
 
   void setOrthoZoom(float zoom) {
     float aspect = aspectRatio;
@@ -101,8 +101,7 @@ struct MaterialComponent {
   bool overrideParams = true;
   MaterialOverrides overrides;
 
-
-  MaterialComponent(UUID id = "") ;
+  MaterialComponent(UUID id = "");
 };
 
 struct ScriptComponent {
@@ -170,7 +169,7 @@ struct TimersComponent {
 
 struct Sprite2DComponent {
   AssetID texture;
-  Vec4 color = Vec4(1.0f);
+  Vec4 color = Vec4(1.0f, 1.0f);
   Vec3 size = Vec3(1.f, 1.f, 0);
   bool flipX = false;
   bool flipY = false;

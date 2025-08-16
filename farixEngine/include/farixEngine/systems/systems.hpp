@@ -27,13 +27,18 @@ public:
                                               const Mat4 &cameraTransform,
                                               const Vec3 &camPosition);
   renderer::MeshData loadMeshFromAsset(AssetID id);
-  renderer::MeshData &createOrGetMesh(AssetID id);
-  renderer::MaterialData &createOrGetMaterial(AssetID id);
-  void applyMaterialOverrides(renderer::MaterialData& matData ,MaterialOverrides& overrides);
+  std::shared_ptr<renderer::MeshData> createOrGetMesh(AssetID id);
+  renderer::MaterialData& createOrGetMaterial(AssetID id);
+
+  void applyMaterialOverrides(renderer::MaterialData &matData,
+                              MaterialOverrides &overrides);
 
 private:
-  std::unordered_map<AssetID, renderer::MeshData> meshCache;
-  std::unordered_map<AssetID, renderer::MaterialData> materialCache;
+  std::unordered_map<AssetID, std::shared_ptr<renderer::MeshData>> meshCache;
+
+  std::unordered_map<AssetID,renderer::MaterialData>
+      materialCache;
+
 };
 
 class ScriptSystem : public System {

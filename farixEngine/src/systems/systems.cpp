@@ -66,6 +66,8 @@ RenderSystem::createRenderContext(World &world, const CameraComponent &cam,
   ctx.enableLighting = true;
   ctx.enableZBuffer = true;
   ctx.is2DPass = false;
+  ctx.nearPlane = cam.nearPlane;
+  ctx.farPlane = cam.farPlane;
 
   if (cam.mode == CameraProjectionMode::Perspective) {
     ctx.projectionMatrix = Mat4::perspective(cam.fov, cam.aspectRatio,
@@ -75,6 +77,7 @@ RenderSystem::createRenderContext(World &world, const CameraComponent &cam,
     ctx.projectionMatrix =
         Mat4::ortho(cam.orthoLeft, cam.orthoRight, cam.orthoBottom,
                     cam.orthoTop, cam.orthoNear, cam.orthoFar);
+
     ctx.isOrthographic = true;
   }
 
@@ -142,27 +145,22 @@ renderer::MeshData RenderSystem::loadMeshFromAsset(AssetID mesh) {
   return meshData;
 }
 
-renderer::MeshData &RenderSystem::createOrGetMesh(AssetID id) {
+std::shared_ptr<renderer::MeshData> RenderSystem::createOrGetMesh(AssetID id) {
   auto it = meshCache.find(id);
   if (it != meshCache.end())
     return it->second;
 
-  auto [newIt, inserted] = meshCache.emplace(id, renderer::MeshData{});
-  auto &meshData = newIt->second;
-
+  auto meshData = std::make_shared<renderer::MeshData>();
   auto &am = EngineServices::get().getAssetManager();
   auto meshAsset = am.get<Mesh>(id);
 
-  meshData.vertices.reserve(meshAsset->vertices.size());
-  meshData.indices.reserve(meshAsset->indices.size());
+  meshData->vertices.reserve(meshAsset->vertices.size());
+  for (const auto &v : meshAsset->vertices)
+    meshData->vertices.push_back({v.position, v.normal, v.uv});
 
-  for (const auto &v : meshAsset->vertices) {
-    meshData.vertices.push_back({v.position, v.normal, v.uv});
-  }
+  meshData->indices = meshAsset->indices;
 
-  meshData.indices.insert(meshData.indices.end(), meshAsset->indices.begin(),
-                          meshAsset->indices.end());
-
+  meshCache[id] = meshData;
   return meshData;
 }
 renderer::MaterialData &RenderSystem::createOrGetMaterial(AssetID id) {
@@ -241,13 +239,20 @@ void RenderSystem::onUpdate(World &world, float dt) {
       if (meshC.mesh.empty() || matC.material.empty())
         continue;
 
-      renderer::MeshData &meshData = createOrGetMesh(meshC.mesh);
-      renderer::MaterialData matData = createOrGetMaterial(matC.material);
+      std::shared_ptr<renderer::MeshData> meshData =
+          createOrGetMesh(meshC.mesh);
+      meshData->uuid = meshC.mesh;
+      renderer::MaterialData *matDataPtr = &createOrGetMaterial(matC.material);
 
-      if (matC.overrideParams)
-        applyMaterialOverrides(matData, matC.overrides);
+      if (matC.overrideParams) {
 
-      renderer->submitMesh(meshData, model, matData);
+        renderer::MaterialData matDataCopy = *matDataPtr;
+        applyMaterialOverrides(matDataCopy, matC.overrides);
+        renderer->submitMesh(meshData, model, matDataCopy);
+      } else {
+
+        renderer->submitMesh(meshData, model, *matDataPtr);
+      }
     }
 
     if (world.hasComponent<GlobalTransform>(entity) &&
@@ -273,13 +278,18 @@ void RenderSystem::onUpdate(World &world, float dt) {
   renderer->endPass();
 
   renderer::RenderContext uiCtx;
+  uiCtx.isOrthographic = true;
 
   uiCtx.viewMatrix = Mat4::identity();
-  uiCtx.projectionMatrix = Mat4::ortho(0, renderer->getScreenSize()[0], renderer->getScreenSize()[1], 0, 0, 1);
+
+  uiCtx.projectionMatrix =
+      Mat4::ortho(0.0f, float(renderer->getScreenSize()[0]),
+                  float(renderer->getScreenSize()[1]), 0.0f, 0.f, 1000.0f);
+
   uiCtx.enableZBuffer = false;
   uiCtx.enableLighting = false;
   uiCtx.is2DPass = true;
-  uiCtx.cameraPosition = Vec3(0);
+  uiCtx.cameraPosition = cameraPosition;
 
   renderer->beginPass(uiCtx);
 
@@ -297,7 +307,7 @@ void RenderSystem::onUpdate(World &world, float dt) {
         renderer->getScreenSize()[1]);
     Mat4 model = Mat4::translate(Vec3(rectPos.x, rectPos.y, 0)) *
                  Mat4::rotateZ(uiRect.rotation) *
-                 Mat4::scale(Vec3{uiRect.size.x, -uiRect.size.y, 1.0f});
+                 Mat4::scale(Vec3{uiRect.size.x, uiRect.size.y, 1.0f});
 
     if (world.hasComponent<UIImageComponent>(entity)) {
       const auto &uiImage = world.getComponent<UIImageComponent>(entity);

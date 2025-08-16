@@ -167,7 +167,7 @@ public:
   }
 
   void onScored(ScoreEvent &event) {
-
+ 
     if (event.byPlayer)
       playerScore++;
     else
