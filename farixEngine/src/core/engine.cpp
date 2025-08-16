@@ -14,7 +14,7 @@ Engine::~Engine() { shutdown(); }
 void Engine::init(int width, int height, const char *title) {
   context = new EngineContext();
 
-  renderer = new renderer::SoftwareRenderer(width, height, title);
+  renderer = new renderer::OpenGLRenderer(width, height, title);
   controller = new Controller();
   sceneManager = new SceneManager();
   inputManager = InputManager();

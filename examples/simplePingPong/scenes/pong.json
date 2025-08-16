@@ -6,7 +6,7 @@
         "name": "Default",
         "path": "assets/fonts/font.ttf",
         "ptsize": 32,
-        "uuid": "04dd78b6-407c-45bf-abbb-9baa3366d45e"
+        "uuid": "33ab2e51-e9de-4c94-8264-13a19f9cedd4"
       }
     ],
     "materials": [
@@ -43,7 +43,7 @@
           "z": 32.0
         },
         "type": "Box",
-        "uuid": "4b978bf2-45ab-4f70-aa2e-f0fa148012bf"
+        "uuid": "6b99bfec-44ed-41d5-82ef-22660f58be50"
       },
       {
         "name": "",
@@ -59,7 +59,7 @@
           "z": 32.0
         },
         "type": "Box",
-        "uuid": "82797e32-461b-43ec-b812-b179dd5b5347"
+        "uuid": "edbbf15b-bb37-44ad-bef8-26f3b68e44ea"
       },
       {
         "name": "",
@@ -75,7 +75,7 @@
           "z": 16.0
         },
         "type": "Sphere",
-        "uuid": "a1ac6f4a-3d3b-44cf-b4b9-f25619265797"
+        "uuid": "c7c213af-2837-40ee-b6cc-6bf9123a8794"
       }
     ],
     "textures": []
@@ -135,13 +135,13 @@
             "z": 16.0
           },
           "type": "Sphere",
-          "uuid": "a1ac6f4a-3d3b-44cf-b4b9-f25619265797"
+          "uuid": "c7c213af-2837-40ee-b6cc-6bf9123a8794"
         },
         "Metadata": {
           "name": "Ball",
           "prefab": "",
           "tags": [],
-          "uuid": "4fe0bcc0-4f32-49f2-aa88-1803af516b62"
+          "uuid": "65703d89-10c7-45e7-9700-536192ed7382"
         },
         "ScriptComponent": {
           "scripts": [
@@ -217,7 +217,7 @@
             "z": 32.0
           },
           "type": "Box",
-          "uuid": "82797e32-461b-43ec-b812-b179dd5b5347"
+          "uuid": "edbbf15b-bb37-44ad-bef8-26f3b68e44ea"
         },
         "Metadata": {
           "name": "Player",
@@ -225,7 +225,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "625b320c-8f67-4759-8771-b6244a9a6002"
+          "uuid": "2a2bf2a0-bbf0-48c9-9513-8cdc7e9ff7fa"
         },
         "ScriptComponent": {
           "scripts": [
@@ -301,7 +301,7 @@
             "z": 32.0
           },
           "type": "Box",
-          "uuid": "4b978bf2-45ab-4f70-aa2e-f0fa148012bf"
+          "uuid": "6b99bfec-44ed-41d5-82ef-22660f58be50"
         },
         "Metadata": {
           "name": "Opponent",
@@ -309,7 +309,7 @@
           "tags": [
             "Paddle"
           ],
-          "uuid": "0c62892f-45e7-4697-8d71-e1193e5eae7f"
+          "uuid": "b848b9f8-3477-445f-ab78-691fa13667da"
         },
         "ScriptComponent": {
           "scripts": [
@@ -383,7 +383,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "a0fec06d-3f6e-4afd-baf5-89f9c5827631"
+          "uuid": "f95beb0c-b7b7-47f4-8a91-9fd45847bca3"
         },
         "TransformComponent": {
           "position": {
@@ -439,7 +439,7 @@
           "name": "ScoreUI",
           "prefab": "",
           "tags": [],
-          "uuid": "73c6ffb3-516a-487b-8ffe-20e2d50ebb4b"
+          "uuid": "4643d7b4-46d4-4d98-9063-579cc8a8b430"
         },
         "RectComponent": {
           "position": {
@@ -483,7 +483,7 @@
             "y": 1.0,
             "z": 1.0
           },
-          "font": "04dd78b6-407c-45bf-abbb-9baa3366d45e",
+          "font": "33ab2e51-e9de-4c94-8264-13a19f9cedd4",
           "fontSize": 24.0,
           "text": "Player: 0  Opponent: 0"
         }
@@ -524,7 +524,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "710d99f5-b87d-45eb-b33b-b5fb0bd43300"
+          "uuid": "6f506783-8e9b-4908-90fa-67f449f5b4ea"
         },
         "RectComponent": {
           "position": {
@@ -608,7 +608,7 @@
           "name": "GameObject",
           "prefab": "",
           "tags": [],
-          "uuid": "86c912fa-39f1-4c8e-981d-dad8d2baffc3"
+          "uuid": "3a94ba3a-3f49-4e41-91a5-6da5f55001a6"
         },
         "RectComponent": {
           "position": {

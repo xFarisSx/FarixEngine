@@ -5,6 +5,8 @@ project(FarixEngine VERSION 1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 file(GLOB_RECURSE ENGINE_CPP "farixEngine/src/*.cpp")
 set(GLAD_C "farixEngine/src/thirdparty/glad/glad.c")
@@ -12,10 +14,15 @@ set(GLAD_C "farixEngine/src/thirdparty/glad/glad.c")
 
 add_library(farixEngine STATIC ${ENGINE_CPP} ${GLAD_C})
 
-
 target_include_directories(farixEngine
     PUBLIC
+
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/farixEngine/include>
+
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/farixEngine/include>
+
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/farixEngine/include/farixEngine/thirdparty>
+
         $<INSTALL_INTERFACE:include/farixEngine>
 )
 
@@ -23,6 +30,7 @@ target_include_directories(farixEngine
 find_package(SDL2 REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 find_package(OpenGL REQUIRED)
+
 
 target_link_libraries(farixEngine
     PUBLIC
@@ -32,19 +40,16 @@ target_link_libraries(farixEngine
 )
 
 
+include(GNUInstallDirs)
+
+set(FARIX_ASSET_DIR "${CMAKE_INSTALL_FULL_DATADIR}/farixEngine/assets")
+
+
 configure_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/AssetConfig.h.in"
     "${CMAKE_CURRENT_BINARY_DIR}/farixEngine/include/farixEngine/AssetConfig.h"
     @ONLY
 )
-
-target_include_directories(farixEngine
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/farixEngine/include>
-)
-
-
-include(GNUInstallDirs)
 
 install(TARGETS farixEngine
     EXPORT FarixEngineTargets
@@ -59,6 +64,7 @@ install(DIRECTORY farixEngine/assets
     DESTINATION ${CMAKE_INSTALL_DATADIR}/farixEngine
 )
 
+
 install(EXPORT FarixEngineTargets
     FILE FarixEngineTargets.cmake
     NAMESPACE Farix::
@@ -71,11 +77,13 @@ write_basic_package_version_file(
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
+
 configure_package_config_file(
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/FarixEngineConfig.cmake.in"
     "${CMAKE_CURRENT_BINARY_DIR}/FarixEngineConfig.cmake"
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/FarixEngine
 )
+
 install(FILES
     "${CMAKE_CURRENT_BINARY_DIR}/FarixEngineConfig.cmake"
     "${CMAKE_CURRENT_BINARY_DIR}/FarixEngineConfigVersion.cmake"

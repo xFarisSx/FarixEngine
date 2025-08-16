@@ -29,3 +29,4 @@ Thumbs.db
 *.swp
 
 examples/*/build/
+examples/*/.cache

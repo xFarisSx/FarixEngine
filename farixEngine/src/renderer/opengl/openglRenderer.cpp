@@ -1,4 +1,6 @@
 #include "farixEngine/renderer/opengl/openglRenderer.hpp"
+#include "farixEngine/AssetConfig.h"
+#include "farixEngine/renderer/opengl/shader.hpp"
 #include <array>
 namespace farixEngine::renderer {
 
@@ -45,20 +47,25 @@ OpenGLRenderer::OpenGLRenderer(int width, int height, const char *title)
     exit(1);
   }
   //
-  // shaderProgram = Shader("../shaders/vertexShader.vert",
-  //                      "../shaders/fragmentShader.frag");
+  defaultShaderProgram =
+      Shader(std::string(FARIX_ASSET_DIR) + "/shaders/default.vert",
+             std::string(FARIX_ASSET_DIR) + "/shaders/default.frag");
 }
 
 OpenGLRenderer::~OpenGLRenderer() { SDL_DestroyWindow(window); }
 
-void OpenGLRenderer::beginFrame(const RenderContext &context) {}
+void OpenGLRenderer::beginFrame(const RenderContext &context) { clear(); }
 void OpenGLRenderer::setContext(const RenderContext &context) {}
 void OpenGLRenderer::beginUIPass(int screenW, int screenH) {}
 RenderContext OpenGLRenderer::makeUIContext(int screenW, int screenH) {}
-void OpenGLRenderer::endFrame() {}
+void OpenGLRenderer::endFrame() { present(); }
 
-void OpenGLRenderer::clear(uint32_t color) {}
-void OpenGLRenderer::present() {}
+void OpenGLRenderer::clear(uint32_t color) {
+
+  glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+void OpenGLRenderer::present() { SDL_GL_SwapWindow(window); }
 
 void OpenGLRenderer::renderMesh(const MeshData &mesh, const Mat4 &model,
                                 const MaterialData &material) {}

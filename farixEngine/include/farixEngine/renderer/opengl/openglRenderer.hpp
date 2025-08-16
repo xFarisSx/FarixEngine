@@ -1,6 +1,7 @@
 #pragma once
 
 #include "farixEngine/renderer/renderData.hpp"
+#include "farixEngine/renderer/opengl/shader.hpp"
 #include "farixEngine/renderer/renderer.hpp"
 #include <SDL2/SDL.h>
 #include "farixEngine/thirdparty/glad/glad.h"
@@ -31,6 +32,12 @@ public:
                 Vec4 color) override;
 
   std::array<int, 2> getScreenSize() override;
+
+
+private:
+  Shader defaultShaderProgram ;
 };
+
+
 
 } // namespace farixEngine::renderer

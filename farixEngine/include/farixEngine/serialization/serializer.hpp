@@ -179,7 +179,7 @@ std::shared_ptr<T> Serializer::deserializeAsset(const json &j,
   } else if constexpr (std::is_same_v<T, Texture>) {
 
     std::string path = j.value("path", "");
-    asset = Texture::loadFromBmp(path, uuid);
+    asset = Texture::load(path, uuid);
     am.add(asset, name);
 
   } else if constexpr (std::is_same_v<T, Material>) {
