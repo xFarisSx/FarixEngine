@@ -53,7 +53,7 @@ vec4 pointLight()
 vec4 directLight()
 {
     vec3 normal = normalize(Normal);
-    vec3 lightDir = normalize(vec3(0.0, 1.0, 1.0));
+    vec3 lightDir = normalize(vec3(0.0f, 0.3f, 1.0f));
 
   
     float diffuse = max(dot(normal, lightDir), 0.0);
@@ -71,7 +71,7 @@ vec4 directLight()
 
     vec3 finalColor = ambientTerm + diffuseTerm + specularTerm;
     
-    return vec4(finalColor, 1.0);
+    return vec4(finalColor, baseColor.w);
 }
 
 
@@ -114,7 +114,7 @@ if(enableLight){
 
 
 } else{
-FragColor= useTexture ? texture(tex0, texCoord) : objectColor;
+  FragColor= useTexture ? texture(tex0, texCoord) : objectColor;
 
 }
 

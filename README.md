@@ -1,54 +1,59 @@
 # Farix Engine (WIP)
 
-A lightweight C++17 game engine using SDL2.  
-Features ECS, 3D-2.5D-2D rendering, OBJ mesh loading, textures, scripting, scene management, and more.
+A lightweight C++17 game engine using SDL2 and OpenGL.
+Supports ECS, 3D/2.5D/2D rendering, OBJ mesh loading, textures, scripting, scene management, UI, and more.
 
 ---
 
 ## Requirements
 
-- C++17 compiler  
-- SDL2 development libraries  
+- C++17 compiler
+- SDL2 development libraries
+- SDL2_ttf development libraries
+- OpenGL
 
-### Fedora:
+### Linux:
 ```sh
-sudo dnf install SDL2-devel
+# Fedora
+sudo dnf install SDL2-devel SDL2_ttf-devel mesa-libGL-devel
+
+# Ubuntu
+sudo apt install libsdl2-dev libsdl2-ttf-dev libgl1-mesa-dev
 ```
 
-### Ubuntu:
+### Windows (Visual Studio + vcpkg):
+- Install `vcpkg`
 ```sh
-sudo apt install libsdl2-dev
+vcpkg install sdl2 sdl2-ttf glew
 ```
-
 ---
 
-## Build
-
+## Build and Install Engine (CMake)
+### Linux:
 ```sh
-make
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+sudo cmake --install .        # installs headers, library, and assets
 ```
-
-Outputs: 
-- `build/engine/libfarixEngine.a`
-
----
-
-## Install / Uninstall
-
+### Windows (Visual Studio + vcpkg):
 ```sh
-sudo make install     # installs to /usr/local/
-sudo make uninstall   # removes installed files
+mkdir build && cd build
+cmake .. -G "Visual Studio 17 2022" -A x64 -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="C:/FarixEngine"
+cmake --build . --config Release
+cmake --install . --config Release
 ```
+- Include FarixEngine folder in your project include paths.
 
 ---
 
 ## Core Features
 
 - Entity-Component-System (ECS)
-- Software 3D rendering (OBJ, BMP)
+- Responsive Software and OpenGL backend
 - Lighting & texture support
-- 2D rendering support (sprites, UI)
-- UI system with anchors, images, texts, buttons in screen space
+- 2D rendering (sprites, UI) and 3D rendering
+- UI system: anchors, images, texts, buttons
 - Event system (keyboard, collision, custom events...)
 - Scripting system (`onStart()` / `onUpdate()` / `onKeyPressed()` / `onCollision()`, etc.)
 - GameObject and GameWorld wrappers for convenient entity & component access
@@ -91,6 +96,7 @@ sudo make uninstall   # removes installed files
 - `LightComponent` — point, directional, spot lights with color, intensity, range, spot angle
 ### 2D & UI Components
 - `Sprite2DComponent` — textured quad with color tint
+- `TextComponent` — 3D world-space text
 - `RectComponent` — screen-space position, size, rotation
 - `UIComponent` — anchor (top/center/etc.), interactivity flags
 - `UIImageComponent` — draws texture to screen (UI)
@@ -101,7 +107,7 @@ sudo make uninstall   # removes installed files
 
 ## Systems
 
-- `RenderSystem` — draws all mesh entities using the active camera 
+- `RenderSystem` — draws 3D/2D entities
 - `ScriptSystem` — calls `onStart()` once, then `onUpdate(dt)` every frame 
 - `HierarchySystem` — updates global transforms based on parent-child hierarchy
 - `CameraControllerSystem` — basic WASD + mouse camera movement 
@@ -142,40 +148,76 @@ Learn how to create, emit, subscribe to events:
 
 - Sample projects available under `examples/` demonstrate engine usage.
 
----
+### CMake For A Game (MyGame)
+```cmake
+cmake_minimum_required(VERSION 3.15)
+project(MyGame LANGUAGES CXX)
 
-## Compile Your Game
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $ENV{HOME}/Builds/MyGameBuild)
 
-```sh
-g++ -std=c++17 -Wall -I/usr/local/include/farixEngine main.cpp -L/usr/local/lib -lfarixEngine $(sdl2-config --cflags --libs) -o game
+find_package(SDL2 REQUIRED)
+find_package(SDL2_ttf REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(FarixEngine REQUIRED)
+
+add_executable(mygame
+    main.cpp
+    game/game.cpp
+)
+
+target_link_libraries(mygame
+    PRIVATE
+        Farix::farixEngine
+        SDL2::SDL2
+        SDL2::SDL2main
+        SDL2_ttf::SDL2_ttf
+        OpenGL::GL
+)
+
 ```
 
 ---
 
-## Makefile Commands
+## Manual Compilation
+### Linux:
 
-- `make` → build static library  
-- `make clean` → remove build files  
-- `sudo make install` → install headers + lib  
-- `sudo make uninstall` → remove them  
+```sh
+g++ -std=c++17 -Wall \
+    main.cpp \
+    game/game.cpp \
+    -I/usr/local/include/farixEngine \
+    -L/usr/local/lib -lfarixEngine \
+    $(sdl2-config --cflags --libs) -lSDL2_ttf -o ~/Builds/CppProjectBuild/game
+
+```
+### Windows (MinGW g++):
+- Assuming `SDL2`, `SDL2_ttf` and `OpenGL` are installed (via vcpkg or manually)
+```sh
+g++ -std=c++17 -Wall \
+    main.cpp \
+    game/game.cpp \
+    -IC:/path/to/farixEngine/include \
+    -LC:/path/to/farixEngine/lib -lfarixEngine \
+    -IC:/path/to/SDL2/include -LC:/path/to/SDL2/lib -lSDL2 -lSDL2_ttf -lopengl32 \
+    -o game.exe
+```
 
 ---
 
 ## Notes
 
-- Only `.obj` files (no .mtl/normals yet) 
-- Only `.bmp` textures supported 
+- Only `.obj` files (no .glTF yet) 
 - Materials include lighting factors and optional texture
-- Lighting uses simple ambient, diffuse, specular components
-- Software rendering only (OpenGL planned) 
-- Some OBJ files may fail — loader is experimental 
+- Lighting: simple Phong-like components
 
 ---
 
 ## To Do / Planned
 
-- Convert software renderer to OpenGL backend
-- Rendering enhancements
+- Rendering enhancements (shadows, post-processing)
 - Audio system enhancements
-- Complete physics system with broadphase, narrowphase, collision response
+- Complete physics (broadphase/narrowphase, collision response)
 - Scale the engine to include various types and formats of assets like glTF etc.
+- More sample projects

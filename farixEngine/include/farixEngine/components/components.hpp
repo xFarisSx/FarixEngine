@@ -211,6 +211,12 @@ struct UITextComponent {
   float fontSize = 16.0f;
   AssetID font;
 };
+struct TextComponent {
+  std::string text;
+  Vec4 color = Vec4(1.0f);
+  float fontSize = 16.0f;
+  AssetID font;
+};
 
 struct UIButtonComponent {
   std::function<void()> onClick;

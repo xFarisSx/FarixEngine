@@ -10,6 +10,8 @@ public:
   GLuint ID;
   GLenum type;
   GLuint unit;
+  float width;
+  float height;
   Texture(::farixEngine::Texture *texture, GLenum texType, GLuint slot,
           GLenum format, GLenum pixelType);
 

@@ -35,7 +35,7 @@
           "z": 16.0
         },
         "type": "Sphere",
-        "uuid": "3c04a6b8-e60c-4d3d-97e6-c08c8c4e6a09"
+        "uuid": "ad1d1e39-5f6b-4402-93bc-0d9ed87b645d"
       }
     ],
     "textures": []
@@ -81,7 +81,7 @@
     },
     "MeshComponent": {
       "mesh": "",
-      "meshUUID": "3c04a6b8-e60c-4d3d-97e6-c08c8c4e6a09",
+      "meshUUID": "ad1d1e39-5f6b-4402-93bc-0d9ed87b645d",
       "name": null,
       "size": {
         "x": 1.0,
@@ -99,7 +99,7 @@
       "name": "Ball",
       "prefab": "",
       "tags": [],
-      "uuid": "a1040e41-c8a9-4a1f-a4c7-8fb0f2e8f2cc"
+      "uuid": "c8d2d9ae-621f-4578-9715-d57e4aa3e39d"
     },
     "ScriptComponent": {
       "scripts": [
@@ -124,5 +124,5 @@
       }
     }
   },
-  "id": 1
+  "id": 2
 }

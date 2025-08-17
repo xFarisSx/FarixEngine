@@ -17,6 +17,12 @@ auto varName = Prefab::instantiate(gameWorld, "prefabs/name.json");
 
 ```json
 {
+  assets: {
+    meshes:[],
+    textures:[],
+    fonts:[],
+    materials:[]
+  },
   "components": {
     "Metadata": {
       "name": "Player",

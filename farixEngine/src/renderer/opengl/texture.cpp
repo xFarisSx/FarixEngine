@@ -2,7 +2,7 @@
 namespace farixEngine::renderer {
 
 Texture::Texture(::farixEngine::Texture *texture, GLenum texType, GLuint slot,
-                 GLenum format, GLenum pixelType) { 
+                 GLenum format, GLenum pixelType) {
 
   type = texType;
   unit = slot;
@@ -16,12 +16,15 @@ Texture::Texture(::farixEngine::Texture *texture, GLenum texType, GLuint slot,
   glTexParameteri(texType, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(texType, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexImage2D(texType, 0, GL_RGBA, texture->texWidth, texture->texHeight, 0,
                format, pixelType, texture->texturePixels);
+  width = texture->texWidth;
+  height = texture->texHeight;
 
   glGenerateMipmap(texType);
 
-  stbi_image_free(texture->texturePixels);
+  // stbi_image_free(texture->texturePixels);
 
   glBindTexture(texType, 0);
 }

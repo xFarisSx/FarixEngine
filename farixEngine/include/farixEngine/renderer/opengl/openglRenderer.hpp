@@ -1,10 +1,10 @@
 #pragma once
 
 #include "farixEngine/renderer/opengl/shader.hpp"
+
 #include "farixEngine/renderer/renderData.hpp"
 #include "farixEngine/renderer/renderer.hpp"
 #include "farixEngine/thirdparty/glad/glad.h"
-#include "farixEngine/renderer/opengl/texture.hpp"
 #include <SDL2/SDL.h>
 
 namespace farixEngine::renderer {
@@ -30,21 +30,25 @@ public:
   void submitSprite(const SpriteData &sprite, const Mat4 &model) override;
 
   void submitText(Font *font, const std::string &str, Vec3 pos, float size,
-                  Vec4 color) override;
+                  Vec4 color, Mat4 model) override;
+  void submitText2D(Font *font, const std::string &str, Vec3 pos, float size,
+                    Vec4 color);
 
   void renderMesh(const MeshCommand &meshCommand) override;
+  void renderMesh(const GPUMeshCommand &meshCommand);
   void renderText(const UITextDrawCommand &textCommand) override;
 
   std::array<int, 2> getScreenSize() override;
 
   std::shared_ptr<GPUMesh>
-  createOrGetGPUMesh(const std::shared_ptr<MeshData> &mesh) ;
-  std::shared_ptr<Texture> createOrGetGPUTexture(::farixEngine::Texture *tex) ;
+  createOrGetGPUMesh(const std::shared_ptr<MeshData> &mesh);
+  std::shared_ptr<Texture> createOrGetGPUTexture(::farixEngine::Texture *tex);
 
 private:
   std::unordered_map<std::string, std::shared_ptr<GPUMesh>> gpuMeshCache;
   std::unordered_map<std::string, std::shared_ptr<Texture>> gpuTextureCache;
   Shader defaultShaderProgram;
+  Shader textShaderProgram;
 };
 
 } // namespace farixEngine::renderer

@@ -6,39 +6,53 @@
 
 void setupScene3D(GameWorld &gameWorld) {
   auto &am = EngineServices::get().getAssetManager();
+
+  auto &scoreUI = gameWorld.createGameObject();
+  scoreUI.addComponent<ScoreComponent>();
+  scoreUI.setName("ScoreUI");
+  scoreUI.addComponent<TextComponent>(
+      TextComponent{.text = "Player: 0  Opponent: 0",
+                    .color = Vec4(1, 1, 1, 0.5f),
+                    .fontSize = 1.0f,
+                    .font = "Default"});
+
+  BillboardComponent bil;
+  bil.type = BillboardComponent::BillboardType::BillboardFull;
+  scoreUI.addComponent<BillboardComponent>(bil);
+
   // Ball
-  // auto &ball = gameWorld.createGameObject();
-  // ball.setName("Ball");
-  // ball.setMesh(Mesh::createSphere(0.2f, 8, 16));
-  // ball.setMaterial(MaterialComponent{});
-  // ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
-  // ball.addScript(std::make_shared<BallScript>());
-  // ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
-  auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
+  auto &ball = gameWorld.createGameObject();
+  ball.setName("Ball");
+  ball.setMesh(Mesh::createSphere(0.2f, 8, 16));
+  ball.setMaterial(MaterialComponent{});
+  ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
+  ball.addScript(std::make_shared<BallScript>());
+  ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
+  // auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
 
   // Player Paddle
-  // auto &paddle1 = gameWorld.createGameObject();
-  // paddle1.setName("Player");
-  // paddle1.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
-  // paddle1.setMaterial(MaterialComponent{});
-  // paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
-  // paddle1.addTag("Paddle");
-  // paddle1.addScript(std::make_shared<PlayerPaddleScript>());
-  auto &paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  auto &paddle1 = gameWorld.createGameObject();
+  paddle1.setName("Player");
+  paddle1.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
+  paddle1.setMaterial(MaterialComponent{});
+  paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
+  paddle1.addTag("Paddle");
+  paddle1.addScript(std::make_shared<PlayerPaddleScript>());
+  // auto &paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
 
   // Opponent Paddle
-  // auto &paddle2 = gameWorld.createGameObject();
-  // paddle2.setName("Opponent");
-  // paddle2.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
-  // paddle2.setMaterial(MaterialComponent{});
-  // paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
-  // paddle2.addTag("Paddle");
-  // paddle2.addScript(std::make_shared<OpponentPaddleScript>());
-  auto &paddle2 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  auto &paddle2 = gameWorld.createGameObject();
   paddle2.setName("Opponent");
-  paddle2.removeScriptByName("PlayerPaddleScript");
-  paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+  paddle2.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
+  paddle2.setMaterial(MaterialComponent{});
   paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
+  paddle2.addTag("Paddle");
+  paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+  // auto &paddle2 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  // paddle2.setName("Opponent");
+  // paddle2.removeScriptByName("PlayerPaddleScript");
+  // paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+  // paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
 
   // Camera
   auto &camera = gameWorld.createGameObject();
@@ -47,6 +61,7 @@ void setupScene3D(GameWorld &gameWorld) {
       CameraProjectionMode::Perspective;
 
   camera.getComponent<CameraComponent>().setOrthoZoom(7);
+  // camera.addComponent<CameraControllerComponent>();
 
   gameWorld.setCamera(camera);
 
@@ -111,10 +126,10 @@ void setupUI(GameWorld &gameWorld, AssetID font) {
   scoreUI.setName("ScoreUI");
   scoreUI.addComponent<UITextComponent>({.text = "Player: 0  Opponent: 0",
                                          .color = Vec4(1, 1, 1, 1),
-                                         .fontSize = 24.0f,
+                                         .fontSize = 1.0f,
                                          .font = font});
 
-  scoreUI.addComponent<RectComponent>({Vec3(10, 10, 0), Vec3(100, 100, 0), 0});
+  scoreUI.addComponent<RectComponent>({Vec3(155, 30, 1), Vec3(300, 50, 0), 0});
   scoreUI.addComponent<UIComponent>();
 
   auto &panelUI = gameWorld.createGameObject();
@@ -191,8 +206,8 @@ void Game::onStart() {
 
   setupScene3D(*sceneManager.currentGameWorld());
   // setupScene2D(*sceneManager.currentGameWorld());
-  // auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
-  // setupUI(*sceneManager.currentGameWorld(), font);
+  auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 36);
+  setupUI(*sceneManager.currentGameWorld(), font);
   //
   sceneManager.saveCurrentScene("scenes/");
 }

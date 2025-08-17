@@ -34,10 +34,13 @@ public:
   virtual void submitSprite(const SpriteData &sprite, const Mat4 &model) = 0;
 
   virtual void submitText(Font *font, const std::string &str, Vec3 pos,
-                          float size, Vec4 color) = 0;
+                          float size, Vec4 color, Mat4 model) = 0;
+  virtual void submitText2D(Font *font, const std::string &str, Vec3 pos,
+                          float size, Vec4 color) {};
 
   virtual void renderMesh(const MeshCommand &meshCommand) = 0;
   virtual void renderText(const UITextDrawCommand &textCommand) = 0;
+  
 
   virtual std::array<int, 2> getScreenSize() = 0;
 

@@ -273,6 +273,16 @@ void RenderSystem::onUpdate(World &world, float dt) {
 
       renderer->submitSprite(spriteData, model);
     }
+    if (world.hasComponent<GlobalTransform>(entity) &&
+        world.hasComponent<TextComponent>(entity)) {
+      auto &uiText = world.getComponent<TextComponent>(entity);
+      auto fontAsset = am.get<Font>(uiText.font);
+      const Mat4 &model =
+          world.getComponent<GlobalTransform>(entity).worldMatrix;
+
+      renderer->submitText(fontAsset.get(), uiText.text, Vec3(),
+                           uiText.fontSize, uiText.color, model);
+    }
   }
 
   renderer->endPass();
@@ -305,13 +315,14 @@ void RenderSystem::onUpdate(World &world, float dt) {
     const auto &rectPos = calculateAnchoredPosition(
         uiRect, uiCom.anchor, renderer->getScreenSize()[0],
         renderer->getScreenSize()[1]);
-    Mat4 model = Mat4::translate(Vec3(rectPos.x, rectPos.y, 0)) *
-                 Mat4::rotateZ(uiRect.rotation) *
-                 Mat4::scale(Vec3{uiRect.size.x, uiRect.size.y, 1.0f});
+    Mat4 modelWithoutScale = Mat4::translate(Vec3(rectPos.x, rectPos.y, 0)) *
+                             Mat4::rotateZ(uiRect.rotation);
 
     if (world.hasComponent<UIImageComponent>(entity)) {
       const auto &uiImage = world.getComponent<UIImageComponent>(entity);
       auto texAsset = am.get<Texture>(uiImage.texture);
+      Mat4 model = modelWithoutScale *
+                   Mat4::scale(Vec3{uiRect.size.x, uiRect.size.y, 1.0f});
 
       renderer::SpriteData spriteData;
       spriteData.texture = texAsset.get();
@@ -327,9 +338,13 @@ void RenderSystem::onUpdate(World &world, float dt) {
     if (world.hasComponent<UITextComponent>(entity)) {
       auto &uiText = world.getComponent<UITextComponent>(entity);
       auto fontAsset = am.get<Font>(uiText.font);
+      float scale = fontAsset->ptsize * uiText.fontSize;
+
+      Mat4 scaleMat = Mat4::scale(Vec3(scale, -scale, 1.0f));
+      Mat4 finalMat = modelWithoutScale * scaleMat;
 
       renderer->submitText(fontAsset.get(), uiText.text, uiRect.position,
-                           uiText.fontSize, uiText.color);
+                           uiText.fontSize, uiText.color, finalMat);
     }
   }
 

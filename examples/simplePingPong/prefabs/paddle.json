@@ -35,7 +35,7 @@
           "z": 32.0
         },
         "type": "Box",
-        "uuid": "9cfdf1f6-414b-4d14-b799-ddd3f33fd298"
+        "uuid": "e85587f2-4821-4066-b0a3-eb704e925ccc"
       }
     ],
     "textures": []
@@ -76,7 +76,7 @@
     },
     "MeshComponent": {
       "mesh": "",
-      "meshUUID": "9cfdf1f6-414b-4d14-b799-ddd3f33fd298",
+      "meshUUID": "e85587f2-4821-4066-b0a3-eb704e925ccc",
       "name": null,
       "size": {
         "x": 2.0,
@@ -96,7 +96,7 @@
       "tags": [
         "Paddle"
       ],
-      "uuid": "7ee22c9c-82f8-4699-82ba-c3f1265599e0"
+      "uuid": "e04224d1-0b5e-4386-95eb-16a2826e161c"
     },
     "ScriptComponent": {
       "scripts": [
@@ -121,5 +121,5 @@
       }
     }
   },
-  "id": 2
+  "id": 3
 }

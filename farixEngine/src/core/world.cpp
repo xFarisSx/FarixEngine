@@ -212,6 +212,7 @@ void World::registerDefaults() {
   registerComponent<RectComponent>();
   registerComponent<UIImageComponent>();
   registerComponent<UITextComponent>();
+    registerComponent<TextComponent>();
   registerComponent<UIButtonComponent>();
 }
 

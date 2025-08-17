@@ -8,6 +8,12 @@ Farix Engine uses JSON-based scene files to define and load collections of entit
 {
   "name": "sceneName",
   "activeCamera": <entityId>,
+  "assets": {
+  "meshes":[],
+  "textures":[],
+  "fonts":[],
+  "materials":[]
+  },
   "entities": [ /* array of serialized entities */ ],
   "systems": [ /* list of system names to activate */ ]
 }

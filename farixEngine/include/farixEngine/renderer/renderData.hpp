@@ -17,6 +17,7 @@
 #include "farixEngine/renderer/opengl/EBO.hpp"
 #include "farixEngine/renderer/opengl/VAO.hpp"
 #include "farixEngine/renderer/opengl/VBO.hpp"
+#include "farixEngine/renderer/opengl/texture.hpp"
 
 namespace farixEngine::renderer {
 struct RenderContext {
@@ -46,7 +47,7 @@ struct MaterialData {
   bool doubleSided = true;
   Vec2 uvMin = Vec2(0.0f, 0.0f);
   Vec2 uvMax = Vec2(1.0f, 1.0f);
-  Texture *texture = nullptr;
+  farixEngine::Texture *texture = nullptr;
 };
 
 struct VertexData {
@@ -82,11 +83,7 @@ struct UITextDrawCommand {
   std::string uuid = "";
 };
 
-struct RenderPass {
-  RenderContext context;
-  std::vector<MeshCommand> meshCommands;
-  std::vector<UITextDrawCommand> textCommands;
-};
+
 
 struct ClippableVertex {
   Vec4 cposition;
@@ -102,7 +99,7 @@ struct ClippableVertex {
   }
 };
 struct SpriteData {
-  Texture *texture;
+  farixEngine::Texture *texture;
   Vec4 color = Vec4(1.0f);
   Vec3 size = Vec3(1.f, 1.f, 0);
   bool flipX = false;
@@ -118,6 +115,7 @@ struct GPUMesh {
   VBO vbo;
   EBO ebo;
   size_t indexCount;
+
 
   GPUMesh(MeshData &mesh) {
     vao.Bind();
@@ -136,10 +134,39 @@ struct GPUMesh {
 
     vao.Unbind();
     vbo.Unbind();
-    ebo.Unbind();
+    ebo.Unbind(); 
 
     indexCount = mesh.indices.size();
   }
+};
+
+struct GPUMaterialData{
+  std::string uuid = "";
+  Vec4 baseColor = Vec4(1.0f, 1.0f, 1.0f, 1.0f);
+  float ambient = 0.1f;
+  float diffuse = 0.9f;
+  float specular = 0.5f;
+  float shininess = 32.0f;
+  bool useTexture = false;
+  bool doubleSided = true;
+  Vec2 uvMin = Vec2(0.0f, 0.0f);
+  Vec2 uvMax = Vec2(1.0f, 1.0f); 
+  std::shared_ptr<renderer::Texture> texture = nullptr;
+
+} ;
+
+
+struct GPUMeshCommand{
+  std::shared_ptr<GPUMesh> gpuMesh;
+  GPUMaterialData gpuMatData;
+  Mat4 modelMatrix;
+};
+
+struct RenderPass {
+  RenderContext context;
+  std::vector<MeshCommand> meshCommands;
+  std::vector<UITextDrawCommand> textCommands;
+  std::vector<GPUMeshCommand> gpuMeshCommands;
 };
 
 } // namespace farixEngine::renderer

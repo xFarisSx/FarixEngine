@@ -92,7 +92,6 @@ public:
     if (ctx->controller->isKeyPressed(Key::D))
       transform->position.x += speed * dt;
 
-
     transform->position.x = std::clamp(transform->position.x, -4.5f, 4.5f);
   }
 };
@@ -116,7 +115,6 @@ public:
     if (ctx->controller->isKeyPressed(Key::Right))
       transform->position.x += speed * dt;
 
-
     transform->position.x = std::clamp(transform->position.x, -4.5f, 4.5f);
   }
 };
@@ -124,7 +122,7 @@ public:
 //// Example of user defined component and system
 struct BlinkComponent {
   float timer = 0.0f;
-  float interval = 0.2f; 
+  float interval = 0.2f;
   bool visible = true;
 };
 class BlinkSystem : public System {
@@ -167,7 +165,7 @@ public:
   }
 
   void onScored(ScoreEvent &event) {
- 
+
     if (event.byPlayer)
       playerScore++;
     else
@@ -176,11 +174,19 @@ public:
 
   void onUpdate(World &world, float dt) override {
 
-    // Update UITextComponent
-    for (auto &uiEntity : world.view<UITextComponent>()) {
-      auto &uiText = world.getComponent<UITextComponent>(uiEntity);
-      uiText.text = "Player: " + std::to_string(playerScore) +
+    // Update both UITextComponent and TextComponents
+    for (auto& uiEntity: world.getEntitiesByName("ScoreUI")){
+              if (world.hasComponent<UITextComponent>(uiEntity)) {
+        auto &uiText = world.getComponent<UITextComponent>(uiEntity);
+        uiText.text = "Player: " + std::to_string(playerScore) +
+                      "  Opponent: " + std::to_string(opponentScore);
+        continue;
+      }
+
+      auto &Text3D = world.getComponent<TextComponent>(uiEntity);
+      Text3D.text = "Player: " + std::to_string(playerScore) +
                     "  Opponent: " + std::to_string(opponentScore);
+
     }
   }
 };

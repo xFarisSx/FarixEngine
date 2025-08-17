@@ -31,7 +31,7 @@ public:
   void submitSprite(const SpriteData &sprite, const Mat4 &model) override;
 
   void submitText(Font *font, const std::string &str, Vec3 pos, float size,
-                  Vec4 color) override;
+                  Vec4 color,Mat4 model) override;
 
   void renderMesh(const MeshCommand &meshCommand) override;
   void renderText(const UITextDrawCommand &textCommand) override;

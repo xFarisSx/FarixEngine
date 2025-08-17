@@ -1,4 +1,4 @@
-// NOT USED ANYMORE || EXPERIMENTAL SOFTWARE RENDERER
+// NOT USED ANYMORE || OUTDATED || EXPERIMENTAL SOFTWARE RENDERER
 #include "farixEngine/renderer/software/softwareRenderer.hpp"
 #include "farixEngine/assets/mesh.hpp"
 #include "farixEngine/components/components.hpp"
@@ -66,7 +66,7 @@ void SoftwareRenderer::beginFrame() {
   passes.clear();
   activePass = nullptr;
   currentContext = nullptr;
-}
+} 
 
 void SoftwareRenderer::beginPass(RenderContext &renderContext) {
 
@@ -515,7 +515,7 @@ void SoftwareRenderer::submitSprite(const SpriteData &sprite,
 }
 
 void SoftwareRenderer::submitText(Font *font, const std::string &text, Vec3 pos,
-                                  float size, Vec4 color) {
+                                  float size, Vec4 color, Mat4 model) {
   if (!font || !font->sdlFont || text.empty())
     return;
 
