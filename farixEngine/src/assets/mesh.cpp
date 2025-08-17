@@ -135,8 +135,8 @@ std::shared_ptr<Mesh> Mesh::createBox(float width, float height, float depth, st
   return mesh;
 }
 
-std::shared_ptr<Mesh> Mesh::load(const std::string&filename){
-  return loadFromObj(filename);
+std::shared_ptr<Mesh> Mesh::load(const std::string&filename, const std::string  eid){
+  return loadFromObj(filename, eid);
 }
 
 std::shared_ptr<Mesh> Mesh::loadFromObj(const std::string &filename, std::string eid) {

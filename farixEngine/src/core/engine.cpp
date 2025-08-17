@@ -27,7 +27,7 @@ void Engine::init(int width, int height, const char *title) {
 
 void Engine::beginFrame(bool &running) {
   inputManager.pollEvents(running, controller);
- 
+
   // renderer->clear();
 }
 

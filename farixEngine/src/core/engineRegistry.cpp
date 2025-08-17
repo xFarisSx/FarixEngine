@@ -136,7 +136,7 @@ void EngineRegistry::registerDefaults() {
         auto &am = EngineServices::get().getAssetManager();
         auto meshP = am.get<Mesh>(comp.mesh);
         return {{"mesh", meshP ? meshP->path : ""},
-                {"uuid", meshP ? meshP->id : ""},
+                {"meshUUID", meshP ? meshP->id : ""},
                 {"name", meshP ? am.findNameById(meshP->id) : ""},
                 {"type", meshP ? meshP->type : "None"},
                 {"size", meshP ? meshP->size : Vec3(1)},
@@ -145,7 +145,7 @@ void EngineRegistry::registerDefaults() {
       [](World &world, Entity e, const json &j) {
         MeshComponent comp;
         std::string path = j.value("mesh", "");
-        std::string uuid = j.value("uuid", "");
+        std::string uuid = j.value("meshUUID", "");
 
         comp.mesh = uuid;
 

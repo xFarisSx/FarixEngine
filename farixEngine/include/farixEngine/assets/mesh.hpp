@@ -40,7 +40,7 @@ struct Mesh : public Asset {
                                             int lonSegments, std::string eid="");
   static std::shared_ptr<Mesh> createQuad(Vec3 size, std::string eid="");
   static std::shared_ptr<Mesh> loadFromObj(const std::string &filename, std::string eid="");
-  static std::shared_ptr<Mesh> load(const std::string&filename);
+  static std::shared_ptr<Mesh> load(const std::string&filename,  std::string eid="");
 };
 } // namespace farixEngine
 //

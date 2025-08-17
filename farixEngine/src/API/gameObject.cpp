@@ -18,36 +18,38 @@ GameObject::GameObject(GameWorld *gw, Entity existing)
 }
 
 Entity GameObject::getEntity() const { return entity; }
-void GameObject::setMeshFromFile(const std::string& path, std::string name) {
-    auto& am = EngineServices::get().getAssetManager();
+void GameObject::setMeshFromFile(const std::string &path, std::string name) {
+  auto &am = EngineServices::get().getAssetManager();
 
-    auto mesh = am.get<Mesh>(path);
-    if (!mesh) {
-        mesh = Mesh::loadFromObj(path);
-        am.add<Mesh>(mesh, name);
-    }
+  auto mesh = am.get<Mesh>(path);
+  if (!mesh) {
+    mesh = Mesh::loadFromObj(path);
+    am.add<Mesh>(mesh, name);
+  }
 
-    MeshComponent m;
-    m.mesh = mesh->id; 
-    addOrReplaceComponent<MeshComponent>(m);
+  MeshComponent m;
+  m.mesh = mesh->id;
+  addOrReplaceComponent<MeshComponent>(m);
 }
 
-void GameObject::setMeshByID(const std::string& id) {
-    auto& am = EngineServices::get().getAssetManager();
-    if (!am.has<Mesh>(id)) 
-        return; 
-    MeshComponent m;
-    m.mesh = id;
-    addOrReplaceComponent<MeshComponent>(m);
+void GameObject::setMeshByID(const std::string &id) {
+  auto &am = EngineServices::get().getAssetManager();
+  if (!am.has<Mesh>(id))
+    return;
+  MeshComponent m;
+  m.mesh = id;
+  addOrReplaceComponent<MeshComponent>(m);
 }
 
-void GameObject::setMesh(const std::shared_ptr<Mesh>& mesh, const std::string& name) {
-    auto& am = EngineServices::get().getAssetManager();
-    am.add<Mesh>(mesh,  name);
+void GameObject::setMesh(const std::shared_ptr<Mesh> &mesh,
+                         const std::string &name) {
+  auto &am = EngineServices::get().getAssetManager();
+  am.add<Mesh>(mesh, name);
 
-    MeshComponent m;
-    m.mesh = mesh->id;
-    addOrReplaceComponent<MeshComponent>(m);
+  MeshComponent m;
+  m.mesh = mesh->id;
+  addComponent<MeshComponent>(m);
+  // addOrReplaceComponent<MeshComponent>(m);
 }
 World *GameObject::world() const {
   assert(gameWorld && "GameObject::world() called on invalid GameObject");
@@ -58,7 +60,6 @@ bool GameObject::isValid() const { return world() && entity != 0; }
 void GameObject::setMaterial(const MaterialComponent &material) {
   if (!isValid())
     return;
-
 
   if (world()->hasComponent<MaterialComponent>(entity)) {
     world()->getComponent<MaterialComponent>(entity) = material;

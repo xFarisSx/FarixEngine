@@ -1,15 +1,44 @@
 {
   "assets": {
     "fonts": [],
-    "materials": [],
-    "meshes": [],
-    "textures": [
+    "materials": [
       {
-        "name": "Textcat",
-        "path": "assets/textures/textcat.bmp",
-        "uuid": "340f8764-67ec-477d-a21d-32996d9d9acb"
+        "ambient": 0.30000001192092896,
+        "baseColor": {
+          "w": 1.0,
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "diffuse": 0.800000011920929,
+        "doubleSided": true,
+        "name": "",
+        "shininess": 32.0,
+        "specular": 0.30000001192092896,
+        "texture": "",
+        "useTexture": false,
+        "uuid": "default-material"
       }
-    ]
+    ],
+    "meshes": [
+      {
+        "name": "",
+        "path": "",
+        "size": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "sphereData": {
+          "x": 0.20000000298023224,
+          "y": 8.0,
+          "z": 16.0
+        },
+        "type": "Sphere",
+        "uuid": "3c04a6b8-e60c-4d3d-97e6-c08c8c4e6a09"
+      }
+    ],
+    "textures": []
   },
   "components": {
     "BlinkComponent": {
@@ -45,33 +74,37 @@
         ]
       ]
     },
+    "MaterialComponent": {
+      "material": "default-material",
+      "materialOverrides": {},
+      "overrideParams": true
+    },
+    "MeshComponent": {
+      "mesh": "",
+      "meshUUID": "3c04a6b8-e60c-4d3d-97e6-c08c8c4e6a09",
+      "name": null,
+      "size": {
+        "x": 1.0,
+        "y": 1.0,
+        "z": 1.0
+      },
+      "sphereData": {
+        "x": 0.20000000298023224,
+        "y": 8.0,
+        "z": 16.0
+      },
+      "type": "Sphere"
+    },
     "Metadata": {
       "name": "Ball",
       "prefab": "",
       "tags": [],
-      "uuid": "f6f7c589-e1a4-4712-909d-db03a1702e5a"
+      "uuid": "a1040e41-c8a9-4a1f-a4c7-8fb0f2e8f2cc"
     },
     "ScriptComponent": {
       "scripts": [
         "BallScript"
       ]
-    },
-    "Sprite2DComponent": {
-      "color": {
-        "w": 1.0,
-        "x": 1.0,
-        "y": 1.0,
-        "z": 1.0
-      },
-      "flipX": false,
-      "flipY": false,
-      "size": {
-        "x": 0.4000000059604645,
-        "y": 0.4000000059604645,
-        "z": 0.0
-      },
-      "texture": "340f8764-67ec-477d-a21d-32996d9d9acb",
-      "useTexture": true
     },
     "TransformComponent": {
       "position": {

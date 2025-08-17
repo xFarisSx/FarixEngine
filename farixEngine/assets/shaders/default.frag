@@ -15,6 +15,7 @@ uniform vec3 camPos;
 uniform bool enableLight;
 
 uniform float matAmbient;   
+uniform float matDiffuse;   
 uniform float matSpecular;  
 uniform float matShininess;  
 vec4 pointLight()
@@ -48,27 +49,31 @@ vec4 pointLight()
 }
 
 
+
 vec4 directLight()
 {
     vec3 normal = normalize(Normal);
-    vec3 lightDirection = normalize(vec3(0.0f,0.0f,1.0f));
+    vec3 lightDir = normalize(vec3(0.0, 1.0, 1.0));
 
-    float diffuse = max(dot(normal, lightDirection), 0.0f);
+  
+    float diffuse = max(dot(normal, lightDir), 0.0);
 
-    vec3 viewDirection = normalize(camPos - crntPos);
-    vec3 reflectionDirection = reflect(-lightDirection, normal);
-
-    float specAmount = pow(max(dot(viewDirection, reflectionDirection), 0.0f), matShininess);
-    float specular = specAmount * matSpecular;
-
-    float ambient = matAmbient;
+    vec3 viewDir = normalize(camPos - crntPos);
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), matShininess);
+    
 
     vec4 baseColor = useTexture ? texture(tex0, texCoord) : objectColor;
+    
+    vec3 ambientTerm  = matAmbient * lightColor.rgb;
+    vec3 diffuseTerm  = diffuse * matDiffuse * baseColor.rgb * lightColor.rgb;
+    vec3 specularTerm = spec * matSpecular * lightColor.rgb;
 
-    vec3 finalColor = baseColor.rgb * lightColor.rgb * (diffuse + ambient + specular);
-
+    vec3 finalColor = ambientTerm + diffuseTerm + specularTerm;
+    
     return vec4(finalColor, 1.0);
 }
+
 
 
 vec4 spotLight()
@@ -105,7 +110,7 @@ void main()
 
 	
 if(enableLight){
-  FragColor = vec4(directLight().rgb, 1.0);
+  FragColor = directLight();
 
 
 } else{

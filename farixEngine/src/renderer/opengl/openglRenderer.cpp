@@ -179,6 +179,7 @@ void OpenGLRenderer::renderMesh(const MeshCommand &meshCommand) {
   defaultShaderProgram.setVec3("lightPos", currentContext->lightPos);
   defaultShaderProgram.setVec3("camPos", currentContext->cameraPosition);
   defaultShaderProgram.setFloat("matAmbient", meshCommand.matData.ambient);
+    defaultShaderProgram.setFloat("matDiffuse", meshCommand.matData.diffuse);
   defaultShaderProgram.setFloat("matSpecular", meshCommand.matData.specular);
   defaultShaderProgram.setFloat("matShininess", meshCommand.matData.shininess);
 

@@ -7,38 +7,38 @@
 void setupScene3D(GameWorld &gameWorld) {
   auto &am = EngineServices::get().getAssetManager();
   // Ball
-  auto &ball = gameWorld.createGameObject();
-  ball.setName("Ball");
-  ball.setMesh(Mesh::createSphere(0.2f, 8, 16));
-  ball.setMaterial(MaterialComponent{});
-  ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
-  ball.addScript(std::make_shared<BallScript>());
-  ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
-  // auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
+  // auto &ball = gameWorld.createGameObject();
+  // ball.setName("Ball");
+  // ball.setMesh(Mesh::createSphere(0.2f, 8, 16));
+  // ball.setMaterial(MaterialComponent{});
+  // ball.getComponent<TransformComponent>().position = Vec3(0, 0, 0);
+  // ball.addScript(std::make_shared<BallScript>());
+  // ball.addComponent<BlinkComponent>({0.0f, 0.5f, true});
+  auto &ball = Prefab::instantiate(gameWorld, "prefabs/ball.json");
 
   // Player Paddle
-  auto &paddle1 = gameWorld.createGameObject();
-  paddle1.setName("Player");
-  paddle1.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
-  paddle1.setMaterial(MaterialComponent{});
-  paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
-  paddle1.addTag("Paddle");
-  paddle1.addScript(std::make_shared<PlayerPaddleScript>());
-  // auto &paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  // auto &paddle1 = gameWorld.createGameObject();
+  // paddle1.setName("Player");
+  // paddle1.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
+  // paddle1.setMaterial(MaterialComponent{});
+  // paddle1.getComponent<TransformComponent>().position = Vec3(0, 5, 0);
+  // paddle1.addTag("Paddle");
+  // paddle1.addScript(std::make_shared<PlayerPaddleScript>());
+  auto &paddle1 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
 
   // Opponent Paddle
-  auto &paddle2 = gameWorld.createGameObject();
-  paddle2.setName("Opponent");
-  paddle2.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
-  paddle2.setMaterial(MaterialComponent{});
-  paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
-  paddle2.addTag("Paddle");
-  paddle2.addScript(std::make_shared<OpponentPaddleScript>());
-  // auto &paddle2 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  // auto &paddle2 = gameWorld.createGameObject();
   // paddle2.setName("Opponent");
-  // paddle2.removeScriptByName("PlayerPaddleScript");
-  // paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+  // paddle2.setMesh(Mesh::createBox(2.0f, 0.2f, 0.5f));
+  // paddle2.setMaterial(MaterialComponent{});
   // paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
+  // paddle2.addTag("Paddle");
+  // paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+  auto &paddle2 = Prefab::instantiate(gameWorld, "prefabs/paddle.json");
+  paddle2.setName("Opponent");
+  paddle2.removeScriptByName("PlayerPaddleScript");
+  paddle2.addScript(std::make_shared<OpponentPaddleScript>());
+  paddle2.getComponent<TransformComponent>().position = Vec3(0, -5, 0);
 
   // Camera
   auto &camera = gameWorld.createGameObject();
@@ -189,11 +189,11 @@ void Game::onStart() {
 
   registerAndAddWorldSpecificStuff(scene.gameWorld());
 
-  // setupScene3D(*sceneManager.currentGameWorld());
-  setupScene2D(*sceneManager.currentGameWorld());
-  auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
-  setupUI(*sceneManager.currentGameWorld(), font);
-
+  setupScene3D(*sceneManager.currentGameWorld());
+  // setupScene2D(*sceneManager.currentGameWorld());
+  // auto font = am.load<Font>("Default", "assets/fonts/font.ttf", 32);
+  // setupUI(*sceneManager.currentGameWorld(), font);
+  //
   sceneManager.saveCurrentScene("scenes/");
 }
 
